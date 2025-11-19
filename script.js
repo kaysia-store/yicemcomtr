@@ -2,6 +2,7 @@
 
 // Ürün ID -> kesin resim yolu (embedded - artık dış dosya yok)
 const PRODUCT_IMAGE_MAP = {
+	's1': './pic/Salata/diyet-tavuk-salata.jpg',
     's3': './pic/Salata/sezar.jpg',
     'b5': './pic/Bistro/tavuk-wrap.jpg',
     'pa7': './pic/Makarnalar/turkusulu.jpg',
@@ -523,10 +524,7 @@ class RestaurantApp {
 
     // Get local image based on product ID/name and available files
     getLocalImage(categoryFolder, productId, productName) {
-        // 1) Explicit ID map
-        if (typeof PRODUCT_IMAGE_MAP !== 'undefined' && PRODUCT_IMAGE_MAP[productId]) {
-            return PRODUCT_IMAGE_MAP[productId];
-        }
+        
 
         const folder = this.resolvePicFolder(categoryFolder);
         const key = String(categoryFolder || '').toLowerCase();
