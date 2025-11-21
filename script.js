@@ -87,7 +87,7 @@ const PRODUCT_IMAGE_MAP = {
     'pa6': './pic/Makarnalar/ton-balikli.jpg',
     'b2': './pic/Tavuk-Doner/tavuk-doner-beyti.jpg',
     'b4': './pic/Bistro/viyana.jpg',
-    'b12': './pic/Tavuk-Doner/tavuk-doner-beyti.jpg',
+    'b12': './pic/Bistro/tavukmenu.jpg',
     'b13': './pic/Bistro/Tavuk Menü Diyet.jpg'
 };
 
