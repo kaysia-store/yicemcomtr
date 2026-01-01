@@ -917,7 +917,12 @@ class RestaurantApp {
 		// Path'i kontrol et - hem './all.json' hem de 'all.json' dene
 		const jsonPath = './all.json';
 		console.log('Fetching from:', jsonPath);
-		fetch(jsonPath)
+		fetch(jsonPath, {
+			cache: 'no-cache', // Her zaman güncel veriyi al
+			headers: {
+				'Cache-Control': 'no-cache'
+			}
+		})
 			.then(response => {
 				console.log('Response status:', response.status);
 				if (!response.ok) {
