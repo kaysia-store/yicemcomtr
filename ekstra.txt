@@ -1,0 +1,263 @@
+# EKSTRA FİYATLAR
+# Format: ÜRÜN_ID | EKSTRA_TİPİ | EKSTRA_ID | EKSTRA_ADI | FİYAT
+# EKSTRA_TİPİ: option, mainProduct, sideProduct, menuOption, potatoOption, drinkOption
+# Fiyatı değiştirmek için sadece sayıyı değiştirin
+
+p1 | option | o1 | Small (1 Kişilik) | 0
+p1 | option | o2 | Medium (1-2 Kişilik) | 70
+p1 | option | o3 | Large (2-3 Kişilik) | 140
+p1 | option | o4 | XLarge (3-4 Kişilik) | 210
+p2 | option | o5 | Small (1 Kişilik) | 0
+p2 | option | o6 | Medium (1-2 Kişilik) | 70
+p2 | option | o7 | Large (2-3 Kişilik) | 140
+p2 | option | o8 | XLarge (3-4 Kişilik) | 210
+p3 | option | o9 | Small (1 Kişilik) | 0
+p3 | option | o10 | Medium (1-2 Kişilik) | 70
+p3 | option | o11 | Large (2-3 Kişilik) | 140
+p3 | option | o12 | XLarge (3-4 Kişilik) | 210
+p4 | option | o13 | Small (1 Kişilik) | 0
+p4 | option | o14 | Medium (1-2 Kişilik) | 70
+p4 | option | o15 | Large (2-3 Kişilik) | 140
+p4 | option | o16 | XLarge (3-4 Kişilik) | 210
+p5 | option | o17 | Small (1 Kişilik) | 0
+p5 | option | o18 | Medium (1-2 Kişilik) | 70
+p5 | option | o19 | Large (2-3 Kişilik) | 140
+p5 | option | o20 | XLarge (3-4 Kişilik) | 210
+p6 | option | o21 | Small (1 Kişilik) | 0
+p6 | option | o22 | Medium (1-2 Kişilik) | 70
+p6 | option | o23 | Large (2-3 Kişilik) | 140
+p6 | option | o24 | XLarge (3-4 Kişilik) | 210
+p7 | option | o25 | Small (1 Kişilik) | 0
+p7 | option | o26 | Medium (1-2 Kişilik) | 70
+p7 | option | o27 | Large (2-3 Kişilik) | 140
+p7 | option | o28 | XLarge (3-4 Kişilik) | 210
+p8 | option | o29 | Small (1 Kişilik) | 0
+p8 | option | o30 | Medium (1-2 Kişilik) | 70
+p8 | option | o31 | Large (2-3 Kişilik) | 140
+p8 | option | o32 | XLarge (3-4 Kişilik) | 210
+p9 | option | o33 | Small (1 Kişilik) | 0
+p9 | option | o34 | Medium (1-2 Kişilik) | 70
+p9 | option | o35 | Large (2-3 Kişilik) | 140
+p9 | option | o36 | XLarge (3-4 Kişilik) | 210
+p10 | option | o37 | Small (1 Kişilik) | 0
+p10 | option | o38 | Medium (1-2 Kişilik) | 70
+p10 | option | o39 | Large (2-3 Kişilik) | 140
+p10 | option | o40 | XLarge (3-4 Kişilik) | 210
+p11 | option | o41 | Small (1 Kişilik) | 0
+p11 | option | o42 | Medium (1-2 Kişilik) | 70
+p11 | option | o43 | Large (2-3 Kişilik) | 140
+p11 | option | o44 | XLarge (3-4 Kişilik) | 210
+p12 | option | o45 | Small (1 Kişilik) | 0
+p12 | option | o46 | Medium (1-2 Kişilik) | 70
+p12 | option | o47 | Large (2-3 Kişilik) | 140
+p12 | option | o48 | XLarge (3-4 Kişilik) | 210
+p13 | option | o49 | Small (1 Kişilik) | 0
+p13 | option | o50 | Medium (1-2 Kişilik) | 70
+p13 | option | o51 | Large (2-3 Kişilik) | 140
+p13 | option | o52 | XLarge (3-4 Kişilik) | 210
+t1 | option | t1_o1 | Sade Tost | 0
+t1 | option | t1_o2 | Menü (Cips + İçecek) | 80
+t2 | option | t2_o1 | Sade Tost | 0
+t2 | option | t2_o2 | Menü (Cips + İçecek) | 80
+t3 | option | t3_o1 | Sade Tost | 0
+t3 | option | t3_o2 | Menü (Cips + İçecek) | 80
+t4 | option | t4_o1 | Sade Tost | 0
+t4 | option | t4_o2 | Menü (Cips + İçecek) | 80
+t5 | option | t5_o1 | Sade Tost | 0
+t5 | option | t5_o2 | Menü (Cips + İçecek) | 80
+t6 | option | t6_o1 | Sade Tost | 0
+t6 | option | t6_o2 | Menü (Cips + İçecek) | 80
+t7 | option | t7_o1 | Sade Tost | 0
+t7 | option | t7_o2 | Menü (Cips + İçecek) | 80
+t8 | option | t8_o1 | Sade Tost | 0
+t8 | option | t8_o2 | Menü (Cips + İçecek) | 80
+t9 | option | t9_o1 | Sade Tost | 0
+t9 | option | t9_o2 | Menü (Cips + İçecek) | 80
+t10 | option | t10_o1 | Sade Tost | 0
+t10 | option | t10_o2 | Menü (Cips + İçecek) | 80
+t11 | option | t11_o1 | Sade Tost | 0
+t11 | option | t11_o2 | Menü (Cips + İçecek) | 80
+t12 | option | t12_o1 | Sade Tost | 0
+t12 | option | t12_o2 | Menü (Cips + İçecek) | 80
+t13 | option | t13_o1 | Sade Tost | 0
+t13 | option | t13_o2 | Menü (Cips + İçecek) | 80
+t14 | option | t14_o1 | Sade Tost | 0
+t14 | option | t14_o2 | Menü (Cips + İçecek) | 80
+s1 | option | s1_o1 | Menü (Cips + İçecek) | 80
+s1 | mainProduct | main1 | Ton Balığı | 0
+s1 | mainProduct | main2 | Beyaz Peynir | 0
+s1 | mainProduct | main3 | Ezine | 0
+s1 | mainProduct | main4 | Salam | 0
+s1 | mainProduct | main5 | Jambon | 0
+s1 | sideProduct | side1 | Siyah Zeytin | 0
+s1 | sideProduct | side2 | Mısır | 0
+s1 | sideProduct | side3 | Domates | 0
+s1 | sideProduct | side4 | Turşu | 0
+s1 | sideProduct | side5 | Jalepeno Biber | 0
+s1 | sideProduct | side6 | Yeşil Biber | 0
+s1 | sideProduct | side7 | Rus Salatası | 0
+cd1 | option | cd1_o1 | Dürüm | 0
+cd1 | option | cd1_o2 | Gobit Ekmeği | 0
+cd1 | option | cd1_o3 | Taş Fırın Ekmeği | 0
+cd1 | option | cd1_o4 | Ayvalık Tost Ekmeği | 0
+cd1 | menuOption | menu1 | Menü (Cips + Ayran) | 60
+cd1 | menuOption | kola1 | Kutu Kola Farkı | 20
+cd9 | option | cd9_o1 | Dürüm | 0
+cd9 | option | cd9_o2 | Gobit Ekmeği | 0
+cd9 | option | cd9_o3 | Taş Fırın Ekmeği | 0
+cd9 | option | cd9_o4 | Ayvalık Tost Ekmeği | 0
+cd9 | menuOption | menu1 | Menü (Cips + Ayran) | 60
+cd9 | menuOption | kola1 | Kutu Kola Farkı | 20
+cd2 | option | cd2_o1 | Ayran Menü (Cips + Ayran) | 60
+cd2 | option | cd2_o2 | Kola Menü (Cips + Kola) | 80
+cd3 | option | cd3_o1 | Ayran Menü (Cips + Ayran) | 60
+cd3 | option | cd3_o2 | Kola Menü (Cips + Kola) | 80
+cd4 | option | cd4_o1 | Ayran Menü (Cips + Ayran) | 60
+cd4 | option | cd4_o2 | Kola Menü (Cips + Kola) | 80
+cd5 | option | cd5_o1 | Ayran Menü (Cips + Ayran) | 60
+cd5 | option | cd5_o2 | Kola Menü (Cips + Kola) | 80
+cd6 | option | cd6_o1 | Ayran Menü (Cips + Ayran) | 60
+cd6 | option | cd6_o2 | Kola Menü (Cips + Kola) | 80
+bd1 | option | bd1_o1 | Dürüm | 0
+bd1 | option | bd1_o2 | Gobit Ekmeği | 0
+bd1 | option | bd1_o3 | Taş Fırın Ekmeği | 0
+bd1 | option | bd1_o4 | Ayvalık Tost Ekmeği | 0
+bd1 | menuOption | bd1_menu1 | Cips + Ayran Menü | 60
+bd1 | menuOption | bd1_menu2 | Cips + Kola Menü | 80
+bd1 | menuOption | bd1_patates1 | Patates İlave | 10
+bd1 | menuOption | bd1_patates2 | Menü Patatesi | 30
+bd2 | option | bd2_o1 | Dürüm | 0
+bd2 | option | bd2_o2 | Gobit Ekmeği | 0
+bd2 | option | bd2_o3 | Taş Fırın Ekmeği | 0
+bd2 | option | bd2_o4 | Ayvalık Tost Ekmeği | 0
+bd2 | menuOption | bd2_menu1 | Cips + Ayran Menü | 60
+bd2 | menuOption | bd2_menu2 | Cips + Kola Menü | 80
+bd2 | menuOption | bd2_patates1 | Patates İlave | 10
+bd2 | menuOption | bd2_patates2 | Menü Patatesi | 30
+bd3 | option | bd3_o1 | Tek | 0
+bd3 | option | bd3_o2 | Menü (Cips + Ayran) | 60
+bd3 | option | bd3_o3 | Menü (Cips + Kola) | 80
+bd3 | potatoOption | bd3_patates1 | Patates (+10₺) | 10
+bd4 | option | bd4_o1 | Dürüm | 0
+bd4 | option | bd4_o2 | Gobit Ekmeği | 0
+bd4 | option | bd4_o3 | Taş Fırın Ekmeği | 0
+bd4 | option | bd4_o4 | Ayvalık Tost Ekmeği | 0
+bd4 | menuOption | bd4_menu1 | Cips + Ayran Menü | 60
+bd4 | menuOption | bd4_menu2 | Cips + Kola Menü | 80
+bd4 | menuOption | bd4_patates1 | Patates İlave | 10
+bd6 | option | bd6_o1 | Tek | 0
+bd6 | option | bd6_o2 | Menü (Cips + Ayran) | 60
+bd6 | option | bd6_o3 | Menü (Cips + Kola) | 80
+bd6 | potatoOption | bd6_patates1 | Patates (+10₺) | 10
+bd7 | option | bd7_o1 | Tek | 0
+bd7 | option | bd7_o2 | Menü (Cips + Ayran) | 60
+bd7 | option | bd7_o3 | Menü (Cips + Kola) | 80
+bd7 | potatoOption | bd7_patates1 | Patates (+10₺) | 10
+bd8 | option | bd8_o1 | Tek | 0
+bd8 | option | bd8_o2 | Menü (Cips + Ayran) | 60
+bd8 | option | bd8_o3 | Menü (Cips + Kola) | 80
+bd8 | potatoOption | bd8_patates1 | Patates (+10₺) | 10
+bd9 | option | bd9_o1 | Dürüm | 0
+bd9 | option | bd9_o2 | Gobit Ekmeği | 0
+bd9 | option | bd9_o3 | Taş Fırın Ekmeği | 0
+bd9 | option | bd9_o4 | Ayvalık Tost Ekmeği | 0
+bd9 | menuOption | bd9_menu1 | Cips + Ayran Menü | 60
+bd9 | menuOption | bd9_menu2 | Cips + Kola Menü | 80
+bd9 | menuOption | bd9_patates1 | Patates İlave | 10
+bd10 | option | bd10_o1 | Dürüm | 0
+bd10 | option | bd10_o2 | Gobit Ekmeği | 0
+bd10 | option | bd10_o3 | Taş Fırın Ekmeği | 0
+bd10 | option | bd10_o4 | Ayvalık Tost Ekmeği | 0
+bd10 | menuOption | bd10_menu1 | Cips + Ayran Menü | 60
+bd10 | menuOption | bd10_menu2 | Cips + Kola Menü | 80
+bd10 | menuOption | bd10_patates1 | Patates İlave | 10
+bd11 | potatoOption | bd11_patates1 | Patates (+10₺) | 10
+bd12 | potatoOption | bd12_patates1 | Patates (+10₺) | 10
+bd13 | potatoOption | bd13_patates1 | Patates (+10₺) | 10
+bd14 | potatoOption | bd14_patates1 | Patates (+10₺) | 10
+pa1 | option | pa1_o1 | Penne | 0
+pa1 | option | pa1_o2 | Spagetti | 0
+pa1 | option | pa1_o3 | Fettuccine | 0
+pa1 | drinkOption | pa1_drink1 | Ayran | 40
+pa1 | drinkOption | pa1_drink2 | Kutu İçecek | 60
+pa1 | drinkOption | pa1_drink3 | Litrelik İçecek | 90
+pa2 | option | pa2_o1 | Spagetti | 0
+pa2 | option | pa2_o2 | Penne | 0
+pa2 | option | pa2_o3 | Fettuccine | 0
+pa2 | drinkOption | pa2_drink1 | Ayran | 40
+pa2 | drinkOption | pa2_drink2 | Kutu İçecek | 60
+pa2 | drinkOption | pa2_drink3 | Litrelik İçecek | 90
+pa3 | option | pa3_o1 | Penne | 0
+pa3 | option | pa3_o2 | Spagetti | 0
+pa3 | option | pa3_o3 | Fettuccine | 0
+pa3 | drinkOption | pa3_drink1 | Ayran | 40
+pa3 | drinkOption | pa3_drink2 | Kutu İçecek | 60
+pa3 | drinkOption | pa3_drink3 | Litrelik İçecek | 90
+pa4 | option | pa4_o1 | Penne | 0
+pa4 | option | pa4_o2 | Spagetti | 0
+pa4 | option | pa4_o3 | Fettuccine | 0
+pa4 | drinkOption | pa4_drink1 | Ayran | 40
+pa4 | drinkOption | pa4_drink2 | Kutu İçecek | 60
+pa4 | drinkOption | pa4_drink3 | Litrelik İçecek | 90
+pa5 | option | pa5_o1 | Penne | 0
+pa5 | option | pa5_o2 | Spagetti | 0
+pa5 | option | pa5_o3 | Fettuccine | 0
+pa5 | drinkOption | pa5_drink1 | Ayran | 40
+pa5 | drinkOption | pa5_drink2 | Kutu İçecek | 60
+pa5 | drinkOption | pa5_drink3 | Litrelik İçecek | 90
+pa6 | option | pa6_o1 | Penne | 0
+pa6 | option | pa6_o2 | Spagetti | 0
+pa6 | option | pa6_o3 | Fettuccine | 0
+pa6 | drinkOption | pa6_drink1 | Ayran | 40
+pa6 | drinkOption | pa6_drink2 | Kutu İçecek | 60
+pa6 | drinkOption | pa6_drink3 | Litrelik İçecek | 90
+pa7 | option | pa7_o1 | Penne | 0
+pa7 | option | pa7_o2 | Spagetti | 0
+pa7 | option | pa7_o3 | Fettuccine | 0
+pa7 | drinkOption | pa7_drink1 | Ayran | 40
+pa7 | drinkOption | pa7_drink2 | Kutu İçecek | 60
+pa7 | drinkOption | pa7_drink3 | Litrelik İçecek | 90
+ma1 | option | ma1_o1 | Sade Yoğurt | 0
+ma1 | option | ma1_o2 | Sarımsaklı Yoğurt | 0
+ma1 | drinkOption | ma1_drink1 | Ayran | 40
+ma1 | drinkOption | ma1_drink2 | Kutu İçecek | 60
+ma1 | drinkOption | ma1_drink3 | Litrelik İçecek | 90
+h1 | option | h1_o1 | Sade Hamburger | 0
+h1 | option | h1_o2 | Menü (Cips + Kola) | 80
+h2 | option | h2_o1 | Sade Cheeseburger | 0
+h2 | option | h2_o2 | Menü (Cips + Kola) | 80
+h3 | option | h3_o1 | Sade Tavuk Burger | 0
+h3 | option | h3_o2 | Menü (Cips + Kola) | 80
+k1 | option | k1_o1 | Sade Köfte | 0
+k1 | option | k1_o2 | Menü (Cips + Kola) | 80
+k2 | option | k2_o1 | Sade Ekmek Arası | 0
+k2 | option | k2_o2 | Menü (Cips + Kola) | 80
+k3 | option | k3_o1 | Sade Kaşarlı Köfte | 0
+k3 | option | k3_o2 | Menü (Cips + Kola) | 80
+a3 | option | a3_o1 | Elma Dilim Patates | 0
+a3 | option | a3_o2 | Parmak Patates | 0
+b1 | drinkOption | b1_drink1 | Kutu İçecek | 60
+b2 | drinkOption | b2_drink1 | Kutu İçecek | 60
+b3 | drinkOption | b3_drink1 | Kutu İçecek | 60
+b4 | drinkOption | b4_drink1 | Kutu İçecek | 60
+b5 | drinkOption | b5_drink1 | Kutu İçecek | 60
+b6 | drinkOption | b6_drink1 | Kutu İçecek | 60
+b7 | drinkOption | b7_drink1 | Kutu İçecek | 60
+b8 | drinkOption | b8_drink1 | Kutu İçecek | 60
+b10 | drinkOption | b10_drink1 | Kutu İçecek | 60
+b11 | drinkOption | b11_drink1 | Kutu İçecek | 60
+b12 | drinkOption | b12_drink1 | Kutu İçecek | 60
+b13 | drinkOption | b13_drink1 | Kutu İçecek | 60
+d2 | option | d2_o1 | Coca Cola | 0
+d2 | option | d2_o2 | Coca Cola Zero | 0
+d3 | option | d3_o1 | Pepsi | 0
+d3 | option | d3_o2 | Pepsi Max | 0
+d5 | option | d5_o1 | Sprite | 0
+d5 | option | d5_o2 | 7UP | 0
+d6 | option | d6_o1 | Şeftali | 0
+d6 | option | d6_o2 | Limon | 0
+d7 | option | d7_o1 | Coca Cola | 0
+d7 | option | d7_o2 | Pepsi | 0
+d7 | option | d7_o3 | Fanta | 0
+d11 | option | d11_o1 | Normal | 0
+d11 | option | d11_o2 | Acılı | 0

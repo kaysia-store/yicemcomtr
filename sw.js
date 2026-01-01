@@ -24,6 +24,12 @@ self.addEventListener('install', event => {
 
 // Fetch event
 self.addEventListener('fetch', event => {
+  // all.json dosyasını cache'leme - her zaman güncel veriyi al
+  if (event.request.url.includes('all.json')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {

@@ -1,0 +1,129 @@
+# ANA ÜRÜN FİYATLARI
+# Format: ÜRÜN_ID | ÜRÜN_ADI (TR) | FİYAT
+# Fiyatı değiştirmek için sadece sayıyı değiştirin
+# Örnek: p1 | Margarita Yicem | 220
+
+
+# === Pizzalar (pizza) ===
+p1 | Margarita Yicem | 220
+p2 | Mix Yicem | 290
+p3 | Kavurmalı Yicem | 360
+p4 | Tavuklu Yicem | 290
+p5 | Dönerli Yicem | 360
+p6 | Tonno Yicem | 310
+p7 | Sosisli Yicem | 290
+p8 | Sucuklu Yicem | 290
+p9 | Diavola Yicem | 290
+p10 | Klasik Vejeteryan | 290
+p11 | 4 Peynirli Yicem | 360
+p12 | Ispanak + Tulum Yicem | 300
+p13 | Brokoli Peynir Yicem | 300
+
+# === Ayvalık Tostu (toast) ===
+t1 | Yicem Yengen | 200
+t2 | Yicem Karışık | 200
+t3 | Yicem Mega Karışık | 220
+t4 | Yicem Süper Karışık | 260
+t5 | Yicem Kavurma Kaşarlı | 260
+t6 | Yicem Dönerli | 370
+t7 | Yicem Sucuk Kaşarlı | 150
+t8 | Yicem Schnitzel | 150
+t9 | Yicem Salam Kaşarlı | 150
+t10 | Yicem Jambon Kaşarlı | 150
+t11 | Yicem Tulum veya Ezine Peynir | 180
+t12 | Yicem Ev Köfteli | 250
+t13 | Yicem Sanayi Tostu | 150
+t14 | Yicem Kaşar veya Beyaz Peynir | 120
+
+# === Soğuk Sandviç (sandwich) ===
+s1 | Yicem Soğuk Sandviç | 250
+
+# === Tavuk Döner (chicken-doner) ===
+cd1 | Tavuk Döner | 200
+cd9 | Tavuk Döner (70 Gr) | 160
+cd2 | Kaşarlı Tavuk Dürüm | 220
+cd3 | Tavuk İskender | 270
+cd4 | Tavuk Döner Beyti | 300
+cd5 | Tavuk Döner Porsiyon | 220
+cd6 | Pilavüstü Tavuk Döner | 270
+cd7 | 3 Adet Tavuk Döner | 750
+cd8 | 5 Adet Tavuk Döner | 1250
+
+# === Et Döner (beef-doner) ===
+bd1 | Et Döner (70gr) | 250
+bd2 | Et Döner (100gr) | 350
+bd3 | Porsiyon Et Döner | 370
+bd4 | Soslu Et Döner Porsiyon | 370
+bd6 | Pilavüstü Et Döner | 400
+bd7 | Soslu Kaşarlı Et Dürüm (70gr) | 270
+bd8 | Soslu Kaşarlı Et Dürüm (100gr) | 370
+bd9 | Ayvalık Et Döner (70gr) | 250
+bd10 | Ayvalık Kaşarlı Et Döner (70gr) | 270
+bd11 | 3 Adet Et Döner (70gr) | 900
+bd12 | 3 Adet Et Döner (100gr) | 1200
+bd13 | 5 Adet Et Döner (70gr) | 1500
+bd14 | 5 Adet Et Döner (100gr) | 2000
+
+# === Makarnalar (pasta) ===
+pa1 | Alfredo | 300
+pa2 | Napoliten | 250
+pa3 | Bolonez | 330
+pa4 | Pesto | 250
+pa5 | Arabiata | 250
+pa6 | Ton Balıklı | 300
+pa7 | Türk Usulü 4 Peynirli | 330
+
+# === Mantı (manti) ===
+ma1 | Ev Yapımı Mantı | 300
+
+# === Hamburger (hamburger) ===
+h1 | Hamburger | 300
+h2 | Cheeseburger | 330
+h3 | Tavuk Burger | 200
+
+# === Köfte Spesiyel (kofte) ===
+k1 | Şefin Izgara Köftesi | 350
+k2 | Ekmek Arası Köfte | 250
+k3 | Ekmek Arası Kaşarlı Köfte | 280
+
+# === Aperatifler (aperatifler) ===
+a1 | Elma Dilim Patates | 150
+a2 | Parmak Patates | 150
+a3 | Çıtır Tavuk Tabağı | 250
+
+# === Bistro (bistro) ===
+b1 | Chicken Stroganoff | 350
+b2 | Tavuk Quesadilla | 350
+b3 | Kaşarlı Mantarlı Quesadilla | 270
+b4 | Viyana Piliç Şinitzel | 350
+b5 | Tavuk Wrap | 350
+b6 | Dağ Kekikli Kremalı Tavuk | 350
+b7 | Mantarlı Köri Soslu Tavuk | 350
+b8 | Cafe de Paris Soslu Tavuk | 350
+b10 | Tatlı Acı Soslu Tavuk | 350
+b11 | Mexicano Soslu Tavuk | 350
+b12 | Tavuk Menü | 350
+b13 | Tavuk Menü Diyet | 350
+
+# === Salata (salad) ===
+s1 | Diyet Tavuk Salata | 250
+s2 | Bahar Salata | 250
+s3 | Sezar Salata | 250
+s4 | Çıtır Tavuk Salata | 250
+s5 | Hellim Salata | 300
+s6 | Tonno Salata | 300
+
+# === İçecekler (drinks) ===
+d1 | RedBull | 100
+d2 | Coca Cola | 60
+d3 | Pepsi | 60
+d4 | Fanta | 60
+d5 | Sprite | 60
+d6 | Ice Tea | 60
+d7 | Litrelik İçecek | 90
+d8 | Sütaş Ayran | 40
+d9 | Su | 20
+d10 | Soda | 30
+d11 | Şalgam | 40
+d12 | Çay | 20
+d13 | Türk Kahvesi | 70
