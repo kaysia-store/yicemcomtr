@@ -1610,7 +1610,7 @@
             "fr": "Yicem Yengen",
             "ar": "يجم ينغن"
           },
-          "price": 170,
+          "price": 200,
           "description": {
             "tr": "Sosis, Sucuk, Kaşar, Turşu, Ketçap, Mayonez",
             "en": "Sausage, Sucuk, Cheddar, Pickles, Ketchup, Mayonnaise",
@@ -1708,7 +1708,7 @@
             "fr": "Yicem Mélangé",
             "ar": "يجم مختلط"
           },
-          "price": 170,
+          "price": 200,
           "description": {
             "tr": "Kaşar, Sucuk, Salam, Sosis, Turşu, Domates, Rus Salatası, Ketçap, Mayonez",
             "en": "Cheddar, Sucuk, Salami, Sausage, Pickles, Tomatoes, Russian Salad, Ketchup, Mayonnaise",
@@ -1824,7 +1824,7 @@
             "fr": "Yicem Mega Mélangé",
             "ar": "يجم ميجا مختلط"
           },
-          "price": 190,
+          "price": 220,
           "description": {
             "tr": "Kaşar, Sucuk, Salam, Sosis, Jambon, Turşu, Domates, Rus Salatası, Ketçap, Mayonez",
             "en": "Cheddar, Sucuk, Salami, Sausage, Ham, Pickles, Tomatoes, Russian Salad, Ketchup, Mayonnaise",
@@ -1946,7 +1946,7 @@
             "fr": "Yicem Super Mélangé",
             "ar": "يجم سوبر مختلط"
           },
-          "price": 220,
+          "price": 260,
           "description": {
             "tr": "Çift Katlı Ekmek, Kaşar, Sucuk, Salam, Sosis, Turşu, Domates, Rus Salatası, Ketçap, Mayonez",
             "en": "Double Layer Bread, Cheddar, Sucuk, Salami, Sausage, Pickles, Tomatoes, Russian Salad, Ketchup, Mayonnaise",
@@ -2068,7 +2068,7 @@
             "fr": "Yicem Ragoût de Bœuf au Fromage",
             "ar": "يجم لحم مطبوخ بالجبن"
           },
-          "price": 210,
+          "price": 260,
           "description": {
             "tr": "Kaşar, Kavurma (70gr), Turşu, Domates",
             "en": "Cheddar, Beef Stew (70gr), Pickles, Tomatoes",
@@ -2154,7 +2154,7 @@
             "fr": "Yicem au Döner",
             "ar": "يجم بالدونر"
           },
-          "price": 300,
+          "price": 370,
           "description": {
             "tr": "Kaşar, Et Döner (100gr), Marul, Turşu, Domates (İsteğe Bağlı Ketçap Mayonez)",
             "en": "Cheddar, Beef Doner (100gr), Lettuce, Pickles, Tomatoes (Optional Ketchup Mayonnaise)",
@@ -2246,7 +2246,7 @@
             "fr": "Yicem Sucuk au Fromage",
             "ar": "يجم سوجق بالجبن"
           },
-          "price": 130,
+          "price": 150,
           "description": {
             "tr": "Kaşar, Sucuk, Turşu, Domates (İsteğe Bağlı Ketçap Mayonez)",
             "en": "Cheddar, Sucuk, Pickles, Tomatoes (Optional Ketchup Mayonnaise)",
@@ -2332,7 +2332,7 @@
             "fr": "Yicem Schnitzel",
             "ar": "Yicem Schnitzel"
           },
-          "price": 130,
+          "price": 150,
           "description": {
             "tr": "Schnitzel, Marul, Turşu, Domates (İsteğe Bağlı Ketçap Mayonez)",
             "en": "Schnitzel, Lettuce, Pickles, Tomatoes (Optional Ketchup Mayonnaise)",
@@ -2418,7 +2418,7 @@
             "fr": "Yicem Salami au Fromage",
             "ar": "يجم سلامي بالجبن"
           },
-          "price": 130,
+          "price": 150,
           "description": {
             "tr": "Salam, Kaşar, Turşu, Domates (İsteğe Bağlı Ketçap Mayonez)",
             "en": "Salami, Cheddar, Pickles, Tomatoes (Optional Ketchup Mayonnaise)",
@@ -2504,7 +2504,7 @@
             "fr": "Yicem Cheddar Ham",
             "ar": "Yicem Cheddar Ham"
           },
-          "price": 130,
+          "price": 150,
           "description": {
             "tr": "Kaşar, Jambon, Turşu, Domates (İsteğe Bağlı Ketçap Mayonez)",
             "en": "Cheddar, Ham, Pickles, Tomatoes (Optional Ketchup Mayonnaise)",
@@ -2590,7 +2590,7 @@
             "fr": "Yicem Tulum ou Fromage Ezine",
             "ar": "يجم تولوم أو جبن إزينه"
           },
-          "price": 150,
+          "price": 180,
           "description": {
             "tr": "İsteğe Bağlı; Tulum veya Ezine Peyniri, Siyah Zeytin, Ceviz, Domates, Yeşil Biber, Kekik",
             "en": "Optional; Cheddar or White Cheese, Black Olives, Walnuts, Tomatoes, Green Pepper, Thyme",
@@ -2688,7 +2688,7 @@
             "fr": "Yicem Homemade Meatball",
             "ar": "Yicem Homemade Meatball"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "Ev Köftesi (120gr), Marul, Turşu, Domates (İsteğe Bağlı Ketçap Mayonez Rus Salatası)",
             "en": "Homemade Meatball (120gr), Lettuce, Pickles, Tomatoes (Optional Ketchup Mayonnaise Russian Salad)",
@@ -2774,7 +2774,7 @@
             "fr": "Yicem Industrial Toast",
             "ar": "Yicem Industrial Toast"
           },
-          "price": 130,
+          "price": 150,
           "description": {
             "tr": "Taş Fırın Ekmeği, Sucuk, Kaşar, Salça",
             "en": "Stone Oven Bread, Sucuk, Cheddar, Tomato Paste",
@@ -2860,7 +2860,7 @@
             "fr": "Yicem Cheddar ou Fromage Blanc",
             "ar": "يجم شيدر أو جبن أبيض"
           },
-          "price": 100,
+          "price": 120,
           "description": {
             "tr": "Kaşar veya Beyaz Peynir, Turşu, Domates",
             "en": "Cheddar or White Cheese, Pickles, Tomatoes",
@@ -2953,7 +2953,7 @@
             "fr": "Yicem Cold Sandwich",
             "ar": "Yicem Cold Sandwich"
           },
-          "price": 220,
+          "price": 250,
           "description": {
             "tr": "2 Ana ürün + 4 Yan ürün seçenekleri ile",
             "en": "Choose 2 main products + 4 side products",
@@ -2962,7 +2962,7 @@
             "fr": "Choisissez 2 produits principaux + 4 accompagnements",
             "ar": "اختر منتجين رئيسيين + 4 منتجات جانبية"
           },
-          "image": "./pic/Salata/diyet-tavuk-salata.jpg",
+          "image": "./pic/Salata/soguk-sandvic.jpg",
           "contents": {
             "tr": [],
             "en": [],
@@ -2996,7 +2996,8 @@
                   "ru": "Тунец",
                   "fr": "Thon",
                   "ar": "تونة"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "main2",
@@ -3007,7 +3008,8 @@
                   "ru": "Белый сыр",
                   "fr": "Fromage Blanc",
                   "ar": "جبن أبيض"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "main3",
@@ -3018,7 +3020,8 @@
                   "ru": "Ezine Cheese",
                   "fr": "Ezine Cheese",
                   "ar": "Ezine Cheese"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "main4",
@@ -3029,7 +3032,8 @@
                   "ru": "Салами",
                   "fr": "Salami",
                   "ar": "سلامي"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "main5",
@@ -3040,7 +3044,8 @@
                   "ru": "Ветчина",
                   "fr": "Jambon",
                   "ar": "لحم خنزير"
-                }
+                },
+                "price": 0
               }
             ],
             "sideProducts": [
@@ -3053,7 +3058,8 @@
                   "ru": "Black Olives",
                   "fr": "Black Olives",
                   "ar": "Black Olives"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "side2",
@@ -3064,7 +3070,8 @@
                   "ru": "Кукуруза",
                   "fr": "Maïs",
                   "ar": "ذرة"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "side3",
@@ -3075,7 +3082,8 @@
                   "ru": "Помидоры",
                   "fr": "Tomates",
                   "ar": "طماطم"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "side4",
@@ -3086,7 +3094,8 @@
                   "ru": "Маринованные огурцы",
                   "fr": "Cornichons",
                   "ar": "مخلل"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "side5",
@@ -3097,7 +3106,8 @@
                   "ru": "Перец халапеньо",
                   "fr": "Poivron Jalapeño",
                   "ar": "فلفل هالبينو"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "side6",
@@ -3108,7 +3118,8 @@
                   "ru": "Green Pepper",
                   "fr": "Green Pepper",
                   "ar": "Green Pepper"
-                }
+                },
+                "price": 0
               },
               {
                 "id": "side7",
@@ -3119,7 +3130,8 @@
                   "ru": "Русский салат",
                   "fr": "Salade Russe",
                   "ar": "سلطة روسية"
-                }
+                },
+                "price": 0
               }
             ]
           }
@@ -3147,7 +3159,7 @@
             "fr": "Chicken Doner",
             "ar": "Chicken Doner"
           },
-          "price": 160,
+          "price": 200,
           "description": {
             "tr": "Tavuk Döner (100gr) - Ekmek seçeneği ile",
             "en": "Chicken Doner (100gr) - With bread option",
@@ -3275,6 +3287,143 @@
           }
         },
         {
+          "id": "cd9",
+          "name": {
+            "tr": "Tavuk Döner (70 Gr)",
+            "en": "Chicken Doner (70 Gr)",
+            "de": "Chicken Doner (70 Gr)",
+            "ru": "Chicken Doner (70 Gr)",
+            "fr": "Chicken Doner (70 Gr)",
+            "ar": "Chicken Doner (70 Gr)"
+          },
+          "price": 160,
+          "description": {
+            "tr": "Tavuk Döner (70gr) - Ekmek seçeneği ile",
+            "en": "Chicken Doner (70gr) - With bread option",
+            "de": "Chicken Doner (70gr) - With bread option",
+            "ru": "Chicken Doner (70gr) - With bread option",
+            "fr": "Chicken Doner (70gr) - With bread option",
+            "ar": "Chicken Doner (70gr) - With bread option"
+          },
+          "image": "./pic/Tavuk-Doner/tavuk-doner.jpg",
+          "contents": {
+            "tr": [
+              "Tavuk Döner (70gr)",
+              "Marul",
+              "Domates",
+              "Turşu"
+            ],
+            "en": [
+              "Chicken Doner (70gr)",
+              "Lettuce",
+              "Tomatoes",
+              "Pickles"
+            ],
+            "de": [
+              "Chicken Doner (70g)",
+              "Lettuce",
+              "Tomaten",
+              "Essiggurken"
+            ],
+            "ru": [
+              "Chicken Doner (70gr)",
+              "Lettuce",
+              "Помидоры",
+              "Маринованные огурцы"
+            ],
+            "fr": [
+              "Chicken Doner (70g)",
+              "Lettuce",
+              "Tomates",
+              "Cornichons"
+            ],
+            "ar": [
+              "Chicken Doner (70غr)",
+              "Lettuce",
+              "طماطم",
+              "مخلل"
+            ]
+          },
+          "options": [
+            {
+              "id": "cd9_o1",
+              "label": {
+                "tr": "Dürüm",
+                "en": "Wrap",
+                "de": "Wrap",
+                "ru": "Wrap",
+                "fr": "Wrap",
+                "ar": "Wrap"
+              },
+              "price": 0
+            },
+            {
+              "id": "cd9_o2",
+              "label": {
+                "tr": "Gobit Ekmeği",
+                "en": "Gobit Bread",
+                "de": "Gobit Bread",
+                "ru": "Gobit Bread",
+                "fr": "Gobit Bread",
+                "ar": "Gobit Bread"
+              },
+              "price": 0
+            },
+            {
+              "id": "cd9_o3",
+              "label": {
+                "tr": "Taş Fırın Ekmeği",
+                "en": "Stone Oven Bread",
+                "de": "Stone Oven Bread",
+                "ru": "Stone Oven Bread",
+                "fr": "Stone Oven Bread",
+                "ar": "Stone Oven Bread"
+              },
+              "price": 0
+            },
+            {
+              "id": "cd9_o4",
+              "label": {
+                "tr": "Ayvalık Tost Ekmeği",
+                "en": "Ayvalık Toast Bread",
+                "de": "Ayvalık Toast Bread",
+                "ru": "Ayvalık Toast Bread",
+                "fr": "Ayvalık Toast Bread",
+                "ar": "Ayvalık Toast Bread"
+              },
+              "price": 0
+            }
+          ],
+          "extras": {
+            "menuOptions": [
+              {
+                "id": "menu1",
+                "name": {
+                  "tr": "Menü (Cips + Ayran)",
+                  "en": "Menu (Chips + Ayran)",
+                  "de": "Menu (Chips + Ayran)",
+                  "ru": "Menu (Chips + Ayran)",
+                  "fr": "Menu (Chips + Ayran)",
+                  "ar": "Menu (Chips + Ayran)"
+                },
+                "price": 60
+              },
+              {
+                "id": "kola1",
+                "name": {
+                  "tr": "Kutu Kola Farkı",
+                  "en": "Can Cola Difference",
+                  "de": "Can Cola Difference",
+                  "ru": "Can Cola Difference",
+                  "fr": "Can Cola Difference",
+                  "ar": "Can Cola Difference"
+                },
+                "price": 20
+              }
+            ]
+          }
+        },
+        {
           "id": "cd2",
           "name": {
             "tr": "Kaşarlı Tavuk Dürüm",
@@ -3284,7 +3433,7 @@
             "fr": "Cheddar Chicken Wrap",
             "ar": "Cheddar Chicken Wrap"
           },
-          "price": 180,
+          "price": 220,
           "description": {
             "tr": "Kaşarlı Tavuk Dürüm (100gr)",
             "en": "Cheddar Chicken Wrap (100gr)",
@@ -3376,7 +3525,7 @@
             "fr": "Chicken Iskender",
             "ar": "Chicken Iskender"
           },
-          "price": 230,
+          "price": 270,
           "description": {
             "tr": "",
             "en": "",
@@ -3474,7 +3623,7 @@
             "fr": "Chicken Doner Beyti",
             "ar": "Chicken Doner Beyti"
           },
-          "price": 250,
+          "price": 300,
           "description": {
             "tr": "",
             "en": "",
@@ -3572,7 +3721,7 @@
             "fr": "Chicken Doner Portion",
             "ar": "Chicken Doner Portion"
           },
-          "price": 180,
+          "price": 220,
           "description": {
             "tr": "",
             "en": "",
@@ -3658,7 +3807,7 @@
             "fr": "Chicken Doner on Rice",
             "ar": "Chicken Doner on Rice"
           },
-          "price": 230,
+          "price": 270,
           "description": {
             "tr": "",
             "en": "",
@@ -3750,7 +3899,7 @@
             "fr": "3 Pieces Chicken Doner",
             "ar": "3 Pieces Chicken Doner"
           },
-          "price": 630,
+          "price": 750,
           "description": {
             "tr": "3 Adet Tavuk Döner (100gr) + Büyük Boy Cips + Litrelik İçecek",
             "en": "3 Pieces Chicken Doner (100gr) + Large Chips + Liter Drink",
@@ -3805,7 +3954,7 @@
             "fr": "5 Pieces Chicken Doner",
             "ar": "5 Pieces Chicken Doner"
           },
-          "price": 990,
+          "price": 1250,
           "description": {
             "tr": "5 Adet Tavuk Döner + 2x Büyük Cips + Litrelik İçecek",
             "en": "5 Pieces Chicken Doner + 2x Large Chips + Liter Drink",
@@ -3873,7 +4022,7 @@
             "fr": "Beef Doner (70gr)",
             "ar": "Beef Doner (70gr)"
           },
-          "price": 210,
+          "price": 250,
           "description": {
             "tr": "Et Döner (70gr) - Ekmek seçeneği ile",
             "en": "Beef Doner (70gr) - With bread option",
@@ -4034,7 +4183,7 @@
             "fr": "Beef Doner (100gr)",
             "ar": "Beef Doner (100gr)"
           },
-          "price": 290,
+          "price": 350,
           "description": {
             "tr": "Et Döner (100gr) - Ekmek seçeneği ile",
             "en": "Beef Doner (100gr) - With bread option",
@@ -4195,7 +4344,7 @@
             "fr": "Portion de Döner Bœuf",
             "ar": "وجبة دونر لحم"
           },
-          "price": 310,
+          "price": 370,
           "description": {
             "tr": "",
             "en": "",
@@ -4308,7 +4457,7 @@
             "fr": "Portion de Döner Bœuf Sauced",
             "ar": "وجبة دونر لحم بالصلصة"
           },
-          "price": 310,
+          "price": 370,
           "description": {
             "tr": "Et Döner (100gr), Özel Sos, Marul, Domates, Turşu",
             "en": "Beef Doner (100gr), Special Sauce, Lettuce, Tomatoes, Pickles",
@@ -4463,7 +4612,7 @@
             "fr": "Döner Bœuf sur Riz",
             "ar": "دونر لحم على الأرز"
           },
-          "price": 350,
+          "price": 400,
           "description": {
             "tr": "",
             "en": "",
@@ -4582,7 +4731,7 @@
             "fr": "Wrap Döner Bœuf Cheddar Sauced (70g)",
             "ar": "لفة دونر لحم بالجبن والصلصة (70غ)"
           },
-          "price": 230,
+          "price": 270,
           "description": {
             "tr": "Et Döner (70gr), Kaşar, Özel Sos, Marul, Domates, Turşu",
             "en": "Beef Doner (70gr), Cheddar, Special Sauce, Lettuce, Tomatoes, Pickles",
@@ -4707,7 +4856,7 @@
             "fr": "Wrap Döner Bœuf Cheddar Sauced (100g)",
             "ar": "لفة دونر لحم بالجبن والصلصة (100غ)"
           },
-          "price": 310,
+          "price": 370,
           "description": {
             "tr": "Et Döner (100gr), Kaşar, Özel Sos, Marul, Domates, Turşu",
             "en": "Beef Doner (100gr), Cheddar, Special Sauce, Lettuce, Tomatoes, Pickles",
@@ -4832,7 +4981,7 @@
             "fr": "Döner d'Ayvalık (70gr)",
             "ar": "دونر أيفاليك (70غ)"
           },
-          "price": 210,
+          "price": 250,
           "description": {
             "tr": "",
             "en": "",
@@ -4981,7 +5130,7 @@
             "fr": "Döner Bœuf Cheddar Ayvalık (70g)",
             "ar": "دونر لحم بالجبن أيفاليك (70غ)"
           },
-          "price": 230,
+          "price": 270,
           "description": {
             "tr": "Et Döner (70gr), Kaşar, Marul, Domates, Turşu",
             "en": "Beef Doner (70gr), Cheddar, Lettuce, Tomatoes, Pickles",
@@ -5136,7 +5285,7 @@
             "fr": "3 Döner Bœuf (70g)",
             "ar": "3 دونر لحم (70غ)"
           },
-          "price": 780,
+          "price": 900,
           "description": {
             "tr": "3x Et Döner (70gr), Büyük Boy Cips, Litrelik İçecek",
             "en": "3x Beef Doner (70gr), Large Chips, Liter Drink",
@@ -5206,7 +5355,7 @@
             "fr": "3 Döner Bœuf (100g)",
             "ar": "3 دونر لحم (100غ)"
           },
-          "price": 1020,
+          "price": 1200,
           "description": {
             "tr": "3x Et Döner (100gr), Büyük Boy Cips, Litrelik İçecek",
             "en": "3x Beef Doner (100gr), Large Chips, Liter Drink",
@@ -5276,7 +5425,7 @@
             "fr": "5 Döner Bœuf (70g)",
             "ar": "5 دونر لحم (70غ)"
           },
-          "price": 1240,
+          "price": 1500,
           "description": {
             "tr": "5x Et Döner (70gr), 2x Büyük Boy Cips, Litrelik İçecek",
             "en": "5x Beef Doner (70gr), 2x Large Chips, Liter Drink",
@@ -5346,7 +5495,7 @@
             "fr": "5 Döner Bœuf (100g)",
             "ar": "5 دونر لحم (100غ)"
           },
-          "price": 1640,
+          "price": 2000,
           "description": {
             "tr": "5x Et Döner (100gr), 2x Büyük Boy Cips, Litrelik İçecek",
             "en": "5x Beef Doner (100gr), 2x Large Chips, Liter Drink",
@@ -5429,7 +5578,7 @@
             "fr": "Alfredo",
             "ar": "Alfredo"
           },
-          "price": 200,
+          "price": 300,
           "description": {
             "tr": "Kremalı Alfredo makarnası - Yoğun kremalı sos, parmesan peyniri ve taze otlarla hazırlanan nefis İtalyan makarnası. Antalya'da en lezzetli Alfredo makarnası.",
             "en": "Creamy Alfredo Pasta - Delicious Italian pasta prepared with rich creamy sauce, parmesan cheese and fresh herbs. The most delicious Alfredo pasta in Antalya.",
@@ -5566,7 +5715,7 @@
             "fr": "Napolitana",
             "ar": "Napolitana"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "Napoliten makarnası - Klasik Napoli usulü domates sosu, mozzarella peyniri ve taze fesleğen ile hazırlanan otantik İtalyan makarnası. Antalya Muratpaşa'da en lezzetli Napoliten makarnası.",
             "en": "Neapolitan Pasta - Authentic Italian pasta prepared with classic Neapolitan tomato sauce, mozzarella cheese and fresh basil. The most delicious Neapolitan pasta in Antalya Muratpaşa.",
@@ -5697,7 +5846,7 @@
             "fr": "Bolognaise",
             "ar": "بولونيز"
           },
-          "price": 200,
+          "price": 330,
           "description": {
             "tr": "",
             "en": "",
@@ -5834,7 +5983,7 @@
             "fr": "Pesto",
             "ar": "بيستو"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "",
             "en": "",
@@ -5966,7 +6115,7 @@
             "fr": "Arrabbiata",
             "ar": "أرابياتا"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "",
             "en": "",
@@ -6097,7 +6246,7 @@
             "fr": "Thon",
             "ar": "بالتونة"
           },
-          "price": 200,
+          "price": 300,
           "description": {
             "tr": "",
             "en": "",
@@ -6240,7 +6389,7 @@
             "fr": "4 Fromages Turc",
             "ar": "4 أجبان تركية"
           },
-          "price": 200,
+          "price": 330,
           "description": {
             "tr": "",
             "en": "",
@@ -6402,7 +6551,7 @@
             "fr": "Manti Maison",
             "ar": "منتي منزلي"
           },
-          "price": 200,
+          "price": 300,
           "description": {
             "tr": "",
             "en": "",
@@ -6534,7 +6683,7 @@
             "fr": "Hamburger",
             "ar": "هامبورجر"
           },
-          "price": 250,
+          "price": 300,
           "description": {
             "tr": "",
             "en": "",
@@ -6620,7 +6769,7 @@
             "fr": "Cheeseburger",
             "ar": "تشيز برجر"
           },
-          "price": 270,
+          "price": 330,
           "description": {
             "tr": "",
             "en": "",
@@ -6712,7 +6861,7 @@
             "fr": "Burger au Poulet",
             "ar": "برجر دجاج"
           },
-          "price": 170,
+          "price": 200,
           "description": {
             "tr": "",
             "en": "",
@@ -6817,7 +6966,7 @@
             "fr": "Chef's Grilled Meatballs",
             "ar": "Chef's Grilled Meatballs"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -6897,7 +7046,7 @@
             "fr": "Meatball Sandwich",
             "ar": "Meatball Sandwich"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "",
             "en": "",
@@ -6983,7 +7132,7 @@
             "fr": "Cheddar Meatball Sandwich",
             "ar": "Cheddar Meatball Sandwich"
           },
-          "price": 220,
+          "price": 280,
           "description": {
             "tr": "",
             "en": "",
@@ -7064,7 +7213,7 @@
             "fr": "Apple Slice Potatoes",
             "ar": "Apple Slice Potatoes"
           },
-          "price": 100,
+          "price": 150,
           "description": {
             "tr": "Elma Dilim Patates",
             "en": "Apple Slice Potatoes",
@@ -7107,7 +7256,7 @@
             "fr": "Finger Potatoes",
             "ar": "Finger Potatoes"
           },
-          "price": 100,
+          "price": 150,
           "description": {
             "tr": "Parmak Patates",
             "en": "Finger Potatoes",
@@ -7150,7 +7299,7 @@
             "fr": "Crispy Chicken Plate",
             "ar": "Crispy Chicken Plate"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "Çıtır Tavuk Taneleri ve Patates",
             "en": "Crispy Chicken Pieces and Potatoes",
@@ -7231,7 +7380,7 @@
             "fr": "Chicken Stroganoff",
             "ar": "Chicken Stroganoff"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -7339,7 +7488,7 @@
             "fr": "Quesadilla au Poulet",
             "ar": "كيساديا دجاج"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -7427,7 +7576,7 @@
             "fr": "Quesadilla Cheddar Champignons",
             "ar": "كيساديا بالجبن والفطر"
           },
-          "price": 300,
+          "price": 270,
           "description": {
             "tr": "",
             "en": "",
@@ -7503,7 +7652,7 @@
             "fr": "Escalope de Poulet Viennoise",
             "ar": "شنتسل دجاج فيينا"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -7568,7 +7717,7 @@
             "fr": "Wrap au Poulet",
             "ar": "لفة دجاج"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -7674,7 +7823,7 @@
             "fr": "Poulet à la Crème au Thym des Montagnes",
             "ar": "دجاج بالكريمة والزعتر الجبلي"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -7775,7 +7924,7 @@
             "fr": "Poulet Sauce Curry aux Champignons",
             "ar": "دجاج بصلصة الكاري والفطر"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -7858,7 +8007,7 @@
             "fr": "Poulet Sauce Cafe de Paris",
             "ar": "دجاج بصلصة كافيه دي باريس"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -7959,7 +8108,7 @@
             "fr": "Poulet Sauce Aigre-Douce",
             "ar": "دجاج بصلصة حامضة حلوة"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -8042,7 +8191,7 @@
             "fr": "Poulet Sauce Mexicaine",
             "ar": "دجاج بصلصة مكسيكية"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -8131,7 +8280,7 @@
             "fr": "Menu Poulet",
             "ar": "قائمة دجاج"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -8195,7 +8344,7 @@
             "fr": "Menu Poulet Diététique",
             "ar": "قائمة دجاج دايت"
           },
-          "price": 300,
+          "price": 350,
           "description": {
             "tr": "",
             "en": "",
@@ -8278,7 +8427,7 @@
             "fr": "Diet Chicken Salad",
             "ar": "Diet Chicken Salad"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "2 Ana ürün + 4 Yan ürün seçenekleri ile",
             "en": "Choose 2 main products + 4 side products",
@@ -8357,7 +8506,7 @@
             "fr": "Spring Salad",
             "ar": "Spring Salad"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "",
             "en": "",
@@ -8429,7 +8578,7 @@
             "fr": "Caesar Salad",
             "ar": "Caesar Salad"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "",
             "en": "",
@@ -8508,7 +8657,7 @@
             "fr": "Crispy Chicken Salad",
             "ar": "Crispy Chicken Salad"
           },
-          "price": 200,
+          "price": 250,
           "description": {
             "tr": "",
             "en": "",
@@ -8575,7 +8724,7 @@
             "fr": "Halloumi Salad",
             "ar": "Halloumi Salad"
           },
-          "price": 230,
+          "price": 300,
           "description": {
             "tr": "",
             "en": "",
@@ -8648,7 +8797,7 @@
             "fr": "Tuna Salad",
             "ar": "Tuna Salad"
           },
-          "price": 230,
+          "price": 300,
           "description": {
             "tr": "",
             "en": "",
@@ -8728,7 +8877,7 @@
             "fr": "RedBull",
             "ar": "RedBull"
           },
-          "price": 80,
+          "price": 100,
           "description": {
             "tr": "RedBull Enerji İçeceği",
             "en": "RedBull Energy Drink",
