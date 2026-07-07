@@ -15,9 +15,10 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 type Props = {
   product: AdminProduct;
   categoryName: string;
+  embedded?: boolean;
   onDirtyChange: (dirty: boolean) => void;
   onSaved: (product: AdminProduct) => void;
-  onCancel: () => void;
+  onCancel?: () => void;
 };
 
 const MODIFIER_TYPE_LABELS: Record<string, string> = {
@@ -29,7 +30,7 @@ const MODIFIER_TYPE_LABELS: Record<string, string> = {
   drinkOption: "İçecek",
 };
 
-export default function ProductEditor({ product, categoryName, onDirtyChange, onSaved, onCancel }: Props) {
+export default function ProductEditor({ product, categoryName, embedded = false, onDirtyChange, onSaved, onCancel }: Props) {
   const [draft, setDraft] = useState(product);
   const [activeLang, setActiveLang] = useState<(typeof ADMIN_LANGS)[number]>("tr");
   const [saving, setSaving] = useState(false);
@@ -124,22 +125,29 @@ export default function ProductEditor({ product, categoryName, onDirtyChange, on
   }, {});
 
   return (
-    <section className="admin-section">
-      <div className="admin-section-header">
+    <section className={embedded ? "admin-product-detail" : "admin-section"}>
+      <div className={embedded ? "admin-menu-panel-head" : "admin-section-header"}>
         <div>
-          <h1>{draft.names.tr || draft.id}</h1>
+          {embedded ? <h2>{draft.names.tr || draft.id}</h2> : <h1>{draft.names.tr || draft.id}</h1>}
           <p className="admin-muted">
             {categoryName} · {draft.id}
           </p>
         </div>
         <div className="admin-header-actions">
-          <button type="button" className="admin-button admin-button-secondary" onClick={onCancel}>
-            ← Geri
+          {!embedded && onCancel ? (
+            <button type="button" className="admin-button admin-button-secondary" onClick={onCancel}>
+              ← Geri
+            </button>
+          ) : null}
+          <button type="button" className="admin-button admin-button-secondary admin-button-sm" onClick={handleCopyAllFromTr}>
+            TR&apos;den kopyala
           </button>
-          <button type="button" className="admin-button admin-button-secondary" onClick={handleCopyAllFromTr}>
-            Tümünü TR&apos;den kopyala
-          </button>
-          <button type="button" className="admin-button" onClick={() => void handleSave()} disabled={saving}>
+          <button
+            type="button"
+            className={`admin-button ${embedded ? "admin-button-sm" : ""}`}
+            onClick={() => void handleSave()}
+            disabled={saving}
+          >
             {saving ? "Kaydediliyor…" : "Kaydet"}
           </button>
         </div>
@@ -147,7 +155,7 @@ export default function ProductEditor({ product, categoryName, onDirtyChange, on
 
       {error ? <p className="admin-error">{error}</p> : null}
 
-      <div className="admin-editor-layout">
+      <div className={embedded ? "admin-product-detail-body" : "admin-editor-layout"}>
         <div className="admin-panel">
           <h3>Genel</h3>
           <div className="admin-form-grid">

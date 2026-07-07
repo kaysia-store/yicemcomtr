@@ -10,8 +10,8 @@ type Props = {
 };
 
 const NAV_ITEMS = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/admin/menu", label: "Menü", icon: "🍽️" },
+  { href: "/admin/dashboard", label: "Dashboard", icon: "📊", short: "Özet" },
+  { href: "/admin/menu", label: "Menü", icon: "🍽️", short: "Menü" },
 ];
 
 export default function AdminSidebar({ open, onClose }: Props) {
@@ -26,9 +26,8 @@ export default function AdminSidebar({ open, onClose }: Props) {
 
   return (
     <aside className={`admin-sidebar ${open ? "open" : ""}`}>
-      <div className="admin-sidebar-brand">
-        <strong>Yi&apos;Cem</strong>
-        <span>Admin Panel</span>
+      <div className="admin-sidebar-brand" title="Yi'Cem Admin">
+        <strong>YC</strong>
       </div>
 
       <nav className="admin-sidebar-nav">
@@ -40,20 +39,34 @@ export default function AdminSidebar({ open, onClose }: Props) {
               href={item.href}
               className={`admin-sidebar-link ${active ? "active" : ""}`}
               onClick={onClose}
+              title={item.label}
             >
-              <span aria-hidden="true">{item.icon}</span>
-              {item.label}
+              <span className="admin-sidebar-icon" aria-hidden="true">
+                {item.icon}
+              </span>
+              <span className="admin-sidebar-text">{item.short}</span>
             </Link>
           );
         })}
       </nav>
 
       <div className="admin-sidebar-footer">
-        <Link href="/" className="admin-sidebar-link" onClick={onClose}>
-          🌐 Canlı Menü
+        <Link href="/" className="admin-sidebar-link" onClick={onClose} title="Canlı Menü">
+          <span className="admin-sidebar-icon" aria-hidden="true">
+            🌐
+          </span>
+          <span className="admin-sidebar-text">Site</span>
         </Link>
-        <button type="button" className="admin-sidebar-link admin-sidebar-logout" onClick={() => void handleLogout()}>
-          🚪 Çıkış
+        <button
+          type="button"
+          className="admin-sidebar-link admin-sidebar-logout"
+          onClick={() => void handleLogout()}
+          title="Çıkış"
+        >
+          <span className="admin-sidebar-icon" aria-hidden="true">
+            🚪
+          </span>
+          <span className="admin-sidebar-text">Çıkış</span>
         </button>
       </div>
     </aside>

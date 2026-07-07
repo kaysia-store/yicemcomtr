@@ -55,7 +55,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <section className="admin-section">
+    <section className="admin-section admin-dashboard-page">
       <div className="admin-section-header">
         <div>
           <h1>Dashboard</h1>

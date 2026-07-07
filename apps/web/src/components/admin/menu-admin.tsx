@@ -2,11 +2,10 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AdminBreadcrumb } from "./admin-shell";
-import CategoryList from "./menu/category-list";
-import ProductList from "./menu/product-list";
+import CategoryNav from "./menu/category-nav";
+import CategorySettings from "./menu/category-settings";
+import ProductListPanel from "./menu/product-list-panel";
 import ProductEditor from "./menu/product-editor";
-import CategoryEditor from "./menu/category-editor";
 import { loadAdminMenuData, reorderCategories, reorderProducts } from "@/lib/admin/menu-data";
 import type { AdminCategory, AdminMenuData, AdminProduct } from "@/lib/admin/types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -16,7 +15,6 @@ function MenuAdminInner() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category");
   const productId = searchParams.get("product");
-  const editCategory = searchParams.get("editCategory");
 
   const [data, setData] = useState<AdminMenuData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,6 +39,22 @@ function MenuAdminInner() {
     void loadData();
   }, [loadData]);
 
+  const sortedCategories = useMemo(
+    () => (data ? [...data.categories].sort((a, b) => a.sortOrder - b.sortOrder) : []),
+    [data],
+  );
+
+  useEffect(() => {
+    if (!data || loading) return;
+    if (categoryId && data.categories.some((category) => category.id === categoryId)) return;
+    if (sortedCategories.length === 0) return;
+
+    const next = new URLSearchParams(searchParams.toString());
+    next.set("category", sortedCategories[0].id);
+    next.delete("product");
+    router.replace(`/admin/menu?${next.toString()}`);
+  }, [categoryId, data, loading, router, searchParams, sortedCategories]);
+
   const navigate = useCallback(
     (params: Record<string, string | null>) => {
       if (dirty && !window.confirm("Kaydedilmemiş değişiklikler var. Devam etmek istiyor musunuz?")) {
@@ -62,29 +76,17 @@ function MenuAdminInner() {
     [data, categoryId],
   );
 
-  const selectedProduct = useMemo(
-    () => data?.products.find((product) => product.id === productId) ?? null,
-    [data, productId],
-  );
+  const selectedProduct = useMemo(() => {
+    if (!productId || !categoryId) return null;
+    const product = data?.products.find((item) => item.id === productId);
+    if (!product || product.categoryId !== categoryId) return null;
+    return product;
+  }, [data, productId, categoryId]);
 
   const categoryProducts = useMemo(
     () => (categoryId ? (data?.products.filter((product) => product.categoryId === categoryId) ?? []) : []),
     [data, categoryId],
   );
-
-  const breadcrumbs = useMemo(() => {
-    const items: Array<{ label: string; href?: string }> = [{ label: "Menü", href: "/admin/menu" }];
-    if (selectedCategory) {
-      items.push({
-        label: selectedCategory.names.tr || selectedCategory.id,
-        href: `/admin/menu?category=${selectedCategory.id}`,
-      });
-    }
-    if (selectedProduct) {
-      items.push({ label: selectedProduct.names.tr || selectedProduct.id });
-    }
-    return items;
-  }, [selectedCategory, selectedProduct]);
 
   const handleCategorySaved = (category: AdminCategory) => {
     setData((current) =>
@@ -93,7 +95,6 @@ function MenuAdminInner() {
         : current,
     );
     setDirty(false);
-    navigate({ category: category.id });
   };
 
   const handleProductSaved = (product: AdminProduct) => {
@@ -132,77 +133,72 @@ function MenuAdminInner() {
   };
 
   if (loading) {
-    return <p className="admin-muted">Menü verileri yükleniyor…</p>;
+    return <p className="admin-muted admin-menu-loading">Menü verileri yükleniyor…</p>;
   }
 
   if (error || !data) {
     return <p className="admin-error">{error ?? "Veri bulunamadı."}</p>;
   }
 
-  if (editCategory && selectedCategory) {
-    return (
-      <>
-        <AdminBreadcrumb items={breadcrumbs} />
-        <CategoryEditor
-          category={selectedCategory}
-          onDirtyChange={setDirty}
-          onSaved={handleCategorySaved}
-          onCancel={() => navigate({ category: selectedCategory.id })}
-        />
-      </>
-    );
-  }
-
-  if (productId && selectedProduct && selectedCategory) {
-    return (
-      <>
-        <AdminBreadcrumb items={breadcrumbs} />
-        <ProductEditor
-          product={selectedProduct}
-          categoryName={selectedCategory.names.tr}
-          onDirtyChange={setDirty}
-          onSaved={handleProductSaved}
-          onCancel={() => navigate({ category: selectedCategory.id })}
-        />
-      </>
-    );
-  }
-
-  if (categoryId && selectedCategory) {
-    return (
-      <>
-        <AdminBreadcrumb items={breadcrumbs} />
-        <ProductList
-          category={selectedCategory}
-          products={categoryProducts}
-          allProductIds={data.products.map((product) => product.id)}
-          onSelectProduct={(id) => navigate({ category: categoryId, product: id })}
-          onEditCategory={() => navigate({ category: categoryId, editCategory: "1" })}
-          onBack={() => navigate({})}
-          onProductsChange={handleCategoryProductsChange}
-          onReorder={handleReorderProducts}
-        />
-      </>
-    );
-  }
-
   return (
-    <>
-      <AdminBreadcrumb items={breadcrumbs} />
-      <CategoryList
+    <div className="admin-menu-workspace">
+      <CategoryNav
         categories={data.categories}
-        onSelectCategory={(id) => navigate({ category: id })}
-        onEditCategory={(id) => navigate({ category: id, editCategory: "1" })}
+        selectedId={categoryId}
+        onSelect={(id) => navigate({ category: id })}
         onCategoriesChange={handleCategoriesChange}
         onReorder={handleReorderCategories}
       />
-    </>
+
+      <div className="admin-menu-main">
+        {selectedCategory ? (
+          <>
+            <CategorySettings
+              category={selectedCategory}
+              onDirtyChange={setDirty}
+              onSaved={handleCategorySaved}
+            />
+            <ProductListPanel
+              category={selectedCategory}
+              products={categoryProducts}
+              selectedProductId={productId}
+              allProductIds={data.products.map((product) => product.id)}
+              onSelectProduct={(id) => navigate({ category: categoryId, product: id })}
+              onProductsChange={handleCategoryProductsChange}
+              onReorder={handleReorderProducts}
+            />
+          </>
+        ) : (
+          <div className="admin-empty-panel">
+            <h2>Kategori seçin</h2>
+            <p className="admin-muted">Sol listeden bir kategori seçerek başlayın.</p>
+          </div>
+        )}
+      </div>
+
+      <aside className="admin-menu-detail">
+        {selectedProduct && selectedCategory ? (
+          <ProductEditor
+            product={selectedProduct}
+            categoryName={selectedCategory.names.tr}
+            embedded
+            onDirtyChange={setDirty}
+            onSaved={handleProductSaved}
+          />
+        ) : (
+          <div className="admin-empty-panel admin-empty-detail">
+            <h2>Ürün özellikleri</h2>
+            <p className="admin-muted">Düzenlemek için listeden bir ürün seçin.</p>
+          </div>
+        )}
+      </aside>
+    </div>
   );
 }
 
 export default function MenuAdmin() {
   return (
-    <Suspense fallback={<p className="admin-muted">Yükleniyor…</p>}>
+    <Suspense fallback={<p className="admin-muted admin-menu-loading">Yükleniyor…</p>}>
       <MenuAdminInner />
     </Suspense>
   );
