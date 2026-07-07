@@ -3,10 +3,15 @@
 ## 1. Migration çalıştır
 Supabase Dashboard → **SQL Editor** → New query
 
-`supabase/migrations/20260707000000_initial_schema.sql` dosyasının **tüm içeriğini** yapıştır → **Run**
+Sırayla şu dosyaların **tüm içeriğini** yapıştır → **Run**:
+
+1. `supabase/migrations/20260707000000_initial_schema.sql`
+2. `supabase/migrations/20260707100000_admin_price_policies.sql`
+3. `supabase/migrations/20260707120000_admin_full_menu_policies.sql`
+4. `supabase/migrations/20260707140000_audit_log_and_category_insert.sql`
 
 Başarılıysa Table Editor'da şu tablolar görünür:
-- languages, categories, products, product_modifiers, …
+- languages, categories, products, product_modifiers, audit_log, …
 
 ## 2. Ortam değişkenleri
 `apps/web/.env.local` dosyası oluştur:

@@ -9,7 +9,10 @@ type Props = {
   onClose: () => void;
 };
 
-const NAV_ITEMS = [{ href: "/admin/menu", label: "Menü", icon: "🍽️" }];
+const NAV_ITEMS = [
+  { href: "/admin/dashboard", label: "Dashboard", icon: "📊" },
+  { href: "/admin/menu", label: "Menü", icon: "🍽️" },
+];
 
 export default function AdminSidebar({ open, onClose }: Props) {
   const pathname = usePathname();

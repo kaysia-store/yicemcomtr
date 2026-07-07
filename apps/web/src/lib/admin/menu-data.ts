@@ -1,5 +1,6 @@
 import type { LangCode } from "@/lib/menu/types";
 import { LANG_CODES } from "@/lib/menu/types";
+import { logAudit } from "./audit";
 import type {
   AdminCategory,
   AdminMenuData,
@@ -155,6 +156,59 @@ export async function saveCategory(supabase: SupabaseClient, category: AdminCate
     .upsert(translations, { onConflict: "category_id,lang" });
 
   if (transError) throw transError;
+
+  await logAudit(supabase, {
+    entityType: "category",
+    entityId: category.id,
+    action: "update",
+    summary: `Kategori güncellendi: ${category.names.tr || category.id}`,
+  });
+}
+
+export async function createCategory(supabase: SupabaseClient, category: AdminCategory) {
+  const { error: catError } = await supabase.from("categories").insert({
+    id: category.id,
+    slug: category.slug,
+    sort_order: category.sortOrder,
+    is_visible: category.isVisible,
+  });
+
+  if (catError) throw catError;
+
+  const translations = LANG_CODES.map((lang) => ({
+    category_id: category.id,
+    lang,
+    name: category.names[lang] || category.names.tr || category.id,
+  }));
+
+  const { error: transError } = await supabase.from("category_translations").insert(translations);
+
+  if (transError) throw transError;
+
+  await logAudit(supabase, {
+    entityType: "category",
+    entityId: category.id,
+    action: "create",
+    summary: `Kategori eklendi: ${category.names.tr || category.id}`,
+  });
+}
+
+export async function reorderCategories(supabase: SupabaseClient, categories: AdminCategory[]) {
+  const updates = categories.map((category, index) =>
+    supabase.from("categories").update({ sort_order: index, updated_at: new Date().toISOString() }).eq("id", category.id),
+  );
+
+  const results = await Promise.all(updates);
+  const failed = results.find((result) => result.error);
+  if (failed?.error) throw failed.error;
+
+  await logAudit(supabase, {
+    entityType: "category",
+    entityId: "all",
+    action: "reorder",
+    summary: "Kategori sıralaması güncellendi",
+    changes: { order: categories.map((category) => category.id) },
+  });
 }
 
 export async function saveProduct(supabase: SupabaseClient, product: AdminProduct) {
@@ -211,6 +265,76 @@ export async function saveProduct(supabase: SupabaseClient, product: AdminProduc
 
     if (modTransError) throw modTransError;
   }
+
+  await logAudit(supabase, {
+    entityType: "product",
+    entityId: product.id,
+    action: "update",
+    summary: `Ürün güncellendi: ${product.names.tr || product.id}`,
+    changes: { price: product.price, isActive: product.isActive },
+  });
+}
+
+export async function createProduct(supabase: SupabaseClient, product: AdminProduct) {
+  const { error: prodError } = await supabase.from("products").insert({
+    id: product.id,
+    category_id: product.categoryId,
+    price: product.price,
+    image_url: product.imageUrl || null,
+    sort_order: product.sortOrder,
+    is_active: product.isActive,
+  });
+
+  if (prodError) throw prodError;
+
+  const translations = LANG_CODES.map((lang) => ({
+    product_id: product.id,
+    lang,
+    name: product.names[lang] || product.names.tr || product.id,
+    description: product.descriptions[lang] ?? "",
+    contents: product.contents[lang] ?? [],
+  }));
+
+  const { error: transError } = await supabase.from("product_translations").insert(translations);
+
+  if (transError) throw transError;
+
+  await logAudit(supabase, {
+    entityType: "product",
+    entityId: product.id,
+    action: "create",
+    summary: `Ürün eklendi: ${product.names.tr || product.id}`,
+    changes: { categoryId: product.categoryId, price: product.price },
+  });
+}
+
+export async function reorderProducts(supabase: SupabaseClient, products: AdminProduct[], categoryId: string) {
+  const updates = products.map((product, index) =>
+    supabase
+      .from("products")
+      .update({ sort_order: index, updated_at: new Date().toISOString() })
+      .eq("id", product.id),
+  );
+
+  const results = await Promise.all(updates);
+  const failed = results.find((result) => result.error);
+  if (failed?.error) throw failed.error;
+
+  await logAudit(supabase, {
+    entityType: "product",
+    entityId: categoryId,
+    action: "reorder",
+    summary: `Ürün sıralaması güncellendi (${products[0]?.names.tr ?? categoryId})`,
+    changes: { order: products.map((product) => product.id) },
+  });
+}
+
+export function slugifyId(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export function copyLocalizedFromTr(fields: LocalizedFields): LocalizedFields {

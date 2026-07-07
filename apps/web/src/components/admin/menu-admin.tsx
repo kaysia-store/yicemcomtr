@@ -7,7 +7,7 @@ import CategoryList from "./menu/category-list";
 import ProductList from "./menu/product-list";
 import ProductEditor from "./menu/product-editor";
 import CategoryEditor from "./menu/category-editor";
-import { loadAdminMenuData } from "@/lib/admin/menu-data";
+import { loadAdminMenuData, reorderCategories, reorderProducts } from "@/lib/admin/menu-data";
 import type { AdminCategory, AdminMenuData, AdminProduct } from "@/lib/admin/types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -105,6 +105,32 @@ function MenuAdminInner() {
     setDirty(false);
   };
 
+  const handleCategoriesChange = (categories: AdminCategory[]) => {
+    setData((current) => (current ? { ...current, categories } : current));
+  };
+
+  const handleCategoryProductsChange = (updatedProducts: AdminProduct[]) => {
+    setData((current) => {
+      if (!current || !categoryId) return current;
+      const otherProducts = current.products.filter((product) => product.categoryId !== categoryId);
+      const categories = current.categories.map((category) =>
+        category.id === categoryId ? { ...category, productCount: updatedProducts.length } : category,
+      );
+      return { ...current, categories, products: [...otherProducts, ...updatedProducts] };
+    });
+  };
+
+  const handleReorderCategories = async (categories: AdminCategory[]) => {
+    const supabase = getSupabaseBrowserClient();
+    await reorderCategories(supabase, categories);
+  };
+
+  const handleReorderProducts = async (products: AdminProduct[]) => {
+    if (!categoryId) return;
+    const supabase = getSupabaseBrowserClient();
+    await reorderProducts(supabase, products, categoryId);
+  };
+
   if (loading) {
     return <p className="admin-muted">Menü verileri yükleniyor…</p>;
   }
@@ -149,9 +175,12 @@ function MenuAdminInner() {
         <ProductList
           category={selectedCategory}
           products={categoryProducts}
+          allProductIds={data.products.map((product) => product.id)}
           onSelectProduct={(id) => navigate({ category: categoryId, product: id })}
           onEditCategory={() => navigate({ category: categoryId, editCategory: "1" })}
           onBack={() => navigate({})}
+          onProductsChange={handleCategoryProductsChange}
+          onReorder={handleReorderProducts}
         />
       </>
     );
@@ -164,6 +193,8 @@ function MenuAdminInner() {
         categories={data.categories}
         onSelectCategory={(id) => navigate({ category: id })}
         onEditCategory={(id) => navigate({ category: id, editCategory: "1" })}
+        onCategoriesChange={handleCategoriesChange}
+        onReorder={handleReorderCategories}
       />
     </>
   );

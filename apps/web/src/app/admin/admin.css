@@ -495,6 +495,162 @@
   margin-top: 1.5rem;
 }
 
+/* Dashboard */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-stat-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.admin-stat-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.admin-stat-value {
+  font-size: 1.75rem;
+  line-height: 1.1;
+}
+
+.admin-stat-link a {
+  color: #e53935;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.admin-audit-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.admin-audit-table th,
+.admin-audit-table td {
+  text-align: left;
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-audit-table th {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.admin-badge-create {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.admin-badge-update {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.admin-badge-reorder {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.admin-badge-delete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Sortable */
+.admin-sortable-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-sortable-item.over {
+  outline: 2px dashed #e53935;
+  outline-offset: 2px;
+  border-radius: 14px;
+}
+
+.admin-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  color: #9ca3af;
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.admin-drag-handle.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-card-sortable {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: stretch;
+}
+
+.admin-card-sortable .admin-drag-handle {
+  padding: 0 0.35rem 0 0.75rem;
+  align-self: center;
+}
+
+.admin-card-sortable .admin-card-main {
+  grid-column: 2;
+}
+
+.admin-card-sortable .admin-card-action {
+  grid-column: 1 / -1;
+}
+
+.admin-list-item-sortable {
+  cursor: pointer;
+}
+
+/* Dialog */
+.admin-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.admin-dialog {
+  width: min(100%, 460px);
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+}
+
+.admin-dialog h2 {
+  margin: 0 0 0.35rem;
+}
+
+.admin-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 /* Mobile */
 @media (max-width: 900px) {
   .admin-editor-layout {
