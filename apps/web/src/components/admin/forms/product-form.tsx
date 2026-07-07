@@ -123,6 +123,15 @@ export default function ProductForm({
 
   return (
     <div className="admin-form-stack">
+      <div className="admin-form-lang-bar">
+        <LanguageTabs
+          active={activeLang}
+          onChange={setActiveLang}
+          missingLangs={missingLangs}
+          onCopyFromTr={handleCopyFromTr}
+        />
+      </div>
+
       <div className="admin-k-card admin-k-card-padded">
         <div className="admin-k-card-head">
           <h3 className="admin-k-section-title">{isNew ? "Yeni Ürün" : "Ürün Bilgileri"}</h3>
@@ -219,12 +228,6 @@ export default function ProductForm({
 
       <div className="admin-k-card admin-k-card-padded">
         <h3 className="admin-k-section-title">Çeviriler</h3>
-        <LanguageTabs
-          active={activeLang}
-          onChange={setActiveLang}
-          missingLangs={missingLangs}
-          onCopyFromTr={handleCopyFromTr}
-        />
 
         <label>
           Ürün adı
@@ -269,6 +272,7 @@ export default function ProductForm({
         productId={resolvedProductId}
         modifiers={draft.modifiers}
         onChange={(modifiers) => setDraft({ ...draft, modifiers })}
+        activeLang={activeLang}
       />
     </div>
   );

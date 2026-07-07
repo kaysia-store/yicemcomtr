@@ -1112,6 +1112,20 @@
   font-weight: 600;
 }
 
+.admin-form-lang-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--admin-surface);
+  padding: 0.25rem 0 0.75rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-form-lang-bar .admin-lang-tabs {
+  margin-bottom: 0;
+}
+
 .admin-lang-tabs {
   display: flex;
   flex-wrap: wrap;

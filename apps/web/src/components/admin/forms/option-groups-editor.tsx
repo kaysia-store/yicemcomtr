@@ -3,9 +3,7 @@
 import { useMemo, useState } from "react";
 import type { AdminModifier } from "@/lib/admin/types";
 import type { LangCode } from "@/lib/menu/types";
-import LanguageTabs from "@/components/admin/ui/language-tabs";
-import { copyLocalizedFromTr, slugifyId } from "@/lib/admin/menu-data";
-import { missingLangsForNames } from "@/lib/admin/translation-utils";
+import { slugifyId } from "@/lib/admin/menu-data";
 
 const MODIFIER_TYPES = [
   { value: "option", label: "Boyut / Seçenek" },
@@ -22,10 +20,10 @@ type Props = {
   productId: string;
   modifiers: AdminModifier[];
   onChange: (modifiers: AdminModifier[]) => void;
+  activeLang: LangCode;
 };
 
-export default function OptionGroupsEditor({ productId, modifiers, onChange }: Props) {
-  const [activeLang, setActiveLang] = useState<LangCode>("tr");
+export default function OptionGroupsEditor({ productId, modifiers, onChange, activeLang }: Props) {
   const [newGroupType, setNewGroupType] = useState<string>("option");
 
   const groups = useMemo(() => {
@@ -117,9 +115,7 @@ export default function OptionGroupsEditor({ productId, modifiers, onChange }: P
               </button>
             </div>
 
-            {group.items.map((modifier) => {
-              const missingLangs = missingLangsForNames(modifier.labels);
-              return (
+            {group.items.map((modifier) => (
                 <div key={modifier.modifierId} className="admin-option-item">
                   <div className="admin-option-item-top">
                     <strong className="admin-option-item-label">
@@ -163,18 +159,8 @@ export default function OptionGroupsEditor({ productId, modifiers, onChange }: P
                     </label>
                   </div>
 
-                  <LanguageTabs
-                    active={activeLang}
-                    onChange={setActiveLang}
-                    missingLangs={missingLangs}
-                    compact
-                    onCopyFromTr={() =>
-                      updateModifier(modifier.modifierId, { labels: copyLocalizedFromTr(modifier.labels) })
-                    }
-                  />
-
                   <label>
-                    Seçenek adı
+                    Seçenek adı ({activeLang.toUpperCase()})
                     <input
                       className="admin-input"
                       value={modifier.labels[activeLang]}
@@ -182,8 +168,7 @@ export default function OptionGroupsEditor({ productId, modifiers, onChange }: P
                     />
                   </label>
                 </div>
-              );
-            })}
+            ))}
           </div>
         ))
       )}
