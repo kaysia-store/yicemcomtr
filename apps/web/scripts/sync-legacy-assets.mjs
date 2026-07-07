@@ -42,7 +42,7 @@ if (!fs.existsSync(path.join(LEGACY_ROOT, "all.json"))) {
 fs.mkdirSync(PUBLIC, { recursive: true });
 fs.mkdirSync(STYLES, { recursive: true });
 
-const files = ["logo.png", "favicon.png", "qr.png", "manifest.json", "robots.txt", "sitemap.xml"];
+const files = ["logo.png", "favicon.png", "qr.png", "karakter2.png", "manifest.json", "robots.txt", "sitemap.xml"];
 for (const f of files) {
   copyIfExists(path.join(LEGACY_ROOT, f), path.join(PUBLIC, f));
 }

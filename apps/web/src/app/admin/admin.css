@@ -67,9 +67,27 @@
   color: var(--admin-text-secondary);
 }
 
-.admin-loading-icon {
-  font-size: 2rem;
-  animation: admin-spin 1s linear infinite;
+.admin-loading-spinner {
+  display: block;
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: contain;
+  animation: admin-spin 1.2s linear infinite;
+}
+
+.admin-loading-spinner-sm {
+  width: 3rem;
+  height: 3rem;
+}
+
+.admin-loading-spinner-md {
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.admin-loading-spinner-lg {
+  width: 5.5rem;
+  height: 5.5rem;
 }
 
 @keyframes admin-spin {

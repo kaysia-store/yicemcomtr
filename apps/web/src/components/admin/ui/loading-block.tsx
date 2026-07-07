@@ -1,3 +1,5 @@
+import AdminLoadingSpinner from "./admin-loading-spinner";
+
 type Props = {
   label?: string;
 };
@@ -5,9 +7,7 @@ type Props = {
 export default function LoadingBlock({ label = "Yükleniyor…" }: Props) {
   return (
     <div className="admin-loading-block">
-      <span className="material-symbols-outlined admin-loading-icon" aria-hidden>
-        progress_activity
-      </span>
+      <AdminLoadingSpinner />
       <p className="admin-muted">{label}</p>
     </div>
   );

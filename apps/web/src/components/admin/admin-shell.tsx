@@ -6,6 +6,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { AdminHeaderSlotProvider } from "./admin-header-context";
 import { AdminDataProvider } from "./providers/admin-data-provider";
 import AdminHeader from "./admin-header";
+import AdminLoadingSpinner from "./ui/admin-loading-spinner";
 import AdminSidebar from "./admin-sidebar";
 
 type Props = {
@@ -37,7 +38,7 @@ export default function AdminShell({ children }: Props) {
   if (!ready) {
     return (
       <div className="admin-loading-screen">
-        <span className="material-symbols-outlined admin-loading-icon">progress_activity</span>
+        <AdminLoadingSpinner size="lg" />
         <p>Yükleniyor…</p>
       </div>
     );
