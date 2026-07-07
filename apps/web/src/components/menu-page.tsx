@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MenuData, MenuProduct } from "@/lib/menu/types";
 import { tLocalized } from "@/lib/menu/i18n";
 import { getProductCardDescription } from "@/lib/menu/product-display";
@@ -36,25 +36,40 @@ function MenuPageContent({ menu }: Props) {
   const [filterCategory, setFilterCategory] = useState("all");
   const [bistroModalOpen, setBistroModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<MenuProduct | null>(null);
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const categoryButtonRefs = useRef(new Map<string, HTMLButtonElement>());
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
 
-  const openProduct = (product: MenuProduct) => setSelectedProduct(product);
-  const closeProduct = () => setSelectedProduct(null);
+  const updateCategoryScrollState = useCallback(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    setCanScrollPrev(el.scrollLeft > 2);
+    setCanScrollNext(el.scrollLeft < maxScroll - 2);
+  }, []);
 
-  const selectCategory = (slug: string) => {
-    if (slug === BISTRO_CATEGORY_SLUG) {
-      setActiveCategory(BISTRO_CATEGORY_SLUG);
-      setBistroModalOpen(true);
-      return;
+  const scrollCategoryIntoViewIfNeeded = useCallback((slug: string) => {
+    const container = categoryScrollRef.current;
+    const button = categoryButtonRefs.current.get(slug);
+    if (!container || !button) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+    const fullyVisible =
+      buttonRect.left >= containerRect.left - 2 && buttonRect.right <= containerRect.right + 2;
+
+    if (!fullyVisible) {
+      button.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
     }
+  }, []);
 
-    setActiveCategory(slug);
-    setFilterCategory(slug);
-  };
-
-  const closeBistroModal = () => {
-    setBistroModalOpen(false);
-    setFilterCategory(BISTRO_CATEGORY_SLUG);
-  };
+  const scrollCategoriesByPage = useCallback((direction: -1 | 1) => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const step = Math.max(el.clientWidth * 0.85, 160);
+    el.scrollBy({ left: direction * step, behavior: "smooth" });
+  }, []);
 
   const categoryButtons = useMemo(
     () => [
@@ -66,6 +81,47 @@ function MenuPageContent({ menu }: Props) {
     ],
     [menu.categories, lang],
   );
+
+  useEffect(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+
+    updateCategoryScrollState();
+
+    const onScroll = () => updateCategoryScrollState();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", updateCategoryScrollState);
+
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(updateCategoryScrollState) : null;
+    observer?.observe(el);
+
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", updateCategoryScrollState);
+      observer?.disconnect();
+    };
+  }, [updateCategoryScrollState, categoryButtons.length]);
+
+  const openProduct = (product: MenuProduct) => setSelectedProduct(product);
+  const closeProduct = () => setSelectedProduct(null);
+
+  const selectCategory = (slug: string) => {
+    if (slug === BISTRO_CATEGORY_SLUG) {
+      setActiveCategory(BISTRO_CATEGORY_SLUG);
+      setBistroModalOpen(true);
+      requestAnimationFrame(() => scrollCategoryIntoViewIfNeeded(slug));
+      return;
+    }
+
+    setActiveCategory(slug);
+    setFilterCategory(slug);
+    requestAnimationFrame(() => scrollCategoryIntoViewIfNeeded(slug));
+  };
+
+  const closeBistroModal = () => {
+    setBistroModalOpen(false);
+    setFilterCategory(BISTRO_CATEGORY_SLUG);
+  };
 
   const filtered = useMemo(() => {
     if (filterCategory === "all") return menu.products;
@@ -114,11 +170,24 @@ function MenuPageContent({ menu }: Props) {
       <section className="categories">
         <div className="container">
           <div className="categories-wrapper">
-            <div className="categories-scroll" id="categoriesScroll">
+            <button
+              type="button"
+              className="category-nav-btn"
+              aria-label={tUi(lang, "categories_scroll_prev")}
+              disabled={!canScrollPrev}
+              onClick={() => scrollCategoriesByPage(-1)}
+            >
+              <i className="fas fa-chevron-left" aria-hidden />
+            </button>
+            <div className="categories-scroll" id="categoriesScroll" ref={categoryScrollRef}>
               {categoryButtons.map((cat) => (
                 <button
                   key={cat.slug}
                   type="button"
+                  ref={(node) => {
+                    if (node) categoryButtonRefs.current.set(cat.slug, node);
+                    else categoryButtonRefs.current.delete(cat.slug);
+                  }}
                   className={`category-btn ${activeCategory === cat.slug ? "active" : ""}`}
                   onClick={() => selectCategory(cat.slug)}
                 >
@@ -126,6 +195,15 @@ function MenuPageContent({ menu }: Props) {
                 </button>
               ))}
             </div>
+            <button
+              type="button"
+              className="category-nav-btn"
+              aria-label={tUi(lang, "categories_scroll_next")}
+              disabled={!canScrollNext}
+              onClick={() => scrollCategoriesByPage(1)}
+            >
+              <i className="fas fa-chevron-right" aria-hidden />
+            </button>
           </div>
         </div>
       </section>

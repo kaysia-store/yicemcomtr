@@ -6,6 +6,8 @@ export type UiKey =
   | "hero_subtitle"
   | "download"
   | "all_categories"
+  | "categories_scroll_prev"
+  | "categories_scroll_next"
   | "contact"
   | "address"
   | "phone"
@@ -40,6 +42,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     hero_subtitle: "QR Menü Uygulamasını indir!",
     download: "İndir",
     all_categories: "Tümü",
+    categories_scroll_prev: "Önceki kategoriler",
+    categories_scroll_next: "Sonraki kategoriler",
     contact: "İletişim",
     address: "Fener Mah. 1968 Sk. No: 21/A Muratpaşa/ANTALYA",
     phone: "+90 242 323 1177",
@@ -74,6 +78,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     hero_subtitle: "Download QR Menu App!",
     download: "Download",
     all_categories: "All",
+    categories_scroll_prev: "Previous categories",
+    categories_scroll_next: "Next categories",
     contact: "Contact",
     address: "Fener Mah. 1968 Sk. No: 21/A Muratpaşa/ANTALYA",
     phone: "+90 242 323 1177",
@@ -107,6 +113,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     hero_subtitle: "Скачай QR Меню Приложение!",
     download: "Скачать",
     all_categories: "Все",
+    categories_scroll_prev: "Предыдущие категории",
+    categories_scroll_next: "Следующие категории",
     contact: "Контакты",
     address: "Fener Mah. 1968 Sk. No: 21/A Muratpaşa/ANTALYA",
     phone: "+90 242 323 1177",
@@ -140,6 +148,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     hero_subtitle: "QR-Menü-App herunterladen!",
     download: "Herunterladen",
     all_categories: "Alle",
+    categories_scroll_prev: "Vorherige Kategorien",
+    categories_scroll_next: "Nächste Kategorien",
     contact: "Kontakt",
     address: "Fener Mah. 1968 Sk. No: 21/A Muratpaşa/ANTALYA",
     phone: "+90 242 323 1177",
@@ -173,6 +183,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     hero_subtitle: "Téléchargez l'Application QR Menu!",
     download: "Télécharger",
     all_categories: "Tout",
+    categories_scroll_prev: "Catégories précédentes",
+    categories_scroll_next: "Catégories suivantes",
     contact: "Contact",
     address: "Fener Mah. 1968 Sk. No: 21/A Muratpaşa/ANTALYA",
     phone: "+90 242 323 1177",
@@ -207,6 +219,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     hero_subtitle: "حمّل تطبيق QR Menu!",
     download: "تحميل",
     all_categories: "الكل",
+    categories_scroll_prev: "الفئات السابقة",
+    categories_scroll_next: "الفئات التالية",
     contact: "اتصل بنا",
     address: "Fener Mah. 1968 Sk. No: 21/A Muratpaşa/ANTALYA",
     phone: "+90 242 323 1177",
