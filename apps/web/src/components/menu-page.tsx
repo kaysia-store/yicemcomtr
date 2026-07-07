@@ -11,6 +11,9 @@ import LanguageModal from "@/components/language-modal";
 import ProductModal from "@/components/product-modal";
 import ThemeToggle from "@/components/theme-toggle";
 import WhatsAppOrderButton from "@/components/whatsapp-order-button";
+import HeroInstallButton from "@/components/hero-install-button";
+import BistroModal from "@/components/bistro-modal";
+import { BISTRO_CATEGORY_SLUG } from "@/lib/bistro/constants";
 
 type Props = {
   menu: MenuData;
@@ -29,10 +32,28 @@ function MenuPageContent({ menu }: Props) {
   const { isLight, setLightTheme } = useTheme();
   const { addItem } = useCart();
   const [activeCategory, setActiveCategory] = useState("all");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [bistroModalOpen, setBistroModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<MenuProduct | null>(null);
 
   const openProduct = (product: MenuProduct) => setSelectedProduct(product);
   const closeProduct = () => setSelectedProduct(null);
+
+  const selectCategory = (slug: string) => {
+    if (slug === BISTRO_CATEGORY_SLUG) {
+      setActiveCategory(BISTRO_CATEGORY_SLUG);
+      setBistroModalOpen(true);
+      return;
+    }
+
+    setActiveCategory(slug);
+    setFilterCategory(slug);
+  };
+
+  const closeBistroModal = () => {
+    setBistroModalOpen(false);
+    setFilterCategory(BISTRO_CATEGORY_SLUG);
+  };
 
   const categoryButtons = useMemo(
     () => [
@@ -46,9 +67,9 @@ function MenuPageContent({ menu }: Props) {
   );
 
   const filtered = useMemo(() => {
-    if (activeCategory === "all") return menu.products;
-    return menu.products.filter((p) => p.categorySlug === activeCategory);
-  }, [menu.products, activeCategory]);
+    if (filterCategory === "all") return menu.products;
+    return menu.products.filter((p) => p.categorySlug === filterCategory);
+  }, [menu.products, filterCategory]);
 
   return (
     <>
@@ -84,9 +105,7 @@ function MenuPageContent({ menu }: Props) {
           <div className="hero-content">
             <h1 className="hero-title">{tUi(lang, "hero_title")}</h1>
             <p className="hero-subtitle">{tUi(lang, "hero_subtitle")}</p>
-            <button className="hero-download-btn" type="button">
-              <span>{tUi(lang, "download")}</span>
-            </button>
+            <HeroInstallButton lang={lang} />
           </div>
         </div>
       </section>
@@ -100,7 +119,7 @@ function MenuPageContent({ menu }: Props) {
                   key={cat.slug}
                   type="button"
                   className={`category-btn ${activeCategory === cat.slug ? "active" : ""}`}
-                  onClick={() => setActiveCategory(cat.slug)}
+                  onClick={() => selectCategory(cat.slug)}
                 >
                   {cat.label}
                 </button>
@@ -196,6 +215,13 @@ function MenuPageContent({ menu }: Props) {
       </a>
 
       <WhatsAppOrderButton lang={lang} />
+
+      <BistroModal
+        open={bistroModalOpen}
+        lang={lang}
+        products={menu.products}
+        onClose={closeBistroModal}
+      />
 
       <LanguageModal
         open={languageModalOpen}

@@ -29,7 +29,9 @@ export type UiKey =
   | "order_now"
   | "total"
   | "added_to_cart"
-  | "whatsapp";
+  | "whatsapp"
+  | "cat_bistro"
+  | "bistro_description";
 
 const UI: Record<LangCode, Record<UiKey, string>> = {
   tr: {
@@ -62,6 +64,9 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     total: "Toplam",
     added_to_cart: "Eklendi!",
     whatsapp: "WhatsApp",
+    cat_bistro: "Bistro",
+    bistro_description:
+      "Ürünlerimizi Sade/Napoliten Makarna veya Pilav seçenekleri ile tercih edebilirsiniz.",
   },
   en: {
     select_language: "Select Language",
@@ -93,6 +98,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     total: "Total",
     added_to_cart: "Added!",
     whatsapp: "WhatsApp",
+    cat_bistro: "Bistro",
+    bistro_description: "You can enjoy our dishes with Plain/Napolitana Pasta or Rice options.",
   },
   ru: {
     select_language: "Выберите язык",
@@ -124,6 +131,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     total: "Итого",
     added_to_cart: "Добавлено!",
     whatsapp: "WhatsApp",
+    cat_bistro: "Бистро",
+    bistro_description: "Наши блюда можно заказать с обычной/неаполитанской пастой или рисом.",
   },
   de: {
     select_language: "Sprache wählen",
@@ -155,6 +164,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     total: "Gesamt",
     added_to_cart: "Hinzugefügt!",
     whatsapp: "WhatsApp",
+    cat_bistro: "Bistro",
+    bistro_description: "Unsere Gerichte können Sie mit einfacher/napolitanischer Pasta oder Reis wählen.",
   },
   fr: {
     select_language: "Choisir la langue",
@@ -186,6 +197,9 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     total: "Total",
     added_to_cart: "Ajouté !",
     whatsapp: "WhatsApp",
+    cat_bistro: "Bistrot",
+    bistro_description:
+      "Vous pouvez choisir nos plats avec des pâtes nature/napolitaines ou du riz.",
   },
   ar: {
     select_language: "اختر اللغة",
@@ -217,6 +231,8 @@ const UI: Record<LangCode, Record<UiKey, string>> = {
     total: "الإجمالي",
     added_to_cart: "تمت الإضافة!",
     whatsapp: "واتساب",
+    cat_bistro: "بيسترو",
+    bistro_description: "يمكنك اختيار أطباقنا مع معكرونة عادية/نابوليتانية أو أرز.",
   },
 };
 

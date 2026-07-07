@@ -1,8 +1,9 @@
 {
   "name": "Yi'Cem",
   "short_name": "Yi'Cem",
-  "description": "Taze malzemelerle hazırlanan özel tarifler. Pizza, burger, salata ve daha fazlası.",
+  "description": "Yi'Cem Restoran dijital menü — pizza, tost, döner ve daha fazlası.",
   "start_url": "/",
+  "id": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#e53935",
