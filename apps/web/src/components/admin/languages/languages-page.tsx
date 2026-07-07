@@ -82,7 +82,7 @@ export default function LanguagesPage() {
                     </td>
                     <td>
                       <Link
-                        href={item.type === "category" ? "/admin/categories" : `/admin/products/${item.id}`}
+                        href={item.type === "category" ? "/admin/menu" : `/admin/menu?product=${encodeURIComponent(item.id)}`}
                         className="admin-text-btn"
                       >
                         Düzenle

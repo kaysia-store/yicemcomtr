@@ -4,8 +4,7 @@ import { usePathname } from "next/navigation";
 import { useAdminHeaderSlot } from "./admin-header-context";
 
 function getPageTitle(pathname: string) {
-  if (pathname.startsWith("/admin/categories")) return "Kategoriler";
-  if (pathname.startsWith("/admin/products")) return "Ürünler";
+  if (pathname.startsWith("/admin/menu") || pathname.startsWith("/admin/categories") || pathname.startsWith("/admin/products")) return "Menü";
   if (pathname.startsWith("/admin/languages")) return "Diller";
   if (pathname.startsWith("/admin/settings")) return "Ayarlar";
   if (pathname.startsWith("/admin/dashboard")) return "Ana Sayfa";

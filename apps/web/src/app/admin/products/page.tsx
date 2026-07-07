@@ -1,11 +1,5 @@
-import { Suspense } from "react";
-import ProductsPage from "@/components/admin/products/products-page";
-import LoadingBlock from "@/components/admin/ui/loading-block";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return (
-    <Suspense fallback={<LoadingBlock label="Yükleniyor…" />}>
-      <ProductsPage />
-    </Suspense>
-  );
+  redirect("/admin/menu");
 }

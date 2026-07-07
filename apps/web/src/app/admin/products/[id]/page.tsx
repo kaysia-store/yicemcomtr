@@ -1,11 +1,10 @@
-import { Suspense } from "react";
-import ProductEditPage from "@/components/admin/products/product-edit-page";
-import LoadingBlock from "@/components/admin/ui/loading-block";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return (
-    <Suspense fallback={<LoadingBlock label="Yükleniyor…" />}>
-      <ProductEditPage />
-    </Suspense>
-  );
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+  redirect(`/admin/menu?product=${encodeURIComponent(id)}`);
 }

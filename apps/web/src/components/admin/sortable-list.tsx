@@ -6,6 +6,7 @@ type Props<T extends { id: string }> = {
   items: T[];
   onReorder: (items: T[]) => void;
   disabled?: boolean;
+  className?: string;
   renderItem: (item: T, index: number, dragHandle: ReactNode) => ReactNode;
 };
 
@@ -13,6 +14,7 @@ export default function SortableList<T extends { id: string }>({
   items,
   onReorder,
   disabled = false,
+  className,
   renderItem,
 }: Props<T>) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -34,7 +36,7 @@ export default function SortableList<T extends { id: string }>({
   };
 
   return (
-    <div className="admin-sortable-list">
+    <div className={["admin-sortable-list", className].filter(Boolean).join(" ")}>
       {items.map((item, index) => {
         const dragHandle = (
           <span

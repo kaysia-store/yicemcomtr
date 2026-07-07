@@ -18,9 +18,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { id: "home", href: "/admin/dashboard", label: "Ana Sayfa", emoji: "🏠" },
-  { id: "categories", href: "/admin/categories", label: "Kategoriler", emoji: "📂" },
-  { id: "products", href: "/admin/products", label: "Ürünler", emoji: "🍽️" },
-  { id: "product-options", href: "/admin/products", label: "Ürün Seçenekleri", emoji: "🎛️" },
+  { id: "menu", href: "/admin/menu", label: "Menü", emoji: "📋" },
   { id: "languages", href: "/admin/languages", label: "Diller", emoji: "🌍" },
   { id: "settings", href: "/admin/settings", label: "Ayarlar", emoji: "⚙️" },
 ];
@@ -29,15 +27,8 @@ function isNavActive(pathname: string, item: NavItem): boolean {
   switch (item.id) {
     case "home":
       return pathname.startsWith("/admin/dashboard");
-    case "categories":
-      return pathname.startsWith("/admin/categories");
-    case "products":
-      return (
-        pathname === "/admin/products" ||
-        (pathname.startsWith("/admin/products") && !/\/products\/[^/]+/.test(pathname))
-      );
-    case "product-options":
-      return /\/admin\/products\/[^/]+/.test(pathname);
+    case "menu":
+      return pathname.startsWith("/admin/menu") || pathname.startsWith("/admin/categories") || pathname.startsWith("/admin/products");
     case "languages":
       return pathname.startsWith("/admin/languages");
     case "settings":

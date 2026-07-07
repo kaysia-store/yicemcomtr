@@ -159,8 +159,8 @@ export default function AdminDashboard() {
               </div>
             </li>
           </ul>
-          <Link href="/admin/categories" className="admin-button admin-button-block">
-            Kategorileri Yönet
+          <Link href="/admin/menu" className="admin-button admin-button-block">
+            Menüyü Yönet
           </Link>
         </section>
 
@@ -197,8 +197,8 @@ export default function AdminDashboard() {
       <section className="admin-k-card admin-k-table-card">
         <div className="admin-k-table-head">
           <h3 className="admin-k-section-title">Değişiklik geçmişi</h3>
-          <Link href="/admin/products" className="admin-text-btn">
-            Ürünlere git
+          <Link href="/admin/menu" className="admin-text-btn">
+            Menüye git
           </Link>
         </div>
         {tableLogs.length === 0 ? (
@@ -240,11 +240,8 @@ export default function AdminDashboard() {
           <Link href="/" className="admin-button admin-button-secondary">
             Canlı Site
           </Link>
-          <Link href="/admin/categories" className="admin-button admin-button-secondary">
-            Kategoriler
-          </Link>
-          <Link href="/admin/products" className="admin-button">
-            Ürünleri Düzenle
+          <Link href="/admin/menu" className="admin-button">
+            Menüyü Düzenle
           </Link>
         </div>
       </section>

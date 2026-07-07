@@ -1,5 +1,5 @@
-import CategoriesPage from "@/components/admin/categories/categories-page";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <CategoriesPage />;
+  redirect("/admin/menu");
 }
