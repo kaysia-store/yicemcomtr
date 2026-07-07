@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "sync:assets": "node ../../scripts/sync-legacy-assets.mjs",
+    "sync:assets": "node scripts/sync-legacy-assets.mjs",
     "dev": "npm run sync:assets && next dev",
     "build": "npm run sync:assets && next build",
     "start": "next start",
