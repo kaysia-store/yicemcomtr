@@ -1,5 +1,5 @@
 import type { LangCode, LocalizedString, MenuProduct, ProductModifier } from "./types";
-import { tLocalized } from "./i18n";
+import { tLocalized, tLocalizedOrFallback } from "./i18n";
 
 export type ModifierGroup = {
   key: string;
@@ -68,9 +68,14 @@ const GROUP_LABELS: Record<string, LocalizedString> = {
 };
 
 export function getProductCardDescription(product: MenuProduct, lang: LangCode): string {
-  const description = tLocalized(product.description, lang);
-  if (description) return description;
-  return tLocalized(product.description, "tr");
+  const description = tLocalized(product.description, lang) || tLocalized(product.description, "tr");
+  if (description.trim()) return description;
+
+  // Eski kayıtlarda açıklama boş, içerik dolu olabilir (döner vb.)
+  const contents = getProductContents(product, lang);
+  if (contents.length > 0) return contents.join(", ");
+
+  return "";
 }
 
 /** @deprecated Kartlarda getProductCardDescription kullanın. */
@@ -123,4 +128,8 @@ export function getProductModifierGroups(product: MenuProduct, lang: LangCode): 
 export function formatModifierPrice(price: number): string | null {
   if (!price) return null;
   return `+₺${price}`;
+}
+
+export function getModifierLabel(modifier: ProductModifier, lang: LangCode): string {
+  return tLocalizedOrFallback(modifier.label, lang, modifier.id);
 }

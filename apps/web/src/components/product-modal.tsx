@@ -5,6 +5,7 @@ import type { LangCode, MenuProduct } from "@/lib/menu/types";
 import { tLocalized } from "@/lib/menu/i18n";
 import {
   formatModifierPrice,
+  getModifierLabel,
   getProductContents,
   getProductModifierGroups,
 } from "@/lib/menu/product-display";
@@ -207,7 +208,7 @@ export default function ProductModal({ product, lang, onClose, onAddToCart }: Pr
                                   checked={radioSelections[group.key] === item.id}
                                   onChange={() => handleRadioChange(group.key, item.id)}
                                 />{" "}
-                                {tLocalized(item.label, lang)}
+                                {getModifierLabel(item, lang)}
                               </span>
                               {priceLabel ? <span className="option-price">{priceLabel}</span> : null}
                             </label>

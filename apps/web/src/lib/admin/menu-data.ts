@@ -51,6 +51,7 @@ export async function loadAdminMenuData(supabase: SupabaseClient): Promise<Admin
     { data: categories, error: catError },
     { data: products, error: prodError },
     { data: modifiers, error: modError },
+    { data: modifierTranslations, error: modTransError },
   ] = await Promise.all([
     supabase
       .from("categories")
@@ -64,15 +65,23 @@ export async function loadAdminMenuData(supabase: SupabaseClient): Promise<Admin
       .order("sort_order"),
     supabase
       .from("product_modifiers")
-      .select(
-        "product_id, modifier_id, modifier_type, price, sort_order, is_active, product_modifier_translations(lang, label)",
-      )
+      .select("product_id, modifier_id, modifier_type, price, sort_order, is_active")
       .order("sort_order"),
+    supabase.from("product_modifier_translations").select("product_id, modifier_id, lang, label"),
   ]);
 
   if (catError) throw catError;
   if (prodError) throw prodError;
   if (modError) throw modError;
+  if (modTransError) throw modTransError;
+
+  const modTransByKey = new Map<string, Array<{ lang: string; label?: string }>>();
+  for (const row of modifierTranslations ?? []) {
+    const key = `${row.product_id}::${row.modifier_id}`;
+    const list = modTransByKey.get(key) ?? [];
+    list.push({ lang: row.lang, label: row.label });
+    modTransByKey.set(key, list);
+  }
 
   const productCountByCategory = new Map<string, number>();
   for (const product of products ?? []) {
@@ -90,6 +99,7 @@ export async function loadAdminMenuData(supabase: SupabaseClient): Promise<Admin
 
   const modifiersByProduct = new Map<string, AdminModifier[]>();
   for (const modifier of modifiers ?? []) {
+    const key = `${modifier.product_id}::${modifier.modifier_id}`;
     const list = modifiersByProduct.get(modifier.product_id) ?? [];
     list.push({
       productId: modifier.product_id,
@@ -98,10 +108,7 @@ export async function loadAdminMenuData(supabase: SupabaseClient): Promise<Admin
       price: Number(modifier.price),
       sortOrder: modifier.sort_order ?? 0,
       isActive: modifier.is_active ?? true,
-      labels: buildLocalized(
-        modifier.product_modifier_translations as Array<{ lang: string; label?: string }>,
-        "label",
-      ),
+      labels: buildLocalized(modTransByKey.get(key) ?? [], "label"),
     });
     modifiersByProduct.set(modifier.product_id, list);
   }
@@ -338,11 +345,12 @@ async function syncProductModifiers(supabase: SupabaseClient, product: AdminProd
   }
 
   for (const modifier of product.modifiers) {
+    const fallbackLabel = modifier.labels.tr.trim() || modifier.modifierId;
     const modTranslations = LANG_CODES.map((lang) => ({
       product_id: modifier.productId,
       modifier_id: modifier.modifierId,
       lang,
-      label: modifier.labels[lang] || modifier.labels.tr || modifier.modifierId,
+      label: modifier.labels[lang]?.trim() || modifier.labels.tr?.trim() || fallbackLabel,
     }));
 
     const { error: modTransError } = await supabase
