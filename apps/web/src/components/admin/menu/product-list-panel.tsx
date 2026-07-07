@@ -61,10 +61,10 @@ export default function ProductListPanel({
   };
 
   return (
-    <section className="admin-products-panel">
-      <div className="admin-menu-panel-head">
+    <section className="admin-k-card admin-k-card-padded admin-products-panel">
+      <div className="admin-k-card-head">
         <div>
-          <h2>Ürünler</h2>
+          <h3 className="admin-k-section-title">Ürünler</h3>
           <p className="admin-muted">
             {filtered.length} ürün{reordering ? " · kaydediliyor…" : ""}
           </p>

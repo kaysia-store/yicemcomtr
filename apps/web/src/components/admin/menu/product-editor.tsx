@@ -16,8 +16,10 @@ type Props = {
   product: AdminProduct;
   categoryName: string;
   embedded?: boolean;
+  modal?: boolean;
   onDirtyChange: (dirty: boolean) => void;
   onSaved: (product: AdminProduct) => void;
+  onClose?: () => void;
   onCancel?: () => void;
 };
 
@@ -30,7 +32,16 @@ const MODIFIER_TYPE_LABELS: Record<string, string> = {
   drinkOption: "İçecek",
 };
 
-export default function ProductEditor({ product, categoryName, embedded = false, onDirtyChange, onSaved, onCancel }: Props) {
+export default function ProductEditor({
+  product,
+  categoryName,
+  embedded = false,
+  modal = false,
+  onDirtyChange,
+  onSaved,
+  onClose,
+  onCancel,
+}: Props) {
   const [draft, setDraft] = useState(product);
   const [activeLang, setActiveLang] = useState<(typeof ADMIN_LANGS)[number]>("tr");
   const [saving, setSaving] = useState(false);
@@ -124,18 +135,24 @@ export default function ProductEditor({ product, categoryName, embedded = false,
     return acc;
   }, {});
 
+  const handleClose = onClose ?? onCancel;
+
   return (
-    <section className={embedded ? "admin-product-detail" : "admin-section"}>
-      <div className={embedded ? "admin-menu-panel-head" : "admin-section-header"}>
+    <section className={modal ? "admin-product-modal" : embedded ? "admin-product-detail" : "admin-section"}>
+      <div className={modal || embedded ? "admin-menu-panel-head" : "admin-section-header"}>
         <div>
-          {embedded ? <h2>{draft.names.tr || draft.id}</h2> : <h1>{draft.names.tr || draft.id}</h1>}
+          {modal || embedded ? (
+            <h2 id="product-editor-title">{draft.names.tr || draft.id}</h2>
+          ) : (
+            <h1>{draft.names.tr || draft.id}</h1>
+          )}
           <p className="admin-muted">
             {categoryName} · {draft.id}
           </p>
         </div>
         <div className="admin-header-actions">
-          {!embedded && onCancel ? (
-            <button type="button" className="admin-button admin-button-secondary" onClick={onCancel}>
+          {!modal && !embedded && handleClose ? (
+            <button type="button" className="admin-button admin-button-secondary" onClick={handleClose}>
               ← Geri
             </button>
           ) : null}
@@ -144,7 +161,7 @@ export default function ProductEditor({ product, categoryName, embedded = false,
           </button>
           <button
             type="button"
-            className={`admin-button ${embedded ? "admin-button-sm" : ""}`}
+            className={`admin-button ${modal || embedded ? "admin-button-sm" : ""}`}
             onClick={() => void handleSave()}
             disabled={saving}
           >
@@ -155,7 +172,7 @@ export default function ProductEditor({ product, categoryName, embedded = false,
 
       {error ? <p className="admin-error">{error}</p> : null}
 
-      <div className={embedded ? "admin-product-detail-body" : "admin-editor-layout"}>
+      <div className={modal || embedded ? "admin-product-detail-body" : "admin-editor-layout"}>
         <div className="admin-panel">
           <h3>Genel</h3>
           <div className="admin-form-grid">

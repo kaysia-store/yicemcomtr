@@ -40,10 +40,10 @@ export default function CategorySettings({ category, onDirtyChange, onSaved }: P
   };
 
   return (
-    <section className="admin-settings-panel">
-      <div className="admin-menu-panel-head">
+    <section className="admin-k-card admin-k-card-padded admin-settings-panel">
+      <div className="admin-k-card-head">
         <div>
-          <h2>Kategori Ayarları</h2>
+          <h3 className="admin-k-section-title">Kategori ayarları</h3>
           <p className="admin-muted admin-mono">{category.id}</p>
         </div>
         <button type="button" className="admin-button admin-button-sm" onClick={() => void handleSave()} disabled={saving}>

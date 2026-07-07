@@ -14,6 +14,13 @@ const ACTION_LABELS: Record<AuditLogRow["action"], string> = {
   delete: "Silme",
 };
 
+const ACTION_ICONS: Record<AuditLogRow["action"], string> = {
+  create: "add_circle",
+  update: "edit",
+  reorder: "swap_vert",
+  delete: "delete",
+};
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("tr-TR", {
     dateStyle: "short",
@@ -47,65 +54,158 @@ export default function AdminDashboard() {
   }, [loadData]);
 
   if (loading) {
-    return <p className="admin-muted">Dashboard yükleniyor…</p>;
+    return (
+      <div className="admin-page">
+        <p className="admin-muted">Dashboard yükleniyor…</p>
+      </div>
+    );
   }
 
   if (error || !stats) {
-    return <p className="admin-error">{error ?? "Veri bulunamadı."}</p>;
+    return (
+      <div className="admin-page">
+        <p className="admin-error">{error ?? "Veri bulunamadı."}</p>
+      </div>
+    );
   }
 
+  const activeRate =
+    stats.productCount > 0 ? Math.round((stats.activeProductCount / stats.productCount) * 100) : 0;
+
+  const statCards = [
+    {
+      label: "Kategoriler",
+      value: String(stats.categoryCount),
+      hint: `${stats.hiddenCategoryCount} gizli`,
+      icon: "category",
+    },
+    {
+      label: "Ürünler",
+      value: String(stats.productCount),
+      hint: `${stats.activeProductCount} aktif`,
+      icon: "fastfood",
+    },
+    {
+      label: "Alt özellikler",
+      value: String(stats.modifierCount),
+      hint: "Ekstra / seçenek",
+      icon: "tune",
+    },
+    {
+      label: "Aktif oranı",
+      value: `%${activeRate}`,
+      hint: "Ürünlerin aktif payı",
+      icon: "check_circle",
+    },
+  ];
+
+  const recentActivity = auditLogs.slice(0, 5);
+  const tableLogs = auditLogs.slice(0, 12);
+
   return (
-    <section className="admin-section admin-dashboard-page">
-      <div className="admin-section-header">
-        <div>
-          <h1>Dashboard</h1>
-          <p className="admin-muted">Menü özeti ve son değişiklikler</p>
-        </div>
-        <div className="admin-header-actions">
-          <Link href="/admin/menu" className="admin-button">
+    <div className="admin-page">
+      <div className="admin-welcome">
+        <h2 className="admin-welcome-title">Hoş geldiniz</h2>
+        <p className="admin-welcome-text">
+          <strong>Yi&apos;Cem</strong> menü yönetim paneli. Kategorileri, ürünleri ve alt özellikleri buradan
+          düzenleyebilirsiniz.
+        </p>
+      </div>
+
+      <div className="admin-stat-grid">
+        {statCards.map((card) => (
+          <section key={card.label} className="admin-k-card">
+            <div className="admin-k-card-top">
+              <p className="admin-k-card-label">{card.label}</p>
+              <span className="material-symbols-outlined admin-k-card-icon" aria-hidden>
+                {card.icon}
+              </span>
+            </div>
+            <p className="admin-k-card-value">{card.value}</p>
+            <p className="admin-k-card-hint">{card.hint}</p>
+          </section>
+        ))}
+      </div>
+
+      <div className="admin-two-col">
+        <section className="admin-k-card admin-k-card-padded">
+          <h3 className="admin-k-section-title">Menü durumu</h3>
+          <ul className="admin-summary-list">
+            <li>
+              <span className="material-symbols-outlined" aria-hidden>
+                category
+              </span>
+              <div>
+                <strong>{stats.categoryCount}</strong>
+                <span>kategori kayıtlı</span>
+              </div>
+            </li>
+            <li>
+              <span className="material-symbols-outlined" aria-hidden>
+                fastfood
+              </span>
+              <div>
+                <strong>{stats.productCount}</strong>
+                <span>ürün ({stats.activeProductCount} aktif)</span>
+              </div>
+            </li>
+            <li>
+              <span className="material-symbols-outlined" aria-hidden>
+                tune
+              </span>
+              <div>
+                <strong>{stats.modifierCount}</strong>
+                <span>alt özellik / ekstra</span>
+              </div>
+            </li>
+          </ul>
+          <Link href="/admin/menu" className="admin-button admin-button-block">
             Menüyü Yönet
           </Link>
-        </div>
+        </section>
+
+        <section className="admin-k-card admin-k-card-padded">
+          <div className="admin-k-card-head">
+            <h3 className="admin-k-section-title">Son aktiviteler</h3>
+            <button type="button" className="admin-text-btn" onClick={() => void loadData()}>
+              Yenile
+            </button>
+          </div>
+          {recentActivity.length === 0 ? (
+            <p className="admin-muted">Henüz kayıtlı değişiklik yok.</p>
+          ) : (
+            <ul className="admin-activity-list">
+              {recentActivity.map((log) => (
+                <li key={log.id} className="admin-activity-item">
+                  <span className="admin-activity-icon" aria-hidden>
+                    <span className="material-symbols-outlined">{ACTION_ICONS[log.action]}</span>
+                  </span>
+                  <div className="admin-activity-body">
+                    <p>{log.summary}</p>
+                    <span>
+                      {formatDate(log.createdAt)}
+                      {log.userEmail ? ` · ${log.userEmail}` : ""}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
 
-      <div className="admin-stats-grid">
-        <article className="admin-stat-card">
-          <span className="admin-stat-label">Kategoriler</span>
-          <strong className="admin-stat-value">{stats.categoryCount}</strong>
-          <span className="admin-muted">{stats.hiddenCategoryCount} gizli</span>
-        </article>
-        <article className="admin-stat-card">
-          <span className="admin-stat-label">Ürünler</span>
-          <strong className="admin-stat-value">{stats.productCount}</strong>
-          <span className="admin-muted">{stats.activeProductCount} aktif</span>
-        </article>
-        <article className="admin-stat-card">
-          <span className="admin-stat-label">Ekstralar</span>
-          <strong className="admin-stat-value">{stats.modifierCount}</strong>
-          <span className="admin-muted">toplam seçenek</span>
-        </article>
-        <article className="admin-stat-card">
-          <span className="admin-stat-label">Canlı Site</span>
-          <strong className="admin-stat-value admin-stat-link">
-            <Link href="/">yicem.com.tr</Link>
-          </strong>
-          <span className="admin-muted">müşteri menüsü</span>
-        </article>
-      </div>
-
-      <div className="admin-panel admin-panel-wide">
-        <div className="admin-section-header">
-          <h3>Son Değişiklikler</h3>
-          <button type="button" className="admin-button admin-button-secondary" onClick={() => void loadData()}>
-            Yenile
-          </button>
+      <section className="admin-k-card admin-k-table-card">
+        <div className="admin-k-table-head">
+          <h3 className="admin-k-section-title">Değişiklik geçmişi</h3>
+          <Link href="/admin/menu" className="admin-text-btn">
+            Menüye git
+          </Link>
         </div>
-
-        {auditLogs.length === 0 ? (
-          <p className="admin-muted">Henüz kayıtlı değişiklik yok. Menüde düzenleme yaptıkça burada görünür.</p>
+        {tableLogs.length === 0 ? (
+          <p className="admin-muted admin-k-table-empty">Menüde düzenleme yaptıkça burada görünür.</p>
         ) : (
-          <div className="admin-audit-table-wrap">
-            <table className="admin-audit-table">
+          <div className="admin-k-table-wrap">
+            <table className="admin-k-table">
               <thead>
                 <tr>
                   <th>Tarih</th>
@@ -115,11 +215,11 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {auditLogs.map((log) => (
+                {tableLogs.map((log) => (
                   <tr key={log.id}>
                     <td>{formatDate(log.createdAt)}</td>
                     <td>
-                      <span className={`admin-badge admin-badge-${log.action}`}>{ACTION_LABELS[log.action]}</span>
+                      <span className={`admin-pill admin-pill-${log.action}`}>{ACTION_LABELS[log.action]}</span>
                     </td>
                     <td>{log.summary}</td>
                     <td className="admin-muted">{log.userEmail ?? "—"}</td>
@@ -129,7 +229,22 @@ export default function AdminDashboard() {
             </table>
           </div>
         )}
-      </div>
-    </section>
+      </section>
+
+      <section className="admin-cta-card">
+        <p>
+          Canlı menünüz <strong>yicem.com.tr</strong> adresinde yayında. Değişiklikler kaydedildikten sonra müşteri
+          menüsüne yansır.
+        </p>
+        <div className="admin-cta-actions">
+          <Link href="/" className="admin-button admin-button-secondary">
+            Canlı Siteyi Aç
+          </Link>
+          <Link href="/admin/menu" className="admin-button">
+            Menüyü Düzenle
+          </Link>
+        </div>
+      </section>
+    </div>
   );
 }

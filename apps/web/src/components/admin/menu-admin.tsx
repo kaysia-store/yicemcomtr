@@ -132,73 +132,96 @@ function MenuAdminInner() {
     await reorderProducts(supabase, products, categoryId);
   };
 
+  const closeProduct = () => {
+    if (!categoryId) return;
+    navigate({ category: categoryId });
+  };
+
   if (loading) {
-    return <p className="admin-muted admin-menu-loading">Menü verileri yükleniyor…</p>;
+    return (
+      <div className="admin-page">
+        <p className="admin-muted">Menü verileri yükleniyor…</p>
+      </div>
+    );
   }
 
   if (error || !data) {
-    return <p className="admin-error">{error ?? "Veri bulunamadı."}</p>;
+    return (
+      <div className="admin-page">
+        <p className="admin-error">{error ?? "Veri bulunamadı."}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="admin-menu-workspace">
-      <CategoryNav
-        categories={data.categories}
-        selectedId={categoryId}
-        onSelect={(id) => navigate({ category: id })}
-        onCategoriesChange={handleCategoriesChange}
-        onReorder={handleReorderCategories}
-      />
+    <>
+      <div className="admin-menu-layout">
+        <CategoryNav
+          categories={data.categories}
+          selectedId={categoryId}
+          onSelect={(id) => navigate({ category: id })}
+          onCategoriesChange={handleCategoriesChange}
+          onReorder={handleReorderCategories}
+        />
 
-      <div className="admin-menu-main">
-        {selectedCategory ? (
-          <>
-            <CategorySettings
-              category={selectedCategory}
-              onDirtyChange={setDirty}
-              onSaved={handleCategorySaved}
-            />
-            <ProductListPanel
-              category={selectedCategory}
-              products={categoryProducts}
-              selectedProductId={productId}
-              allProductIds={data.products.map((product) => product.id)}
-              onSelectProduct={(id) => navigate({ category: categoryId, product: id })}
-              onProductsChange={handleCategoryProductsChange}
-              onReorder={handleReorderProducts}
-            />
-          </>
-        ) : (
-          <div className="admin-empty-panel">
-            <h2>Kategori seçin</h2>
-            <p className="admin-muted">Sol listeden bir kategori seçerek başlayın.</p>
-          </div>
-        )}
+        <div className="admin-menu-stack">
+          {selectedCategory ? (
+            <>
+              <CategorySettings
+                category={selectedCategory}
+                onDirtyChange={setDirty}
+                onSaved={handleCategorySaved}
+              />
+              <ProductListPanel
+                category={selectedCategory}
+                products={categoryProducts}
+                selectedProductId={productId}
+                allProductIds={data.products.map((product) => product.id)}
+                onSelectProduct={(id) => navigate({ category: categoryId, product: id })}
+                onProductsChange={handleCategoryProductsChange}
+                onReorder={handleReorderProducts}
+              />
+            </>
+          ) : (
+            <div className="admin-empty-panel">
+              <span className="material-symbols-outlined admin-empty-icon">category</span>
+              <h2>Kategori seçin</h2>
+              <p className="admin-muted">Soldan bir kategori seçerek başlayın.</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      <aside className="admin-menu-detail">
-        {selectedProduct && selectedCategory ? (
-          <ProductEditor
-            product={selectedProduct}
-            categoryName={selectedCategory.names.tr}
-            embedded
-            onDirtyChange={setDirty}
-            onSaved={handleProductSaved}
-          />
-        ) : (
-          <div className="admin-empty-panel admin-empty-detail">
-            <h2>Ürün özellikleri</h2>
-            <p className="admin-muted">Düzenlemek için listeden bir ürün seçin.</p>
+      {selectedProduct && selectedCategory ? (
+        <div className="admin-modal-backdrop" onClick={closeProduct} role="presentation">
+          <div
+            className="admin-modal-sheet admin-modal-sheet-wide"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="product-editor-title"
+          >
+            <button type="button" className="admin-modal-close" onClick={closeProduct} aria-label="Kapat">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            <ProductEditor
+              product={selectedProduct}
+              categoryName={selectedCategory.names.tr}
+              modal
+              onDirtyChange={setDirty}
+              onSaved={handleProductSaved}
+              onClose={closeProduct}
+            />
           </div>
-        )}
-      </aside>
-    </div>
+        </div>
+      ) : null}
+    </>
   );
 }
 
 export default function MenuAdmin() {
   return (
-    <Suspense fallback={<p className="admin-muted admin-menu-loading">Yükleniyor…</p>}>
+    <Suspense fallback={<p className="admin-muted admin-page">Yükleniyor…</p>}>
       <MenuAdminInner />
     </Suspense>
   );

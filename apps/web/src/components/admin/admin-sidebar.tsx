@@ -10,8 +10,8 @@ type Props = {
 };
 
 const NAV_ITEMS = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: "📊", short: "Özet" },
-  { href: "/admin/menu", label: "Menü", icon: "🍽️", short: "Menü" },
+  { href: "/admin/dashboard", label: "Özet", icon: "space_dashboard", short: "Özet" },
+  { href: "/admin/menu", label: "Menü", icon: "restaurant_menu", short: "Menü" },
 ];
 
 export default function AdminSidebar({ open, onClose }: Props) {
@@ -41,7 +41,7 @@ export default function AdminSidebar({ open, onClose }: Props) {
               onClick={onClose}
               title={item.label}
             >
-              <span className="admin-sidebar-icon" aria-hidden="true">
+              <span className="material-symbols-outlined admin-sidebar-icon" aria-hidden>
                 {item.icon}
               </span>
               <span className="admin-sidebar-text">{item.short}</span>
@@ -52,8 +52,8 @@ export default function AdminSidebar({ open, onClose }: Props) {
 
       <div className="admin-sidebar-footer">
         <Link href="/" className="admin-sidebar-link" onClick={onClose} title="Canlı Menü">
-          <span className="admin-sidebar-icon" aria-hidden="true">
-            🌐
+          <span className="material-symbols-outlined admin-sidebar-icon" aria-hidden>
+            public
           </span>
           <span className="admin-sidebar-text">Site</span>
         </Link>
@@ -63,8 +63,8 @@ export default function AdminSidebar({ open, onClose }: Props) {
           onClick={() => void handleLogout()}
           title="Çıkış"
         >
-          <span className="admin-sidebar-icon" aria-hidden="true">
-            🚪
+          <span className="material-symbols-outlined admin-sidebar-icon" aria-hidden>
+            logout
           </span>
           <span className="admin-sidebar-text">Çıkış</span>
         </button>

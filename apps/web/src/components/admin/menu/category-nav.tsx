@@ -45,14 +45,14 @@ export default function CategoryNav({
   };
 
   return (
-    <aside className="admin-menu-categories">
-      <div className="admin-menu-panel-head">
+    <aside className="admin-menu-categories admin-k-card admin-k-card-padded">
+      <div className="admin-k-card-head">
         <div>
-          <h2>Kategoriler</h2>
+          <h3 className="admin-k-section-title">Kategoriler</h3>
           <p className="admin-muted">{categories.length} adet{reordering ? " · kaydediliyor…" : ""}</p>
         </div>
         <button type="button" className="admin-icon-btn" onClick={() => setShowCreate(true)} title="Yeni kategori">
-          +
+          <span className="material-symbols-outlined">add</span>
         </button>
       </div>
 
