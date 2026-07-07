@@ -1,0 +1,209 @@
+.admin-shell {
+  min-height: 100vh;
+  background: #f4f5f7;
+  color: #111827;
+  font-family: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.admin-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.admin-login {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+}
+
+.admin-card {
+  width: min(100%, 420px);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.admin-card h1,
+.admin-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+}
+
+.admin-muted {
+  color: #6b7280;
+  margin: 0;
+}
+
+.admin-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.admin-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.admin-form input,
+.admin-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  background: #fff;
+}
+
+.admin-button {
+  border: none;
+  border-radius: 8px;
+  background: #e53935;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+}
+
+.admin-button:hover {
+  background: #c62828;
+}
+
+.admin-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.admin-button-secondary {
+  background: #fff;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+.admin-button-secondary:hover {
+  background: #f9fafb;
+}
+
+.admin-button-small {
+  padding: 0.4rem 0.65rem;
+  font-size: 0.85rem;
+}
+
+.admin-error {
+  color: #b91c1c;
+  margin: 0.75rem 0 0;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  color: #111827;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.admin-filter-btn {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  font: inherit;
+}
+
+.admin-filter-btn.active {
+  background: #e53935;
+  border-color: #e53935;
+  color: #fff;
+}
+
+.admin-table-wrap {
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  background: #fafafa;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #6b7280;
+}
+
+.admin-modifier-row td {
+  background: #fcfcfd;
+  font-size: 0.92rem;
+}
+
+.admin-modifier-type {
+  display: inline-block;
+  margin-right: 0.35rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.admin-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.admin-input-price {
+  max-width: 110px;
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+  }
+}
