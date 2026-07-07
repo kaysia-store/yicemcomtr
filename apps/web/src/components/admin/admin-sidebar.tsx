@@ -13,21 +13,16 @@ type NavItem = {
   id: string;
   href: string;
   label: string;
-  icon: string;
+  emoji: string;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "home", href: "/admin/dashboard", label: "Ana Sayfa", icon: "home" },
-  { id: "categories", href: "/admin/categories", label: "Kategoriler", icon: "category" },
-  { id: "products", href: "/admin/products", label: "Ürünler", icon: "restaurant_menu" },
-  {
-    id: "product-options",
-    href: "/admin/products",
-    label: "Ürün Seçenekleri",
-    icon: "settings_input_component",
-  },
-  { id: "languages", href: "/admin/languages", label: "Diller", icon: "language" },
-  { id: "settings", href: "/admin/settings", label: "Ayarlar", icon: "settings" },
+  { id: "home", href: "/admin/dashboard", label: "Ana Sayfa", emoji: "🏠" },
+  { id: "categories", href: "/admin/categories", label: "Kategoriler", emoji: "📂" },
+  { id: "products", href: "/admin/products", label: "Ürünler", emoji: "🍽️" },
+  { id: "product-options", href: "/admin/products", label: "Ürün Seçenekleri", emoji: "🎛️" },
+  { id: "languages", href: "/admin/languages", label: "Diller", emoji: "🌍" },
+  { id: "settings", href: "/admin/settings", label: "Ayarlar", emoji: "⚙️" },
 ];
 
 function isNavActive(pathname: string, item: NavItem): boolean {
@@ -66,7 +61,7 @@ export default function AdminSidebar({ open, onClose }: Props) {
     <aside className={`admin-sidebar ${open ? "open" : ""}`}>
       <div className="admin-sidebar-profile">
         <div className="admin-sidebar-avatar" aria-hidden>
-          <span className="material-symbols-outlined">person</span>
+          <span className="admin-sidebar-emoji admin-sidebar-emoji-lg">👤</span>
         </div>
         <div>
           <h1 className="admin-sidebar-title">Yicem Admin</h1>
@@ -84,12 +79,8 @@ export default function AdminSidebar({ open, onClose }: Props) {
               className={`admin-sidebar-link ${active ? "active" : ""}`}
               onClick={onClose}
             >
-              <span
-                className="material-symbols-outlined admin-sidebar-icon"
-                style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                aria-hidden
-              >
-                {item.icon}
+              <span className="admin-sidebar-emoji" aria-hidden>
+                {item.emoji}
               </span>
               <span className="admin-sidebar-text">{item.label}</span>
             </Link>
@@ -99,8 +90,8 @@ export default function AdminSidebar({ open, onClose }: Props) {
 
       <div className="admin-sidebar-footer">
         <Link href="/" className="admin-sidebar-link admin-sidebar-link-muted" onClick={onClose}>
-          <span className="material-symbols-outlined admin-sidebar-icon" aria-hidden>
-            public
+          <span className="admin-sidebar-emoji" aria-hidden>
+            🔗
           </span>
           <span className="admin-sidebar-text">Canlı Menü</span>
         </Link>
@@ -109,8 +100,8 @@ export default function AdminSidebar({ open, onClose }: Props) {
           className="admin-sidebar-link admin-sidebar-link-muted admin-sidebar-logout"
           onClick={() => void handleLogout()}
         >
-          <span className="material-symbols-outlined admin-sidebar-icon" aria-hidden>
-            logout
+          <span className="admin-sidebar-emoji" aria-hidden>
+            🚪
           </span>
           <span className="admin-sidebar-text">Çıkış</span>
         </button>

@@ -5,7 +5,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { AdminHeaderSlotProvider } from "./admin-header-context";
 import { AdminDataProvider } from "./providers/admin-data-provider";
-import AdminBottomNav from "./admin-bottom-nav";
 import AdminHeader from "./admin-header";
 import AdminSidebar from "./admin-sidebar";
 
@@ -62,7 +61,6 @@ export default function AdminShell({ children }: Props) {
             <AdminDataProvider>{children}</AdminDataProvider>
           </div>
         </main>
-        <AdminBottomNav />
       </div>
     </AdminHeaderSlotProvider>
   );
