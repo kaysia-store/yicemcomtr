@@ -1,5 +1,5 @@
-import PriceAdmin from "@/components/admin/price-admin";
+import { redirect } from "next/navigation";
 
-export default function AdminPage() {
-  return <PriceAdmin />;
+export default function AdminIndexPage() {
+  redirect("/admin/menu");
 }
