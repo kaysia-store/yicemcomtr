@@ -1,68 +1,35 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useAdminHeaderSlot } from "./admin-header-context";
 
-function formatHeaderDate() {
-  return new Date().toLocaleDateString("tr-TR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
-}
-
-function getPageMeta(pathname: string) {
-  if (pathname.startsWith("/admin/categories")) {
-    return { title: "Kategoriler", subtitle: "Menü kategorilerini yönetin" };
-  }
-  if (pathname.startsWith("/admin/products")) {
-    return { title: "Ürünler", subtitle: "Ürünler, fiyatlar ve seçenekler" };
-  }
-  if (pathname.startsWith("/admin/languages")) {
-    return { title: "Diller", subtitle: "Çeviriler ve eksik içerikler" };
-  }
-  if (pathname.startsWith("/admin/settings")) {
-    return { title: "Ayarlar", subtitle: "Restoran ve site ayarları" };
-  }
-  if (pathname.startsWith("/admin/dashboard")) {
-    return { title: "Dashboard", subtitle: formatHeaderDate() };
-  }
-  return { title: "Admin", subtitle: "Yi'Cem yönetim paneli" };
+function getPageTitle(pathname: string) {
+  if (pathname.startsWith("/admin/categories")) return "Kategoriler";
+  if (pathname.startsWith("/admin/products")) return "Ürünler";
+  if (pathname.startsWith("/admin/languages")) return "Diller";
+  if (pathname.startsWith("/admin/settings")) return "Ayarlar";
+  if (pathname.startsWith("/admin/dashboard")) return "Ana Sayfa";
+  return "Yicem Admin";
 }
 
 type Props = {
-  userEmail: string | null;
   onMenuOpen: () => void;
 };
 
-function userInitials(email: string | null) {
-  if (!email) return "YC";
-  const local = email.split("@")[0] ?? "";
-  const parts = local.split(/[._-]+/).filter(Boolean);
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return local.slice(0, 2).toUpperCase() || "YC";
-}
-
-export default function AdminHeader({ userEmail, onMenuOpen }: Props) {
+export default function AdminHeader({ onMenuOpen }: Props) {
   const pathname = usePathname();
-  const { title, subtitle } = getPageMeta(pathname);
+  const title = getPageTitle(pathname);
+  const { slot } = useAdminHeaderSlot();
 
   return (
-    <header className="admin-page-header">
-      <div className="admin-page-header-left">
+    <header className="admin-top-appbar">
+      <div className="admin-top-appbar-left">
         <button type="button" className="admin-menu-btn" onClick={onMenuOpen} aria-label="Menüyü aç">
           <span className="material-symbols-outlined">menu</span>
         </button>
-        <div>
-          <h1 className="admin-page-title">{title}</h1>
-          <p className="admin-page-subtitle">{subtitle}</p>
-        </div>
+        <h2 className="admin-top-appbar-title">{title}</h2>
       </div>
-      <div className="admin-page-header-right">
-        <div className="admin-user-chip" title={userEmail ?? undefined}>
-          <span className="admin-user-avatar">{userInitials(userEmail)}</span>
-          <span className="admin-user-email">{userEmail ?? "Admin"}</span>
-        </div>
-      </div>
+      {slot.toolbar ? <div className="admin-top-appbar-actions">{slot.toolbar}</div> : null}
     </header>
   );
 }
