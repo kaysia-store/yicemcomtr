@@ -1,0 +1,55 @@
+# Supabase Kurulum — 5 Adım
+
+## 1. Migration çalıştır
+Supabase Dashboard → **SQL Editor** → New query
+
+`supabase/migrations/20260707000000_initial_schema.sql` dosyasının **tüm içeriğini** yapıştır → **Run**
+
+Başarılıysa Table Editor'da şu tablolar görünür:
+- languages, categories, products, product_modifiers, …
+
+## 2. Ortam değişkenleri
+`apps/web/.env.local` dosyası oluştur:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://XXXX.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+Supabase → **Project Settings** → **API**:
+- Project URL → `NEXT_PUBLIC_SUPABASE_URL`
+- `anon` `public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+## 3. Veri yükle (seed)
+Proje kökünde PowerShell:
+
+```powershell
+$env:SUPABASE_URL="https://XXXX.supabase.co"
+$env:SUPABASE_SERVICE_ROLE_KEY="eyJ... service_role key ..."
+npm run seed
+```
+
+> `service_role` key **gizli** tutulmalı; sadece seed için kullanılır, siteye eklenmez.
+
+## 4. Siteyi çalıştır
+```bash
+npm run dev
+```
+→ http://localhost:3000
+
+Footer'da **Veri kaynağı: Supabase** yazıyorsa bağlantı tamamdır.
+
+## 5. Kontrol
+- [ ] 13 kategori görünüyor
+- [ ] Ürünler ve fiyatlar doğru
+- [ ] Görseller yükleniyor
+
+---
+
+## Sorun giderme
+
+| Sorun | Çözüm |
+|---|---|
+| Footer'da `all.json` yazıyor | `.env.local` eksik veya yanlış; dev sunucusunu yeniden başlat |
+| Seed hata veriyor | Önce migration çalıştırıldı mı kontrol et |
+| Boş menü | `npm run seed` tekrar çalıştır |

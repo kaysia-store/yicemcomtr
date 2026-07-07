@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+apps/web/node_modules/
+
+# Environment
+.env
+.env.local
+.env*.local
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+
+# Legacy tooling
+balance_excel.js
+Menu_Fiyat_Guncelleme*.xlsx
+urun_eslestirme.json
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,17 @@
+{
+  "name": "yicem",
+  "private": true,
+  "scripts": {
+    "dev": "npm run sync:assets && npm run dev --workspace=apps/web",
+    "build": "npm run sync:assets && npm run build --workspace=apps/web",
+    "lint": "npm run lint --workspace=apps/web",
+    "sync:assets": "node scripts/sync-legacy-assets.mjs",
+    "seed": "node scripts/seed-from-all-json.mjs"
+  },
+  "workspaces": [
+    "apps/web"
+  ],
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.103.0"
+  }
+}
