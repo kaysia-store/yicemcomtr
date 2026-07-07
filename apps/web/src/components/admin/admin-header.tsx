@@ -24,7 +24,7 @@ export default function AdminHeader({ onMenuOpen }: Props) {
     <header className="admin-top-appbar">
       <div className="admin-top-appbar-left">
         <button type="button" className="admin-menu-btn" onClick={onMenuOpen} aria-label="Menüyü aç">
-          <span className="material-symbols-outlined">menu</span>
+          <span aria-hidden>☰</span>
         </button>
         <h2 className="admin-top-appbar-title">{title}</h2>
       </div>

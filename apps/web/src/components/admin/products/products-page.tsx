@@ -118,7 +118,7 @@ export default function ProductsPage() {
 
       {filtered.length === 0 ? (
         <EmptyState
-          icon="fastfood"
+          emoji="🍔"
           title="Ürün bulunamadı"
           description="Filtreyi değiştirin veya yeni ürün ekleyin."
           action={

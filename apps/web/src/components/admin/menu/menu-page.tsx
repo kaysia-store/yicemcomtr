@@ -96,9 +96,6 @@ function CategorySection({
       <div className="admin-menu-accordion-head">
         {canDragCategory ? categoryDragHandle : null}
         <button type="button" className="admin-menu-accordion-toggle" onClick={onToggleExpand}>
-          <span className="material-symbols-outlined admin-menu-accordion-chevron" aria-hidden>
-            expand_more
-          </span>
           <span className="admin-menu-accordion-title">{category.names.tr || category.id}</span>
           <span className="admin-menu-accordion-count">{category.productCount} ürün</span>
         </button>
@@ -113,17 +110,16 @@ function CategorySection({
             <span className="admin-toggle-track" />
             <span className="admin-toggle-thumb" />
           </label>
-          <button type="button" className="admin-cat-icon-btn admin-cat-icon-btn-edit" onClick={onEditCategory} aria-label="Kategori düzenle">
-            <span className="material-symbols-outlined">edit</span>
+          <button type="button" className="admin-cat-text-btn" onClick={onEditCategory}>
+            Düzenle
           </button>
           <button
             type="button"
-            className="admin-cat-icon-btn admin-cat-icon-btn-delete"
+            className="admin-cat-text-btn admin-cat-text-btn-delete"
             onClick={onDeleteCategory}
             disabled={category.productCount > 0}
-            aria-label="Kategori sil"
           >
-            <span className="material-symbols-outlined">delete</span>
+            Sil
           </button>
         </div>
       </div>
@@ -221,10 +217,7 @@ function CategorySection({
           )}
 
           <button type="button" className="admin-menu-add-product" onClick={onCreateProduct}>
-            <span className="material-symbols-outlined" aria-hidden>
-              add
-            </span>
-            Ürün Ekle
+            + Ürün Ekle
           </button>
 
           {reordering ? <p className="admin-muted admin-menu-reorder-hint">Sıralama kaydediliyor…</p> : null}
@@ -404,9 +397,6 @@ export default function MenuPage() {
     <div className="admin-page">
       <AdminHeaderToolbar>
         <div className="admin-header-search">
-          <span className="material-symbols-outlined" aria-hidden>
-            search
-          </span>
           <input
             type="search"
             placeholder="Kategori veya ürün ara…"
@@ -416,10 +406,7 @@ export default function MenuPage() {
           />
         </div>
         <button type="button" className="admin-btn-primary" onClick={() => setEditingCategory("new")}>
-          <span className="material-symbols-outlined" aria-hidden>
-            add
-          </span>
-          Kategori Ekle
+          + Kategori Ekle
         </button>
       </AdminHeaderToolbar>
 
@@ -427,7 +414,7 @@ export default function MenuPage() {
 
       {sortedCategories.length === 0 ? (
         <EmptyState
-          icon="restaurant_menu"
+          emoji="🍽️"
           title="Henüz menü yok"
           description="İlk kategorinizi ekleyerek başlayın, ardından ürünleri ekleyin."
           action={
@@ -506,8 +493,8 @@ export default function MenuPage() {
                   Kategorileri ve ürünleri sürükleyerek sıralayın. Ürün kartına tıklayarak düzenleme ve seçenekleri yönetin.
                 </p>
               </div>
-              <span className="material-symbols-outlined admin-insight-icon" aria-hidden>
-                reorder
+              <span className="admin-insight-icon" aria-hidden>
+                ↕️
               </span>
             </div>
             <div className="admin-insight-card admin-insight-card-stat">
@@ -531,7 +518,7 @@ export default function MenuPage() {
             aria-labelledby="category-form-title"
           >
             <button type="button" className="admin-modal-close" onClick={() => setEditingCategory(null)} aria-label="Kapat">
-              <span className="material-symbols-outlined">close</span>
+              ×
             </button>
             <div className="admin-modal-scroll">
               <CategoryForm
@@ -559,7 +546,7 @@ export default function MenuPage() {
             aria-labelledby="product-form-title"
           >
             <button type="button" className="admin-modal-close" onClick={() => setEditingProduct(null)} aria-label="Kapat">
-              <span className="material-symbols-outlined">close</span>
+              ×
             </button>
             <div className="admin-modal-scroll">
               <ProductForm

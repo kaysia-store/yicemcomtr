@@ -52,7 +52,7 @@ export default function ProductEditPage() {
     return (
       <div className="admin-page">
         <EmptyState
-          icon="search_off"
+          emoji="🔍"
           title="Ürün bulunamadı"
           description="Bu ürün silinmiş veya mevcut değil."
           action={

@@ -1,15 +1,15 @@
 type Props = {
-  icon?: string;
+  emoji?: string;
   title: string;
   description?: string;
   action?: React.ReactNode;
 };
 
-export default function EmptyState({ icon = "inbox", title, description, action }: Props) {
+export default function EmptyState({ emoji = "📭", title, description, action }: Props) {
   return (
     <div className="admin-empty-state">
-      <span className="material-symbols-outlined admin-empty-state-icon" aria-hidden>
-        {icon}
+      <span className="admin-empty-state-icon" aria-hidden>
+        {emoji}
       </span>
       <h3>{title}</h3>
       {description ? <p className="admin-muted">{description}</p> : null}

@@ -163,7 +163,7 @@ export default function CategoriesPage() {
 
       {sorted.length === 0 ? (
         <EmptyState
-          icon="category"
+          emoji="📁"
           title="Henüz kategori yok"
           description="İlk kategorinizi ekleyerek başlayın."
           action={
