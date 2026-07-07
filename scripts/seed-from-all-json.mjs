@@ -53,6 +53,12 @@ function normalizeImage(url) {
   return url.replace(/^\.\//, '/');
 }
 
+function dedupeBy(rows, keyFn) {
+  const map = new Map();
+  for (const row of rows) map.set(keyFn(row), row);
+  return [...map.values()];
+}
+
 async function main() {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -165,10 +171,10 @@ async function main() {
   const upserts = [
     { table: 'categories', rows: categories, onConflict: 'id' },
     { table: 'category_translations', rows: categoryTranslations, onConflict: 'category_id,lang' },
-    { table: 'products', rows: products, onConflict: 'id' },
-    { table: 'product_translations', rows: productTranslations, onConflict: 'product_id,lang' },
-    { table: 'product_modifiers', rows: modifiers, onConflict: 'product_id,modifier_id' },
-    { table: 'product_modifier_translations', rows: modifierTranslations, onConflict: 'product_id,modifier_id,lang' },
+    { table: 'products', rows: dedupeBy(products, (row) => row.id), onConflict: 'id' },
+    { table: 'product_translations', rows: dedupeBy(productTranslations, (row) => `${row.product_id}::${row.lang}`), onConflict: 'product_id,lang' },
+    { table: 'product_modifiers', rows: dedupeBy(modifiers, (row) => `${row.product_id}::${row.modifier_id}`), onConflict: 'product_id,modifier_id' },
+    { table: 'product_modifier_translations', rows: dedupeBy(modifierTranslations, (row) => `${row.product_id}::${row.modifier_id}::${row.lang}`), onConflict: 'product_id,modifier_id,lang' },
   ];
 
   for (const { table, rows, onConflict } of upserts) {
