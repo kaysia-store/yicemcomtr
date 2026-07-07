@@ -2372,3 +2372,186 @@
   padding-right: 0.25rem;
   padding-top: 0.5rem;
 }
+
+.admin-panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.admin-panel-tab {
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text-secondary);
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-panel-tab.active {
+  background: var(--admin-primary-container);
+  border-color: var(--admin-primary-container);
+  color: #fff;
+}
+
+.admin-prices-sections,
+.admin-extras-page .admin-extras-group {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-prices-table-wrap {
+  overflow: auto;
+}
+
+.admin-prices-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.admin-prices-table th,
+.admin-prices-table td {
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid var(--admin-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-prices-table th {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--admin-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-prices-table tr.changed {
+  background: #fff7ed;
+}
+
+.admin-prices-table tr.variance {
+  background: #fffbeb;
+}
+
+.admin-prices-current {
+  white-space: nowrap;
+  color: var(--admin-text-secondary);
+}
+
+.admin-prices-variance {
+  color: #b45309;
+}
+
+.admin-input-price-inline {
+  width: 6.5rem;
+  min-width: 5rem;
+}
+
+.admin-prices-savebar {
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.admin-select-wide {
+  min-width: 12rem;
+}
+
+.admin-extras-hint {
+  margin-top: 0;
+}
+
+.admin-extras-sync-card {
+  margin-bottom: 1rem;
+}
+
+.admin-extras-sync-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-extras-sync-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-extras-sync-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--admin-surface-container);
+  color: var(--admin-text-secondary);
+}
+
+.admin-extras-sync-badge[data-status="missing"] {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.admin-extras-sync-badge[data-status="different"] {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.admin-extras-all-sync {
+  margin: 0 0 1rem;
+}
+
+.admin-extras-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.admin-extras-item {
+  border: 1px solid var(--admin-border);
+  border-radius: 0.75rem;
+  padding: 0.85rem;
+  margin-top: 0.65rem;
+  background: var(--admin-bg);
+}
+
+.admin-extras-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.admin-extras-meta {
+  display: flex;
+  align-items: end;
+  font-size: 0.8125rem;
+}
+
+.admin-prices-page,
+.admin-extras-page {
+  padding-bottom: 4rem;
+}
+

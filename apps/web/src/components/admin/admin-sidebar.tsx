@@ -19,6 +19,8 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { id: "home", href: "/admin/dashboard", label: "Ana Sayfa", emoji: "🏠" },
   { id: "menu", href: "/admin/menu", label: "Menü", emoji: "📋" },
+  { id: "prices", href: "/admin/prices", label: "Fiyatlar", emoji: "💰" },
+  { id: "extras", href: "/admin/extras", label: "Ek Özellikler", emoji: "🧩" },
   { id: "languages", href: "/admin/languages", label: "Diller", emoji: "🌍" },
   { id: "settings", href: "/admin/settings", label: "Ayarlar", emoji: "⚙️" },
 ];
@@ -29,6 +31,10 @@ function isNavActive(pathname: string, item: NavItem): boolean {
       return pathname.startsWith("/admin/dashboard");
     case "menu":
       return pathname.startsWith("/admin/menu") || pathname.startsWith("/admin/categories") || pathname.startsWith("/admin/products");
+    case "prices":
+      return pathname.startsWith("/admin/prices");
+    case "extras":
+      return pathname.startsWith("/admin/extras");
     case "languages":
       return pathname.startsWith("/admin/languages");
     case "settings":

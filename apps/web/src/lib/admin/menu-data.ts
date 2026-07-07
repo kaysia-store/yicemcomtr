@@ -303,7 +303,7 @@ export async function toggleProductActive(supabase: SupabaseClient, product: Adm
   await saveProduct(supabase, { ...product, isActive: !product.isActive });
 }
 
-async function syncProductModifiers(supabase: SupabaseClient, product: AdminProduct) {
+export async function syncProductModifiers(supabase: SupabaseClient, product: AdminProduct) {
   const modifierRows = product.modifiers.map((modifier) => ({
     product_id: modifier.productId,
     modifier_id: modifier.modifierId,
