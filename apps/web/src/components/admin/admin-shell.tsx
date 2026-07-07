@@ -3,8 +3,9 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import AdminSidebar from "./admin-sidebar";
+import { AdminDataProvider } from "./providers/admin-data-provider";
 import AdminHeader from "./admin-header";
+import AdminSidebar from "./admin-sidebar";
 
 type Props = {
   children: ReactNode;
@@ -54,7 +55,9 @@ export default function AdminShell({ children }: Props) {
       ) : null}
       <div className="admin-main">
         <AdminHeader userEmail={userEmail} onMenuOpen={() => setSidebarOpen(true)} />
-        <div className="admin-content">{children}</div>
+        <div className="admin-content">
+          <AdminDataProvider>{children}</AdminDataProvider>
+        </div>
       </div>
     </div>
   );

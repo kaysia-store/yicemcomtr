@@ -215,6 +215,7 @@ export async function saveProduct(supabase: SupabaseClient, product: AdminProduc
   const { error: prodError } = await supabase
     .from("products")
     .update({
+      category_id: product.categoryId,
       price: product.price,
       image_url: product.imageUrl || null,
       sort_order: product.sortOrder,
@@ -239,19 +240,91 @@ export async function saveProduct(supabase: SupabaseClient, product: AdminProduc
 
   if (transError) throw transError;
 
-  for (const modifier of product.modifiers) {
-    const { error: modError } = await supabase
+  await syncProductModifiers(supabase, product);
+
+  await logAudit(supabase, {
+    entityType: "product",
+    entityId: product.id,
+    action: "update",
+    summary: `Ürün güncellendi: ${product.names.tr || product.id}`,
+    changes: { price: product.price, isActive: product.isActive },
+  });
+}
+
+export async function deleteCategory(supabase: SupabaseClient, categoryId: string) {
+  const { error } = await supabase.from("categories").delete().eq("id", categoryId);
+  if (error) throw error;
+
+  await logAudit(supabase, {
+    entityType: "category",
+    entityId: categoryId,
+    action: "delete",
+    summary: `Kategori silindi: ${categoryId}`,
+  });
+}
+
+export async function deleteProduct(supabase: SupabaseClient, productId: string) {
+  const { error } = await supabase.from("products").delete().eq("id", productId);
+  if (error) throw error;
+
+  await logAudit(supabase, {
+    entityType: "product",
+    entityId: productId,
+    action: "delete",
+    summary: `Ürün silindi: ${productId}`,
+  });
+}
+
+export async function toggleCategoryVisibility(supabase: SupabaseClient, category: AdminCategory) {
+  await saveCategory(supabase, { ...category, isVisible: !category.isVisible });
+}
+
+export async function toggleProductActive(supabase: SupabaseClient, product: AdminProduct) {
+  await saveProduct(supabase, { ...product, isActive: !product.isActive });
+}
+
+async function syncProductModifiers(supabase: SupabaseClient, product: AdminProduct) {
+  const modifierRows = product.modifiers.map((modifier) => ({
+    product_id: modifier.productId,
+    modifier_id: modifier.modifierId,
+    modifier_type: modifier.modifierType,
+    price: modifier.price,
+    sort_order: modifier.sortOrder,
+    is_active: modifier.isActive,
+  }));
+
+  if (modifierRows.length > 0) {
+    const { error: upsertError } = await supabase
       .from("product_modifiers")
-      .update({
-        price: modifier.price,
-        sort_order: modifier.sortOrder,
-        is_active: modifier.isActive,
-      })
-      .eq("product_id", modifier.productId)
-      .eq("modifier_id", modifier.modifierId);
+      .upsert(modifierRows, { onConflict: "product_id,modifier_id" });
 
-    if (modError) throw modError;
+    if (upsertError) throw upsertError;
+  }
 
+  const { data: existing, error: readError } = await supabase
+    .from("product_modifiers")
+    .select("modifier_id")
+    .eq("product_id", product.id);
+
+  if (readError) throw readError;
+
+  const keepIds = new Set(product.modifiers.map((modifier) => modifier.modifierId));
+  const toDelete = (existing ?? []).filter((row) => !keepIds.has(row.modifier_id));
+
+  if (toDelete.length > 0) {
+    const { error: deleteError } = await supabase
+      .from("product_modifiers")
+      .delete()
+      .eq("product_id", product.id)
+      .in(
+        "modifier_id",
+        toDelete.map((row) => row.modifier_id),
+      );
+
+    if (deleteError) throw deleteError;
+  }
+
+  for (const modifier of product.modifiers) {
     const modTranslations = LANG_CODES.map((lang) => ({
       product_id: modifier.productId,
       modifier_id: modifier.modifierId,
@@ -265,14 +338,6 @@ export async function saveProduct(supabase: SupabaseClient, product: AdminProduc
 
     if (modTransError) throw modTransError;
   }
-
-  await logAudit(supabase, {
-    entityType: "product",
-    entityId: product.id,
-    action: "update",
-    summary: `Ürün güncellendi: ${product.names.tr || product.id}`,
-    changes: { price: product.price, isActive: product.isActive },
-  });
 }
 
 export async function createProduct(supabase: SupabaseClient, product: AdminProduct) {
@@ -298,6 +363,10 @@ export async function createProduct(supabase: SupabaseClient, product: AdminProd
   const { error: transError } = await supabase.from("product_translations").insert(translations);
 
   if (transError) throw transError;
+
+  if (product.modifiers.length > 0) {
+    await syncProductModifiers(supabase, product);
+  }
 
   await logAudit(supabase, {
     entityType: "product",

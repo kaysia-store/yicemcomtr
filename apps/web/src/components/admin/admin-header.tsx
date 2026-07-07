@@ -11,11 +11,20 @@ function formatHeaderDate() {
 }
 
 function getPageMeta(pathname: string) {
-  if (pathname.startsWith("/admin/menu")) {
-    return { title: "Menü", subtitle: "Kategoriler, ürünler ve alt özellikler" };
+  if (pathname.startsWith("/admin/categories")) {
+    return { title: "Kategoriler", subtitle: "Menü kategorilerini yönetin" };
+  }
+  if (pathname.startsWith("/admin/products")) {
+    return { title: "Ürünler", subtitle: "Ürünler, fiyatlar ve seçenekler" };
+  }
+  if (pathname.startsWith("/admin/languages")) {
+    return { title: "Diller", subtitle: "Çeviriler ve eksik içerikler" };
+  }
+  if (pathname.startsWith("/admin/settings")) {
+    return { title: "Ayarlar", subtitle: "Restoran ve site ayarları" };
   }
   if (pathname.startsWith("/admin/dashboard")) {
-    return { title: "Özet", subtitle: formatHeaderDate() };
+    return { title: "Dashboard", subtitle: formatHeaderDate() };
   }
   return { title: "Admin", subtitle: "Yi'Cem yönetim paneli" };
 }

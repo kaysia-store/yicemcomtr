@@ -1,5 +1,5 @@
-import MenuAdmin from "@/components/admin/menu-admin";
+import { redirect } from "next/navigation";
 
-export default function AdminMenuPage() {
-  return <MenuAdmin />;
+export default function AdminMenuRedirect() {
+  redirect("/admin/categories");
 }

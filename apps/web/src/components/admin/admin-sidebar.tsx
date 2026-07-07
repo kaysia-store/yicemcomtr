@@ -10,8 +10,11 @@ type Props = {
 };
 
 const NAV_ITEMS = [
-  { href: "/admin/dashboard", label: "Özet", icon: "space_dashboard", short: "Özet" },
-  { href: "/admin/menu", label: "Menü", icon: "restaurant_menu", short: "Menü" },
+  { href: "/admin/dashboard", label: "Dashboard", icon: "space_dashboard", short: "Özet" },
+  { href: "/admin/categories", label: "Kategoriler", icon: "category", short: "Kat." },
+  { href: "/admin/products", label: "Ürünler", icon: "fastfood", short: "Ürün" },
+  { href: "/admin/languages", label: "Diller", icon: "translate", short: "Dil" },
+  { href: "/admin/settings", label: "Ayarlar", icon: "settings", short: "Ayar" },
 ];
 
 export default function AdminSidebar({ open, onClose }: Props) {
