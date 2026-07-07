@@ -10,6 +10,8 @@ import {
   copyLocalizedFromTr,
   createProduct,
   saveProduct,
+  slugifyId,
+  uniqueSlugId,
 } from "@/lib/admin/menu-data";
 import { missingLangsForNames } from "@/lib/admin/translation-utils";
 import { uploadProductImage } from "@/lib/admin/storage";
@@ -18,14 +20,21 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 type Props = {
   product: AdminProduct;
   categories: AdminCategory[];
+  existingProductIds?: string[];
   isNew?: boolean;
   onSaved: (product: AdminProduct) => void;
   onCancel: () => void;
 };
 
-export default function ProductForm({ product, categories, isNew = false, onSaved, onCancel }: Props) {
+export default function ProductForm({
+  product,
+  categories,
+  existingProductIds = [],
+  isNew = false,
+  onSaved,
+  onCancel,
+}: Props) {
   const [draft, setDraft] = useState(product);
-  const [idInput, setIdInput] = useState(product.id);
   const [activeLang, setActiveLang] = useState<LangCode>("tr");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -34,8 +43,11 @@ export default function ProductForm({ product, categories, isNew = false, onSave
 
   useEffect(() => {
     setDraft(product);
-    setIdInput(product.id);
   }, [product]);
+
+  const resolvedProductId = isNew
+    ? uniqueSlugId(draft.names.tr, existingProductIds)
+    : draft.id;
 
   const missingLangs = missingLangsForNames(draft.names);
 
@@ -63,7 +75,7 @@ export default function ProductForm({ product, categories, isNew = false, onSave
     setError(null);
     try {
       const supabase = getSupabaseBrowserClient();
-      const productId = isNew ? idInput.trim() || draft.id : draft.id;
+      const productId = resolvedProductId || slugifyId(draft.names.tr) || `urun-${Date.now()}`;
       const url = await uploadProductImage(supabase, productId, file);
       setDraft({ ...draft, imageUrl: url });
     } catch (uploadError) {
@@ -75,17 +87,18 @@ export default function ProductForm({ product, categories, isNew = false, onSave
 
   const handleSave = async () => {
     setError(null);
-    const productId = isNew ? idInput.trim().toLowerCase().replace(/\s+/g, "") : draft.id;
-    if (!productId) {
-      setError("Ürün ID gerekli.");
-      return;
-    }
     if (!draft.names.tr.trim()) {
       setError("Türkçe ürün adı zorunludur.");
       return;
     }
     if (!draft.categoryId) {
       setError("Kategori seçin.");
+      return;
+    }
+
+    const productId = resolvedProductId;
+    if (!productId) {
+      setError("Ürün adından geçerli bir kayıt oluşturulamadı.");
       return;
     }
 
@@ -158,17 +171,6 @@ export default function ProductForm({ product, categories, isNew = false, onSave
           </div>
 
           <div className="admin-form-grid">
-            {isNew ? (
-              <label>
-                Ürün ID
-                <input className="admin-input" value={idInput} onChange={(e) => setIdInput(e.target.value)} placeholder="p99" />
-              </label>
-            ) : (
-              <label>
-                ID
-                <input className="admin-input" value={draft.id} readOnly />
-              </label>
-            )}
             <label>
               Kategori
               <select
@@ -264,7 +266,7 @@ export default function ProductForm({ product, categories, isNew = false, onSave
       </div>
 
       <OptionGroupsEditor
-        productId={draft.id || idInput}
+        productId={resolvedProductId}
         modifiers={draft.modifiers}
         onChange={(modifiers) => setDraft({ ...draft, modifiers })}
       />

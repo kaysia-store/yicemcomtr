@@ -48,6 +48,18 @@ Footer'da **Veri kaynağı: Supabase** yazıyorsa bağlantı tamamdır.
 - [ ] 13 kategori görünüyor
 - [ ] Ürünler ve fiyatlar doğru
 - [ ] Görseller yükleniyor
+- [ ] Footer'da **Veri kaynağı: Supabase** yazıyor
+- [ ] Admin panelden yapılan değişiklikler ana sayfada görünüyor (sayfayı yenileyin)
+
+---
+
+## Canlı menü senkronu
+
+Ana sayfa (`/`) artık **Supabase'den anlık** okunur. Admin panelde kategori, ürün, fiyat, görsel veya açıklama kaydettiğinizde canlı menü güncellenir.
+
+- `.env.local` içinde Supabase URL ve anon key **zorunlu** (yoksa site eski `menu.json` yedeğine düşer)
+- İlk kurulumda bir kez `npm run seed` ile veriyi yükleyin; sonrasında tüm düzenlemeler admin panelden yapılır
+- Değişiklik görünmüyorsa: sayfayı yenileyin (PWA/service worker güncellendi)
 
 ---
 

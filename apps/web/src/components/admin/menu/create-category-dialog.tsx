@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createCategory, slugifyId } from "@/lib/admin/menu-data";
+import { createCategory, uniqueSlugId } from "@/lib/admin/menu-data";
 import type { AdminCategory } from "@/lib/admin/types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -13,24 +13,17 @@ type Props = {
 };
 
 export default function CreateCategoryDialog({ existingIds, nextSortOrder, onCreated, onClose }: Props) {
-  const [id, setId] = useState("");
   const [nameTr, setNameTr] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const normalizedId = slugifyId(id || nameTr);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
 
+    const normalizedId = uniqueSlugId(nameTr, existingIds);
     if (!normalizedId) {
-      setError("Geçerli bir kategori ID girin.");
-      return;
-    }
-
-    if (existingIds.includes(normalizedId)) {
-      setError("Bu ID zaten kullanılıyor.");
+      setError("Geçerli bir kategori adı girin.");
       return;
     }
 
@@ -65,21 +58,9 @@ export default function CreateCategoryDialog({ existingIds, nextSortOrder, onCre
     <div className="admin-dialog-backdrop" onClick={onClose} role="presentation">
       <div className="admin-dialog" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true">
         <h2>Yeni Kategori</h2>
-        <p className="admin-muted">Kategori ID menüde benzersiz olmalıdır.</p>
+        <p className="admin-muted">Kategori adı menüde görünür.</p>
 
         <form onSubmit={(event) => void handleSubmit(event)} className="admin-form">
-          <label>
-            Kategori ID
-            <input
-              className="admin-input"
-              value={id}
-              onChange={(event) => setId(event.target.value)}
-              placeholder="ornek-kategori"
-              autoFocus
-            />
-            {normalizedId ? <span className="admin-muted admin-mono">ID: {normalizedId}</span> : null}
-          </label>
-
           <label>
             Türkçe Ad
             <input
@@ -87,6 +68,7 @@ export default function CreateCategoryDialog({ existingIds, nextSortOrder, onCre
               value={nameTr}
               onChange={(event) => setNameTr(event.target.value)}
               placeholder="Örn. Pizzalar"
+              autoFocus
               required
             />
           </label>

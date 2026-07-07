@@ -122,7 +122,7 @@ export default function OptionGroupsEditor({ productId, modifiers, onChange }: P
               return (
                 <div key={modifier.modifierId} className="admin-option-item">
                   <div className="admin-option-item-top">
-                    <span className="admin-mono">{modifier.modifierId}</span>
+                    <strong className="admin-option-item-label">{modifier.labels.tr || "Yeni seçenek"}</strong>
                     <div className="admin-header-actions">
                       <label className="admin-checkbox-label admin-modifier-active">
                         <input

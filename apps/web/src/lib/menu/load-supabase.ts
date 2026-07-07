@@ -9,6 +9,12 @@ function emptyLocalized(): LocalizedString {
   return { tr: "", en: "", ru: "", de: "", fr: "", ar: "" };
 }
 
+function normalizeImageUrl(url: string | null | undefined): string {
+  if (!url?.trim()) return "/favicon.png";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return url.replace(/^\.\//, "/");
+}
+
 function buildLocalized(
   rows: Array<{ lang: string; value: string }>,
   field: "name" | "label" = "name",
@@ -27,7 +33,11 @@ export async function loadMenuFromSupabase(): Promise<MenuData | null> {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return null;
 
-  const supabase = createClient(url, key);
+  const supabase = createClient(url, key, {
+    global: {
+      fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+    },
+  });
 
   const [
     { data: categories, error: catErr },
@@ -47,8 +57,13 @@ export async function loadMenuFromSupabase(): Promise<MenuData | null> {
     supabase.from("site_settings").select("value").eq("key", "restaurant").maybeSingle(),
   ]);
 
-  if (catErr || prodErr || !categories?.length || !products?.length) {
+  if (catErr || prodErr) {
     console.warn("Supabase menü yüklenemedi:", catErr?.message ?? prodErr?.message);
+    return null;
+  }
+
+  if (!categories?.length) {
+    console.warn("Supabase menü yüklenemedi: kategori bulunamadı.");
     return null;
   }
 
@@ -81,7 +96,7 @@ export async function loadMenuFromSupabase(): Promise<MenuData | null> {
     sortOrder: c.sort_order ?? i,
   }));
 
-  const menuProducts: MenuProduct[] = products.map((p) => {
+  const menuProducts: MenuProduct[] = (products ?? []).map((p) => {
     const trans = prodTransMap.get(p.id) ?? [];
     const name = emptyLocalized();
     const description = emptyLocalized();
@@ -116,7 +131,7 @@ export async function loadMenuFromSupabase(): Promise<MenuData | null> {
       description,
       contents,
       price: Number(p.price),
-      image: (p.image_url ?? "").replace(/^\.\//, "/"),
+      image: normalizeImageUrl(p.image_url),
       options,
       extras: {
         mainProducts: byType("mainProduct"),

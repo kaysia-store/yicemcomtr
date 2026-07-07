@@ -26,7 +26,6 @@ export default function CategoryForm({ category, isNew = false, onSaved, onCance
       productCount: 0,
     },
   );
-  const [idInput, setIdInput] = useState(category?.id ?? "");
   const [activeLang, setActiveLang] = useState<LangCode>("tr");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,9 +38,9 @@ export default function CategoryForm({ category, isNew = false, onSaved, onCance
 
   const handleSave = async () => {
     setError(null);
-    const normalizedId = isNew ? slugifyId(idInput || draft.names.tr) : draft.id;
+    const normalizedId = isNew ? slugifyId(draft.names.tr) : draft.id;
     if (!normalizedId) {
-      setError("Kategori ID gerekli.");
+      setError("Kategori adından geçerli bir kayıt oluşturulamadı.");
       return;
     }
     if (!draft.names.tr.trim()) {
@@ -85,17 +84,6 @@ export default function CategoryForm({ category, isNew = false, onSaved, onCance
       {error ? <p className="admin-error">{error}</p> : null}
 
       <div className="admin-form-grid">
-        {isNew ? (
-          <label>
-            Kategori ID
-            <input className="admin-input" value={idInput} onChange={(e) => setIdInput(e.target.value)} placeholder="pizzalar" />
-          </label>
-        ) : (
-          <label>
-            ID
-            <input className="admin-input" value={draft.id} readOnly />
-          </label>
-        )}
         <label>
           Sıra
           <input

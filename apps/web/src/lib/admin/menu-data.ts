@@ -1,6 +1,7 @@
 import type { LangCode } from "@/lib/menu/types";
 import { LANG_CODES } from "@/lib/menu/types";
 import { logAudit } from "./audit";
+import { notifyPublicMenuUpdated } from "./revalidate-public-menu";
 import type {
   AdminCategory,
   AdminMenuData,
@@ -163,6 +164,8 @@ export async function saveCategory(supabase: SupabaseClient, category: AdminCate
     action: "update",
     summary: `Kategori güncellendi: ${category.names.tr || category.id}`,
   });
+
+  await notifyPublicMenuUpdated();
 }
 
 export async function createCategory(supabase: SupabaseClient, category: AdminCategory) {
@@ -191,6 +194,8 @@ export async function createCategory(supabase: SupabaseClient, category: AdminCa
     action: "create",
     summary: `Kategori eklendi: ${category.names.tr || category.id}`,
   });
+
+  await notifyPublicMenuUpdated();
 }
 
 export async function reorderCategories(supabase: SupabaseClient, categories: AdminCategory[]) {
@@ -209,6 +214,8 @@ export async function reorderCategories(supabase: SupabaseClient, categories: Ad
     summary: "Kategori sıralaması güncellendi",
     changes: { order: categories.map((category) => category.id) },
   });
+
+  await notifyPublicMenuUpdated();
 }
 
 export async function saveProduct(supabase: SupabaseClient, product: AdminProduct) {
@@ -249,6 +256,8 @@ export async function saveProduct(supabase: SupabaseClient, product: AdminProduc
     summary: `Ürün güncellendi: ${product.names.tr || product.id}`,
     changes: { price: product.price, isActive: product.isActive },
   });
+
+  await notifyPublicMenuUpdated();
 }
 
 export async function deleteCategory(supabase: SupabaseClient, categoryId: string) {
@@ -261,6 +270,8 @@ export async function deleteCategory(supabase: SupabaseClient, categoryId: strin
     action: "delete",
     summary: `Kategori silindi: ${categoryId}`,
   });
+
+  await notifyPublicMenuUpdated();
 }
 
 export async function deleteProduct(supabase: SupabaseClient, productId: string) {
@@ -273,6 +284,8 @@ export async function deleteProduct(supabase: SupabaseClient, productId: string)
     action: "delete",
     summary: `Ürün silindi: ${productId}`,
   });
+
+  await notifyPublicMenuUpdated();
 }
 
 export async function toggleCategoryVisibility(supabase: SupabaseClient, category: AdminCategory) {
@@ -375,6 +388,8 @@ export async function createProduct(supabase: SupabaseClient, product: AdminProd
     summary: `Ürün eklendi: ${product.names.tr || product.id}`,
     changes: { categoryId: product.categoryId, price: product.price },
   });
+
+  await notifyPublicMenuUpdated();
 }
 
 export async function reorderProducts(supabase: SupabaseClient, products: AdminProduct[], categoryId: string) {
@@ -396,6 +411,8 @@ export async function reorderProducts(supabase: SupabaseClient, products: AdminP
     summary: `Ürün sıralaması güncellendi (${products[0]?.names.tr ?? categoryId})`,
     changes: { order: products.map((product) => product.id) },
   });
+
+  await notifyPublicMenuUpdated();
 }
 
 export function slugifyId(value: string): string {
@@ -404,6 +421,16 @@ export function slugifyId(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+/** Benzersiz kayıt anahtarı — admin arayüzünde gösterilmez. */
+export function uniqueSlugId(base: string, existingIds: string[]): string {
+  let slug = slugifyId(base);
+  if (!slug) slug = `item-${Date.now()}`;
+  if (!existingIds.includes(slug)) return slug;
+  let suffix = 2;
+  while (existingIds.includes(`${slug}-${suffix}`)) suffix += 1;
+  return `${slug}-${suffix}`;
 }
 
 export function copyLocalizedFromTr(fields: LocalizedFields): LocalizedFields {

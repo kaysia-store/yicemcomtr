@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createProduct } from "@/lib/admin/menu-data";
+import { createProduct, uniqueSlugId } from "@/lib/admin/menu-data";
 import type { AdminProduct } from "@/lib/admin/types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -20,32 +20,21 @@ export default function CreateProductDialog({
   onCreated,
   onClose,
 }: Props) {
-  const [id, setId] = useState("");
   const [nameTr, setNameTr] = useState("");
   const [price, setPrice] = useState("0");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const normalizedId = id.trim().toLowerCase().replace(/\s+/g, "");
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
-
-    if (!normalizedId) {
-      setError("Geçerli bir ürün ID girin.");
-      return;
-    }
-
-    if (existingIds.includes(normalizedId)) {
-      setError("Bu ID zaten kullanılıyor.");
-      return;
-    }
 
     if (!nameTr.trim()) {
       setError("Türkçe ürün adı zorunludur.");
       return;
     }
+
+    const normalizedId = uniqueSlugId(nameTr, existingIds);
 
     const parsedPrice = Number(price);
     if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
@@ -87,23 +76,13 @@ export default function CreateProductDialog({
 
         <form onSubmit={(event) => void handleSubmit(event)} className="admin-form">
           <label>
-            Ürün ID
-            <input
-              className="admin-input"
-              value={id}
-              onChange={(event) => setId(event.target.value)}
-              placeholder="p99"
-              autoFocus
-            />
-          </label>
-
-          <label>
             Türkçe Ad
             <input
               className="admin-input"
               value={nameTr}
               onChange={(event) => setNameTr(event.target.value)}
               placeholder="Örn. Margarita"
+              autoFocus
               required
             />
           </label>

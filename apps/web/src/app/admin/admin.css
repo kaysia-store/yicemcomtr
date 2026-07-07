@@ -2314,6 +2314,12 @@
   transform: translateX(1rem);
 }
 
+.admin-option-item-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
 .admin-modal-scroll {
   max-height: calc(88vh - 2rem);
   overflow: auto;

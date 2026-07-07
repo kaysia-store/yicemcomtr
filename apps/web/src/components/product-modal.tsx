@@ -6,7 +6,6 @@ import { tLocalized } from "@/lib/menu/i18n";
 import {
   formatModifierPrice,
   getProductContents,
-  getProductDescription,
   getProductModifierGroups,
 } from "@/lib/menu/product-display";
 import { buildCartItemInput } from "@/lib/cart/build-cart-item";
@@ -37,9 +36,7 @@ function createInitialSelections(product: MenuProduct, lang: LangCode) {
 
   const contents = getProductContents(product, lang);
   const showRemovable =
-    contents.length > 0 &&
-    !donerCategories.includes(product.categorySlug) &&
-    getProductDescription(product, lang) !== contents.join(", ");
+    contents.length > 0 && !donerCategories.includes(product.categorySlug);
 
   return {
     radioSelections,
@@ -88,12 +85,9 @@ export default function ProductModal({ product, lang, onClose, onAddToCart }: Pr
 
   if (!product) return null;
 
-  const description = getProductDescription(product, lang);
   const contents = getProductContents(product, lang);
   const showRemovableIngredients =
-    contents.length > 0 &&
-    !donerCategories.includes(product.categorySlug) &&
-    description !== contents.join(", ");
+    contents.length > 0 && !donerCategories.includes(product.categorySlug);
 
   const cartItemInput = buildCartItemInput(
     product,
@@ -164,8 +158,6 @@ export default function ProductModal({ product, lang, onClose, onAddToCart }: Pr
           <div className="product-modal-info">
             <h3>{tLocalized(product.name, lang)}</h3>
 
-            {description ? <p className="product-modal-description">{description}</p> : null}
-
             <div className="product-modal-price">
               <span>₺{product.price}</span>
             </div>
@@ -185,6 +177,11 @@ export default function ProductModal({ product, lang, onClose, onAddToCart }: Pr
                     </label>
                   ))}
                 </div>
+              </div>
+            ) : contents.length > 0 ? (
+              <div className="ingredients-list">
+                <h4>{tUi(lang, "ingredients")}</h4>
+                <p className="product-ingredients">{contents.join(", ")}</p>
               </div>
             ) : null}
 

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { MenuData, MenuProduct } from "@/lib/menu/types";
 import { tLocalized } from "@/lib/menu/i18n";
+import { getProductCardDescription } from "@/lib/menu/product-display";
 import { tUi } from "@/lib/i18n/ui";
 import { useLanguage } from "@/hooks/use-language";
 import { useTheme } from "@/hooks/use-theme";
@@ -132,7 +133,9 @@ function MenuPageContent({ menu }: Props) {
       <section className="products">
         <div className="container">
           <div className="products-grid" id="productsGrid">
-            {filtered.map((product) => (
+            {filtered.map((product) => {
+              const cardDescription = getProductCardDescription(product, lang);
+              return (
               <div key={product.id} className="product-card" data-category={product.categorySlug}>
                 <button
                   type="button"
@@ -150,6 +153,9 @@ function MenuPageContent({ menu }: Props) {
                   </div>
                   <div className="product-info">
                     <h3 className="product-name">{tLocalized(product.name, lang)}</h3>
+                    {cardDescription ? (
+                      <p className="product-description">{cardDescription}</p>
+                    ) : null}
                     <p className="product-price">{product.price} ₺</p>
                   </div>
                 </button>
@@ -157,7 +163,8 @@ function MenuPageContent({ menu }: Props) {
                   {tUi(lang, "details")}
                 </button>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
       </section>

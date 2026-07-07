@@ -67,26 +67,15 @@ const GROUP_LABELS: Record<string, LocalizedString> = {
   },
 };
 
-export function getProductDescription(product: MenuProduct, lang: LangCode): string {
-  const donerCategories = ["tavuk-doner", "et-doner"];
-  if (donerCategories.includes(product.categorySlug)) {
-    return tLocalized(product.description, lang);
-  }
-
-  const contents = product.contents[lang];
-  if (contents.length > 0) {
-    return contents.join(", ");
-  }
-
+export function getProductCardDescription(product: MenuProduct, lang: LangCode): string {
   const description = tLocalized(product.description, lang);
   if (description) return description;
+  return tLocalized(product.description, "tr");
+}
 
-  const fallbackContents = product.contents.tr;
-  if (fallbackContents.length > 0) {
-    return fallbackContents.join(", ");
-  }
-
-  return "";
+/** @deprecated Kartlarda getProductCardDescription kullanın. */
+export function getProductDescription(product: MenuProduct, lang: LangCode): string {
+  return getProductCardDescription(product, lang);
 }
 
 export function getProductContents(product: MenuProduct, lang: LangCode): string[] {

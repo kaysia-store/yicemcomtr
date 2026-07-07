@@ -27,9 +27,9 @@ function formatPrice(price: number) {
 function productMatchesQuery(product: AdminProduct, query: string) {
   const q = query.toLowerCase();
   return (
-    product.id.toLowerCase().includes(q) ||
     product.names.tr.toLowerCase().includes(q) ||
-    product.names.en.toLowerCase().includes(q)
+    product.names.en.toLowerCase().includes(q) ||
+    product.descriptions.tr.toLowerCase().includes(q)
   );
 }
 
@@ -154,7 +154,7 @@ function CategorySection({
                         )}
                       </div>
                       <div className="admin-menu-product-info">
-                        <strong>{product.names.tr || product.id}</strong>
+                        <strong>{product.names.tr || "İsimsiz ürün"}</strong>
                         <span className="admin-muted">{formatPrice(product.price)}</span>
                       </div>
                     </button>
@@ -196,7 +196,7 @@ function CategorySection({
                       )}
                     </div>
                     <div className="admin-menu-product-info">
-                      <strong>{product.names.tr || product.id}</strong>
+                      <strong>{product.names.tr || "İsimsiz ürün"}</strong>
                       <span className="admin-muted">{formatPrice(product.price)}</span>
                     </div>
                   </button>
@@ -260,11 +260,7 @@ export default function MenuPage() {
     if (!q) return base;
 
     return base.filter((category) => {
-      if (
-        category.names.tr?.toLowerCase().includes(q) ||
-        category.id.toLowerCase().includes(q) ||
-        category.slug?.toLowerCase().includes(q)
-      ) {
+      if (category.names.tr?.toLowerCase().includes(q)) {
         return true;
       }
       return products.some((product) => product.categoryId === category.id && productMatchesQuery(product, q));
@@ -569,6 +565,7 @@ export default function MenuPage() {
               <ProductForm
                 product={editingProduct}
                 categories={sortedCategories}
+                existingProductIds={allProductIds.filter((id) => id !== editingProduct.id)}
                 onSaved={() => {
                   setEditingProduct(null);
                   void refresh();
