@@ -6,13 +6,12 @@ import OptionGroupsEditor from "@/components/admin/forms/option-groups-editor";
 import type { AdminCategory, AdminProduct } from "@/lib/admin/types";
 import type { LangCode } from "@/lib/menu/types";
 import {
-  copyContentsFromTr,
-  copyLocalizedFromTr,
   createProduct,
   saveProduct,
   slugifyId,
   uniqueSlugId,
 } from "@/lib/admin/menu-data";
+import { translateProductFieldsToAllLangs, translateProductFieldsToLang } from "@/lib/admin/translate-api";
 import { missingLangsForNames } from "@/lib/admin/translation-utils";
 import { uploadProductImage } from "@/lib/admin/storage";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -38,6 +37,7 @@ export default function ProductForm({
   const [activeLang, setActiveLang] = useState<LangCode>("tr");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,23 +51,48 @@ export default function ProductForm({
 
   const missingLangs = missingLangsForNames(draft.names);
 
-  const handleCopyFromTr = () => {
+  const handleAutoTranslateActive = async () => {
     if (activeLang === "tr") return;
-    setDraft({
-      ...draft,
-      names: { ...draft.names, [activeLang]: draft.names.tr },
-      descriptions: { ...draft.descriptions, [activeLang]: draft.descriptions.tr },
-      contents: { ...draft.contents, [activeLang]: [...draft.contents.tr] },
-    });
+    if (!draft.names.tr.trim() && !draft.descriptions.tr.trim() && draft.contents.tr.length === 0) {
+      setError("Önce Türkçe metin girin.");
+      return;
+    }
+
+    setTranslating(true);
+    setError(null);
+    try {
+      const translated = await translateProductFieldsToLang(
+        { names: draft.names, descriptions: draft.descriptions, contents: draft.contents },
+        activeLang,
+      );
+      setDraft({ ...draft, ...translated });
+    } catch (translateError) {
+      setError(translateError instanceof Error ? translateError.message : "Çeviri başarısız.");
+    } finally {
+      setTranslating(false);
+    }
   };
 
-  const handleCopyAllFromTr = () => {
-    setDraft({
-      ...draft,
-      names: copyLocalizedFromTr(draft.names),
-      descriptions: copyLocalizedFromTr(draft.descriptions),
-      contents: copyContentsFromTr(draft.contents),
-    });
+  const handleAutoTranslateAll = async () => {
+    if (!draft.names.tr.trim() && !draft.descriptions.tr.trim() && draft.contents.tr.length === 0) {
+      setError("Önce Türkçe metin girin.");
+      return;
+    }
+
+    setTranslating(true);
+    setError(null);
+    try {
+      const translated = await translateProductFieldsToAllLangs({
+        names: draft.names,
+        descriptions: draft.descriptions,
+        contents: draft.contents,
+      });
+      setDraft({ ...draft, ...translated });
+    } catch (translateError) {
+      setError(translateError instanceof Error ? translateError.message : "Çeviri başarısız.");
+    } finally {
+      setTranslating(false);
+    }
   };
 
   const handleImageUpload = async (file: File) => {
@@ -128,7 +153,8 @@ export default function ProductForm({
           active={activeLang}
           onChange={setActiveLang}
           missingLangs={missingLangs}
-          onCopyFromTr={handleCopyFromTr}
+          onAutoTranslate={handleAutoTranslateActive}
+          translating={translating}
         />
       </div>
 
@@ -139,8 +165,13 @@ export default function ProductForm({
             <button type="button" className="admin-button admin-button-secondary admin-button-sm" onClick={onCancel}>
               İptal
             </button>
-            <button type="button" className="admin-button admin-button-secondary admin-button-sm" onClick={handleCopyAllFromTr}>
-              TR&apos;den kopyala
+            <button
+              type="button"
+              className="admin-button admin-button-secondary admin-button-sm"
+              disabled={translating}
+              onClick={() => void handleAutoTranslateAll()}
+            >
+              {translating ? "Çevriliyor…" : "Tüm dillere çevir"}
             </button>
             <button type="button" className="admin-button admin-button-sm" onClick={() => void handleSave()} disabled={saving}>
               {saving ? "Kaydediliyor…" : "Kaydet"}

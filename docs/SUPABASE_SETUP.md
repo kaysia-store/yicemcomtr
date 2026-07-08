@@ -19,11 +19,15 @@ Başarılıysa Table Editor'da şu tablolar görünür:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://XXXX.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+DEEPL_API_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx
 ```
 
 Supabase → **Project Settings** → **API**:
 - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
 - `anon` `public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+**DeepL (otomatik çeviri):** [DeepL API](https://www.deepl.com/pro-api) → Free plan → API anahtarı al → `DEEPL_API_KEY`  
+Free anahtarlar `:fx` ile biter ve `api-free.deepl.com` kullanır. Vercel'de de aynı değişkeni **Environment Variables** bölümüne ekleyin.
 
 ## 3. Veri yükle (seed)
 Proje kökünde PowerShell:

@@ -5,7 +5,8 @@ import LanguageTabs from "@/components/admin/ui/language-tabs";
 import type { AdminCategory } from "@/lib/admin/types";
 import type { LangCode } from "@/lib/menu/types";
 import { missingLangsForNames } from "@/lib/admin/translation-utils";
-import { copyLocalizedFromTr, createCategory, saveCategory, slugifyId } from "@/lib/admin/menu-data";
+import { createCategory, saveCategory, slugifyId } from "@/lib/admin/menu-data";
+import { translateLocalizedFieldToLang } from "@/lib/admin/translate-api";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type Props = {
@@ -28,6 +29,7 @@ export default function CategoryForm({ category, isNew = false, onSaved, onCance
   );
   const [activeLang, setActiveLang] = useState<LangCode>("tr");
   const [saving, setSaving] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -107,7 +109,20 @@ export default function CategoryForm({ category, isNew = false, onSaved, onCance
         active={activeLang}
         onChange={setActiveLang}
         missingLangs={missingLangs}
-        onCopyFromTr={() => setDraft({ ...draft, names: copyLocalizedFromTr(draft.names) })}
+        translating={translating}
+        onAutoTranslate={async () => {
+          if (activeLang === "tr" || !draft.names.tr.trim()) return;
+          setTranslating(true);
+          setError(null);
+          try {
+            const names = await translateLocalizedFieldToLang(draft.names, activeLang);
+            setDraft({ ...draft, names });
+          } catch (translateError) {
+            setError(translateError instanceof Error ? translateError.message : "Çeviri başarısız.");
+          } finally {
+            setTranslating(false);
+          }
+        }}
       />
 
       <label>

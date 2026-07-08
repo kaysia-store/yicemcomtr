@@ -12,7 +12,7 @@ import {
   removeModifierFromCategory,
   type ModifierTemplateItem,
 } from "@/lib/admin/category-modifiers";
-import { copyLocalizedFromTr } from "@/lib/admin/menu-data";
+import { translateLocalizedFromTr } from "@/lib/admin/translate-api";
 import { MODIFIER_TYPES, MODIFIER_TYPE_LABELS } from "@/lib/admin/modifier-types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -27,6 +27,7 @@ export default function ExtrasPage() {
   const [dirty, setDirty] = useState(false);
   const [newGroupType, setNewGroupType] = useState("menuOption");
   const [saving, setSaving] = useState(false);
+  const [translatingId, setTranslatingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
@@ -336,13 +337,27 @@ export default function ExtrasPage() {
                 <button
                   type="button"
                   className="admin-text-btn"
-                  onClick={() =>
-                    updateTemplateItem(item.modifierId, item.modifierType, {
-                      labels: copyLocalizedFromTr(item.labels),
-                    })
-                  }
+                  disabled={translatingId === `${item.modifierType}-${item.modifierId}`}
+                  onClick={() => {
+                    void (async () => {
+                      if (!item.labels.tr.trim()) return;
+                      const key = `${item.modifierType}-${item.modifierId}`;
+                      setTranslatingId(key);
+                      setActionError(null);
+                      try {
+                        const labels = await translateLocalizedFromTr(item.labels);
+                        updateTemplateItem(item.modifierId, item.modifierType, { labels });
+                      } catch (translateError) {
+                        setActionError(translateError instanceof Error ? translateError.message : "Çeviri başarısız.");
+                      } finally {
+                        setTranslatingId(null);
+                      }
+                    })();
+                  }}
                 >
-                  Diğer dillere TR&apos;den kopyala
+                  {translatingId === `${item.modifierType}-${item.modifierId}`
+                    ? "Çevriliyor…"
+                    : "Diğer dillere otomatik çevir"}
                 </button>
               </div>
             ))}

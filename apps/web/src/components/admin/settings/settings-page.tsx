@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import LanguageTabs from "@/components/admin/ui/language-tabs";
 import LoadingBlock from "@/components/admin/ui/loading-block";
 import { loadRestaurantSettings, saveRestaurantSettings } from "@/lib/admin/settings-data";
-import { copyLocalizedFromTr } from "@/lib/admin/menu-data";
+import { translateLocalizedFieldToLang } from "@/lib/admin/translate-api";
 import type { LangCode } from "@/lib/menu/types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -13,6 +13,7 @@ export default function SettingsPage() {
   const [activeLang, setActiveLang] = useState<LangCode>("tr");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -77,7 +78,19 @@ export default function SettingsPage() {
         <LanguageTabs
           active={activeLang}
           onChange={setActiveLang}
-          onCopyFromTr={() => setNames(copyLocalizedFromTr(names))}
+          translating={translating}
+          onAutoTranslate={async () => {
+            if (activeLang === "tr" || !names.tr.trim()) return;
+            setTranslating(true);
+            setError(null);
+            try {
+              setNames(await translateLocalizedFieldToLang(names, activeLang));
+            } catch (translateError) {
+              setError(translateError instanceof Error ? translateError.message : "Çeviri başarısız.");
+            } finally {
+              setTranslating(false);
+            }
+          }}
         />
         <label>
           Görünen ad

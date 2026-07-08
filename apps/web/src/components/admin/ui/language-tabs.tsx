@@ -7,11 +7,19 @@ type Props = {
   active: LangCode;
   onChange: (lang: LangCode) => void;
   missingLangs?: LangCode[];
-  onCopyFromTr?: () => void;
+  onAutoTranslate?: () => void | Promise<void>;
+  translating?: boolean;
   compact?: boolean;
 };
 
-export default function LanguageTabs({ active, onChange, missingLangs = [], onCopyFromTr, compact }: Props) {
+export default function LanguageTabs({
+  active,
+  onChange,
+  missingLangs = [],
+  onAutoTranslate,
+  translating = false,
+  compact,
+}: Props) {
   return (
     <div className={`admin-lang-tabs ${compact ? "admin-lang-tabs-compact" : ""}`}>
       {ADMIN_LANGS.map((lang) => {
@@ -29,9 +37,14 @@ export default function LanguageTabs({ active, onChange, missingLangs = [], onCo
           </button>
         );
       })}
-      {onCopyFromTr && active !== "tr" ? (
-        <button type="button" className="admin-lang-tab admin-lang-copy" onClick={onCopyFromTr}>
-          TR&apos;den kopyala
+      {onAutoTranslate && active !== "tr" ? (
+        <button
+          type="button"
+          className="admin-lang-tab admin-lang-copy"
+          disabled={translating}
+          onClick={() => void onAutoTranslate()}
+        >
+          {translating ? "Çevriliyor…" : "Otomatik çevir"}
         </button>
       ) : null}
     </div>

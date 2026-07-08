@@ -8,7 +8,12 @@ import {
   type LocalizedContents,
   type LocalizedFields,
 } from "@/lib/admin/types";
-import { copyContentsFromTr, copyLocalizedFromTr, saveProduct } from "@/lib/admin/menu-data";
+import { saveProduct } from "@/lib/admin/menu-data";
+import {
+  translateLocalizedFromTr,
+  translateProductFieldsToAllLangs,
+  translateProductFieldsToLang,
+} from "@/lib/admin/translate-api";
 import { uploadProductImage } from "@/lib/admin/storage";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -46,6 +51,7 @@ export default function ProductEditor({
   const [activeLang, setActiveLang] = useState<(typeof ADMIN_LANGS)[number]>("tr");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,31 +79,51 @@ export default function ProductEditor({
     setDraft({ ...draft, contents: { ...draft.contents, [lang]: items } });
   };
 
-  const handleCopyFromTr = () => {
+  const handleAutoTranslateActive = async () => {
     if (activeLang === "tr") return;
-    setDraft({
-      ...draft,
-      names: { ...draft.names, [activeLang]: draft.names.tr },
-      descriptions: { ...draft.descriptions, [activeLang]: draft.descriptions.tr },
-      contents: { ...draft.contents, [activeLang]: [...draft.contents.tr] },
-      modifiers: draft.modifiers.map((modifier) => ({
-        ...modifier,
-        labels: { ...modifier.labels, [activeLang]: modifier.labels.tr },
-      })),
-    });
+    setTranslating(true);
+    setError(null);
+    try {
+      const translated = await translateProductFieldsToLang(
+        { names: draft.names, descriptions: draft.descriptions, contents: draft.contents },
+        activeLang,
+      );
+      const modifiers = await Promise.all(
+        draft.modifiers.map(async (modifier) => {
+          if (!modifier.labels.tr.trim()) return modifier;
+          const labels = await translateLocalizedFromTr(modifier.labels, [activeLang]);
+          return { ...modifier, labels: { ...modifier.labels, [activeLang]: labels[activeLang] ?? modifier.labels[activeLang] } };
+        }),
+      );
+      setDraft({ ...draft, ...translated, modifiers });
+    } catch (translateError) {
+      setError(translateError instanceof Error ? translateError.message : "Çeviri başarısız.");
+    } finally {
+      setTranslating(false);
+    }
   };
 
-  const handleCopyAllFromTr = () => {
-    setDraft({
-      ...draft,
-      names: copyLocalizedFromTr(draft.names),
-      descriptions: copyLocalizedFromTr(draft.descriptions),
-      contents: copyContentsFromTr(draft.contents),
-      modifiers: draft.modifiers.map((modifier) => ({
-        ...modifier,
-        labels: copyLocalizedFromTr(modifier.labels),
-      })),
-    });
+  const handleAutoTranslateAll = async () => {
+    setTranslating(true);
+    setError(null);
+    try {
+      const translated = await translateProductFieldsToAllLangs({
+        names: draft.names,
+        descriptions: draft.descriptions,
+        contents: draft.contents,
+      });
+      const modifiers = await Promise.all(
+        draft.modifiers.map(async (modifier) => ({
+          ...modifier,
+          labels: modifier.labels.tr.trim() ? await translateLocalizedFromTr(modifier.labels) : modifier.labels,
+        })),
+      );
+      setDraft({ ...draft, ...translated, modifiers });
+    } catch (translateError) {
+      setError(translateError instanceof Error ? translateError.message : "Çeviri başarısız.");
+    } finally {
+      setTranslating(false);
+    }
   };
 
   const handleImageUpload = async (file: File) => {
@@ -156,8 +182,13 @@ export default function ProductEditor({
               ← Geri
             </button>
           ) : null}
-          <button type="button" className="admin-button admin-button-secondary admin-button-sm" onClick={handleCopyAllFromTr}>
-            TR&apos;den kopyala
+          <button
+            type="button"
+            className="admin-button admin-button-secondary admin-button-sm"
+            disabled={translating}
+            onClick={() => void handleAutoTranslateAll()}
+          >
+            {translating ? "Çevriliyor…" : "Tüm dillere çevir"}
           </button>
           <button
             type="button"
@@ -251,8 +282,13 @@ export default function ProductEditor({
               </button>
             ))}
             {activeLang !== "tr" ? (
-              <button type="button" className="admin-lang-tab admin-lang-copy" onClick={handleCopyFromTr}>
-                TR&apos;den kopyala
+              <button
+                type="button"
+                className="admin-lang-tab admin-lang-copy"
+                disabled={translating}
+                onClick={() => void handleAutoTranslateActive()}
+              >
+                {translating ? "Çevriliyor…" : "Otomatik çevir"}
               </button>
             ) : null}
           </div>
