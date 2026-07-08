@@ -58,7 +58,7 @@ export default function AdminSidebar({ open, onClose }: Props) {
     <aside className={`admin-sidebar ${open ? "open" : ""}`}>
       <div className="admin-sidebar-profile">
         <div className="admin-sidebar-avatar" aria-hidden>
-          <span className="admin-sidebar-emoji admin-sidebar-emoji-lg">👤</span>
+          <img src="/karakter2.png" alt="" className="admin-sidebar-avatar-img" />
         </div>
         <div>
           <h1 className="admin-sidebar-title">Yicem Admin</h1>
