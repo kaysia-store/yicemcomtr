@@ -14,11 +14,11 @@ const ACTION_LABELS: Record<AuditLogRow["action"], string> = {
   delete: "Silme",
 };
 
-const ACTION_ICONS: Record<AuditLogRow["action"], string> = {
-  create: "add_circle",
-  update: "edit",
-  reorder: "swap_vert",
-  delete: "delete",
+const ACTION_EMOJI: Record<AuditLogRow["action"], string> = {
+  create: "➕",
+  update: "✏️",
+  reorder: "↕️",
+  delete: "🗑️",
 };
 
 function formatDate(value: string) {
@@ -43,7 +43,7 @@ export default function AdminDashboard() {
       setStats(data.stats);
       setAuditLogs(data.auditLogs);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Dashboard yüklenemedi.");
+      setError(loadError instanceof Error ? loadError.message : "Ana sayfa yüklenemedi.");
     } finally {
       setLoading(false);
     }
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="admin-page">
-        <p className="admin-muted">Dashboard yükleniyor…</p>
+        <p className="admin-muted">Ana sayfa yükleniyor…</p>
       </div>
     );
   }
@@ -77,25 +77,25 @@ export default function AdminDashboard() {
       label: "Kategoriler",
       value: String(stats.categoryCount),
       hint: `${stats.hiddenCategoryCount} gizli`,
-      icon: "category",
+      emoji: "📁",
     },
     {
       label: "Ürünler",
       value: String(stats.productCount),
       hint: `${stats.activeProductCount} aktif`,
-      icon: "fastfood",
+      emoji: "🍔",
     },
     {
       label: "Alt özellikler",
       value: String(stats.modifierCount),
       hint: "Ekstra / seçenek",
-      icon: "tune",
+      emoji: "🧩",
     },
     {
       label: "Aktif oranı",
       value: `%${activeRate}`,
       hint: "Ürünlerin aktif payı",
-      icon: "check_circle",
+      emoji: "✅",
     },
   ];
 
@@ -117,8 +117,8 @@ export default function AdminDashboard() {
           <section key={card.label} className="admin-k-card">
             <div className="admin-k-card-top">
               <p className="admin-k-card-label">{card.label}</p>
-              <span className="material-symbols-outlined admin-k-card-icon" aria-hidden>
-                {card.icon}
+              <span className="admin-k-card-icon" aria-hidden>
+                {card.emoji}
               </span>
             </div>
             <p className="admin-k-card-value">{card.value}</p>
@@ -132,8 +132,8 @@ export default function AdminDashboard() {
           <h3 className="admin-k-section-title">Menü durumu</h3>
           <ul className="admin-summary-list">
             <li>
-              <span className="material-symbols-outlined" aria-hidden>
-                category
+              <span className="admin-summary-emoji" aria-hidden>
+                📁
               </span>
               <div>
                 <strong>{stats.categoryCount}</strong>
@@ -141,8 +141,8 @@ export default function AdminDashboard() {
               </div>
             </li>
             <li>
-              <span className="material-symbols-outlined" aria-hidden>
-                fastfood
+              <span className="admin-summary-emoji" aria-hidden>
+                🍔
               </span>
               <div>
                 <strong>{stats.productCount}</strong>
@@ -150,8 +150,8 @@ export default function AdminDashboard() {
               </div>
             </li>
             <li>
-              <span className="material-symbols-outlined" aria-hidden>
-                tune
+              <span className="admin-summary-emoji" aria-hidden>
+                🧩
               </span>
               <div>
                 <strong>{stats.modifierCount}</strong>
@@ -178,7 +178,7 @@ export default function AdminDashboard() {
               {recentActivity.map((log) => (
                 <li key={log.id} className="admin-activity-item">
                   <span className="admin-activity-icon" aria-hidden>
-                    <span className="material-symbols-outlined">{ACTION_ICONS[log.action]}</span>
+                    {ACTION_EMOJI[log.action]}
                   </span>
                   <div className="admin-activity-body">
                     <p>{log.summary}</p>

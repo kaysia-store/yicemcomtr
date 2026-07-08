@@ -1332,8 +1332,8 @@
 }
 
 .admin-k-card-icon {
-  color: rgba(255, 107, 0, 0.85);
-  font-size: 1.35rem !important;
+  font-size: 1.35rem;
+  line-height: 1;
 }
 
 .admin-k-card-value {
@@ -1393,8 +1393,10 @@
   background: var(--admin-surface-low);
 }
 
-.admin-summary-list li .material-symbols-outlined {
-  color: var(--admin-primary);
+.admin-summary-emoji {
+  font-size: 1.25rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .admin-summary-list strong {
@@ -1446,12 +1448,9 @@
   height: 2.25rem;
   border-radius: 0.5rem;
   background: var(--admin-surface);
-  color: var(--admin-text-secondary);
   flex-shrink: 0;
-}
-
-.admin-activity-icon .material-symbols-outlined {
-  font-size: 1.1rem !important;
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .admin-activity-body p {
