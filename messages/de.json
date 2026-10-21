@@ -1,0 +1,27 @@
+{
+  "Menu": {
+    "title": "Menü",
+    "emptyTitle": "Die Speisekarte wird vorbereitet",
+    "emptyBody": "In dieser Sprache sind noch keine Gerichte veröffentlicht.",
+    "ingredients": "Zutaten",
+    "allergens": "Allergene",
+    "close": "Schließen",
+    "language": "Sprache",
+    "chooseLanguage": "Wählen Sie Ihre Sprache",
+    "categories": "Kategorien",
+    "previousCategory": "Vorheriges Menü",
+    "nextCategory": "Nächstes Menü",
+    "search": "Suchen",
+    "searchLabel": "In der Speisekarte suchen",
+    "searchPlaceholder": "Gericht oder Zutat",
+    "searchEmpty": "Keine Treffer",
+    "clearSearch": "Suche schließen",
+    "included": "Inbegriffen",
+    "requiredChoice": "Pflicht",
+    "address": "Adresse",
+    "directions": "Route",
+    "call": "Anrufen",
+    "landline": "Festnetz",
+    "mobile": "Mobil"
+  }
+}

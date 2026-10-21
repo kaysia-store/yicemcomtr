@@ -1,0 +1,27 @@
+{
+  "Menu": {
+    "title": "Меню",
+    "emptyTitle": "Меню готовится",
+    "emptyBody": "На этом языке пока нет опубликованных блюд.",
+    "ingredients": "Состав",
+    "allergens": "Аллергены",
+    "close": "Закрыть",
+    "language": "Язык",
+    "chooseLanguage": "Выберите язык",
+    "categories": "Категории",
+    "previousCategory": "Предыдущее меню",
+    "nextCategory": "Следующее меню",
+    "search": "Поиск",
+    "searchLabel": "Искать в меню",
+    "searchPlaceholder": "Блюдо или ингредиент",
+    "searchEmpty": "Ничего не найдено",
+    "clearSearch": "Закрыть поиск",
+    "included": "Включено",
+    "requiredChoice": "Обязательно",
+    "address": "Адрес",
+    "directions": "Маршрут",
+    "call": "Позвонить",
+    "landline": "Городской",
+    "mobile": "Мобильный"
+  }
+}

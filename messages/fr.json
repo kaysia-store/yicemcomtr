@@ -1,0 +1,27 @@
+{
+  "Menu": {
+    "title": "Menu",
+    "emptyTitle": "La carte est en préparation",
+    "emptyBody": "Aucun plat n'est encore publié dans cette langue.",
+    "ingredients": "Ingrédients",
+    "allergens": "Allergènes",
+    "close": "Fermer",
+    "language": "Langue",
+    "chooseLanguage": "Choisissez votre langue",
+    "categories": "Catégories",
+    "previousCategory": "Menu précédent",
+    "nextCategory": "Menu suivant",
+    "search": "Rechercher",
+    "searchLabel": "Chercher dans le menu",
+    "searchPlaceholder": "Plat ou ingrédient",
+    "searchEmpty": "Aucun résultat",
+    "clearSearch": "Fermer la recherche",
+    "included": "Inclus",
+    "requiredChoice": "Obligatoire",
+    "address": "Adresse",
+    "directions": "Itinéraire",
+    "call": "Appeler",
+    "landline": "Fixe",
+    "mobile": "Mobile"
+  }
+}

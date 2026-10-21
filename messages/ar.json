@@ -1,0 +1,27 @@
+{
+  "Menu": {
+    "title": "القائمة",
+    "emptyTitle": "القائمة قيد الإعداد",
+    "emptyBody": "لا توجد أصناف منشورة بهذه اللغة بعد.",
+    "ingredients": "المكونات",
+    "allergens": "مسببات الحساسية",
+    "close": "إغلاق",
+    "language": "اللغة",
+    "chooseLanguage": "اختر لغتك",
+    "categories": "الفئات",
+    "previousCategory": "القائمة السابقة",
+    "nextCategory": "القائمة التالية",
+    "search": "بحث",
+    "searchLabel": "البحث في القائمة",
+    "searchPlaceholder": "طبق أو مكوّن",
+    "searchEmpty": "لا توجد نتائج",
+    "clearSearch": "إغلاق البحث",
+    "included": "مشمول",
+    "requiredChoice": "إلزامي",
+    "address": "العنوان",
+    "directions": "الاتجاهات",
+    "call": "اتصال",
+    "landline": "هاتف أرضي",
+    "mobile": "هاتف جوال"
+  }
+}

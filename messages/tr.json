@@ -1,0 +1,27 @@
+{
+  "Menu": {
+    "title": "Menü",
+    "emptyTitle": "Menü hazırlanıyor",
+    "emptyBody": "Bu dilde yayınlanmış ürün yok.",
+    "ingredients": "İçindekiler",
+    "allergens": "Alerjenler",
+    "close": "Kapat",
+    "language": "Dil",
+    "chooseLanguage": "Dilinizi seçin",
+    "categories": "Kategoriler",
+    "previousCategory": "Önceki menü",
+    "nextCategory": "Sonraki menü",
+    "search": "Ara",
+    "searchLabel": "Menüde ara",
+    "searchPlaceholder": "Ürün veya malzeme",
+    "searchEmpty": "Sonuç yok",
+    "clearSearch": "Aramayı kapat",
+    "included": "Dahil",
+    "requiredChoice": "Zorunlu",
+    "address": "Adres",
+    "directions": "Yol tarifi",
+    "call": "Telefon",
+    "landline": "Sabit hat",
+    "mobile": "Cep telefonu"
+  }
+}

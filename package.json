@@ -1,17 +1,30 @@
 {
   "name": "yicem",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run sync:assets && npm run dev --workspace=apps/web",
-    "build": "npm run sync:assets && npm run build --workspace=apps/web",
-    "lint": "npm run lint --workspace=apps/web",
-    "sync:assets": "node scripts/sync-legacy-assets.mjs",
-    "seed": "node scripts/seed-from-all-json.mjs"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
   },
-  "workspaces": [
-    "apps/web"
-  ],
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
+    "next": "16.4.2",
+    "next-intl": "4.14.9",
+    "qrcode": "1.5.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
   "devDependencies": {
-    "@supabase/supabase-js": "^2.103.0"
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

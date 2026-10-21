@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /pic/
-
-Sitemap: https://yicem.com.tr/sitemap.xml
-

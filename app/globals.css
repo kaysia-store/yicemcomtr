@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-outfit), "Segoe UI", sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, serif;
+  --color-paper: #f7f7f8;
+  --color-ink: #111111;
+  --color-muted: #444444;
+  --color-line: #e5e7eb;
+  --color-card: #ffffff;
+  --color-accent: #e53935;
+  --color-accent-dark: #c62828;
+  --color-warm: #ff7043;
+  --color-pine: #1f6a4a;
+  --color-danger: #9f2d2d;
+}
+
+:lang(ru) {
+  --font-sans: var(--font-noto), var(--font-outfit), "Segoe UI", sans-serif;
+  --font-serif: var(--font-noto), var(--font-fraunces), Georgia, serif;
+}
+
+:lang(ar) {
+  --font-sans: var(--font-arabic), "Segoe UI", sans-serif;
+  --font-serif: var(--font-arabic), Georgia, serif;
+}
+
+@layer base {
+  html {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100%;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: #f8d0ce;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-accent text-white hover:bg-accent-dark;
+  }
+
+  .btn-secondary {
+    @apply border border-line bg-card text-ink hover:border-ink/20;
+  }
+
+  .btn-danger {
+    @apply text-danger hover:bg-danger/5;
+  }
+
+  .field {
+    @apply w-full rounded-2xl border border-line bg-card px-3 py-3 text-base text-ink outline-none placeholder:text-muted/70;
+  }
+
+  .icon-btn {
+    @apply inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-card text-sm disabled:opacity-40;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

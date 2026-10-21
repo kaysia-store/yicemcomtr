@@ -1,0 +1,27 @@
+{
+  "Menu": {
+    "title": "Menu",
+    "emptyTitle": "The menu is on its way",
+    "emptyBody": "There are no published items in this language yet.",
+    "ingredients": "Ingredients",
+    "allergens": "Allergens",
+    "close": "Close",
+    "language": "Language",
+    "chooseLanguage": "Choose your language",
+    "categories": "Categories",
+    "previousCategory": "Previous menu",
+    "nextCategory": "Next menu",
+    "search": "Search",
+    "searchLabel": "Search the menu",
+    "searchPlaceholder": "Dish or ingredient",
+    "searchEmpty": "No results",
+    "clearSearch": "Close search",
+    "included": "Included",
+    "requiredChoice": "Required",
+    "address": "Address",
+    "directions": "Directions",
+    "call": "Call",
+    "landline": "Landline",
+    "mobile": "Mobile"
+  }
+}
