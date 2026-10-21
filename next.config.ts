@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   agentRules: false,
+  allowedDevOrigins: ["127.0.0.1"],
   turbopack: {
     root: path.join(process.cwd()),
     rules: {

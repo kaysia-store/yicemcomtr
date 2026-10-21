@@ -7,5 +7,14 @@ export async function requireAdmin() {
   }
 
   const supabase = await createClient();
-  return { ok: true as const, supabase, user: null };
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { ok: false as const, message: "Oturum gerekli. Tekrar giriş yapın." };
+  }
+
+  return { ok: true as const, supabase, user };
 }

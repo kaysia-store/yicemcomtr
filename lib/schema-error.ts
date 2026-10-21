@@ -16,7 +16,7 @@ export function loadFailure(error: { code?: string; message?: string }): LoadFai
       ok: false,
       reason: "schema",
       message:
-        "Veritabanı tabloları bulunamadı. supabase/migrations/0001_init.sql dosyasını SQL Editor'da çalıştırın.",
+        "Veritabanı tabloları bulunamadı. supabase/migrations içindeki SQL dosyalarını 0001’den 0004’e kadar sırayla çalıştırın.",
     };
   }
 

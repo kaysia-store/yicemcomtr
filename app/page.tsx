@@ -19,4 +19,5 @@ async function HomeRedirect() {
   const supabase = await createClient();
   const { data } = await supabase.from("restaurant_settings").select("default_locale").eq("id", 1).maybeSingle();
   redirect(`/${data?.default_locale ?? "tr"}`);
+  return null;
 }

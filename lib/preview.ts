@@ -125,7 +125,7 @@ function seed(): PreviewDb {
   });
 
   return {
-    settings: { name: "Köz Ocakbaşı", defaultLocale: "tr", showTitle: false },
+    settings: { name: "Yicem", defaultLocale: "tr", showTitle: false },
     languages: menuLanguages.map((language) => ({ ...language, isActive: true })),
     categories: [{ id: categoryId, sortOrder: 0, isPublished: true }],
     categoryTranslations: menuLanguages.map((language) => ({
@@ -206,8 +206,12 @@ function ensureMenuLocales(db: PreviewDb) {
 }
 
 function writePreview(db: PreviewDb) {
-  mkdirSync(path.dirname(filePath), { recursive: true });
-  writeFileSync(filePath, JSON.stringify(db, null, 2));
+  try {
+    mkdirSync(path.dirname(filePath), { recursive: true });
+    writeFileSync(filePath, JSON.stringify(db, null, 2));
+  } catch {
+    // Salt okunur ortamda önizleme yalnızca o istek boyunca bellekte kalır.
+  }
 }
 
 function updatePreview(change: (db: PreviewDb) => void) {

@@ -14,10 +14,13 @@ export function SetupNotice() {
           <code className="rounded bg-card px-1.5 py-0.5">.env.local</code> olarak kopyalayıp doldurun.
         </li>
         <li>
-          Supabase SQL Editor’da <code className="rounded bg-card px-1.5 py-0.5">supabase/migrations/0001_init.sql</code>{" "}
-          dosyasını çalıştırın.
+          Supabase SQL Editor’da sırayla{" "}
+          <code className="rounded bg-card px-1.5 py-0.5">0001_init.sql</code>,{" "}
+          <code className="rounded bg-card px-1.5 py-0.5">0002_category_features.sql</code>,{" "}
+          <code className="rounded bg-card px-1.5 py-0.5">0003_languages.sql</code> ve{" "}
+          <code className="rounded bg-card px-1.5 py-0.5">0004_show_title.sql</code> dosyalarını çalıştırın.
         </li>
-        <li>Authentication bölümünden tek bir admin kullanıcısı oluşturun.</li>
+        <li>Authentication bölümünden tek bir admin kullanıcısı oluşturun ve yeni kaydı kapatın.</li>
       </ol>
       <Link className="btn btn-primary mt-8" href="/admin/login">
         Yönetim girişi
@@ -33,7 +36,7 @@ export function SchemaNotice({ message }: { message?: string }) {
       <h1 className="mt-2 font-serif text-4xl text-ink">Tablolar henüz yok</h1>
       <p className="mt-4 leading-7 text-muted">
         {message ??
-          "supabase/migrations/0001_init.sql dosyasını Supabase SQL Editor’da çalıştırın. Bu işlem menü tablolarını, 14 alerjeni ve Türkçe dil kaydını oluşturur."}
+          "supabase/migrations klasöründeki SQL dosyalarını 0001’den 0004’e kadar sırayla çalıştırın. Bu işlem menü tablolarını, görsel kovasını, 14 alerjeni ve dil kayıtlarını oluşturur."}
       </p>
     </section>
   );
