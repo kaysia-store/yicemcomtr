@@ -3,7 +3,7 @@
 @theme {
   --font-sans: var(--font-outfit), "Segoe UI", sans-serif;
   --font-serif: var(--font-fraunces), Georgia, serif;
-  --color-paper: #f7f7f8;
+  --color-paper: #efeae2;
   --color-ink: #111111;
   --color-muted: #444444;
   --color-line: #e5e7eb;

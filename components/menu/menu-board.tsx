@@ -267,7 +267,9 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
             <div className="flex items-center justify-between gap-3 py-3">
               <div className="flex min-w-0 items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className="h-11 w-auto shrink-0" src="/yicem-logo.png" />
+                <span className="inline-flex h-11 shrink-0 items-center rounded-lg bg-ink px-2.5">
+                  <img alt="" className="h-7 w-auto" src="/yicem-logo.png" />
+                </span>
                 <h1 className={menu.showTitle ? "min-w-0 truncate font-serif text-3xl leading-none text-ink" : "sr-only"}>
                   {menu.restaurantName}
                 </h1>
@@ -288,9 +290,15 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
           </div>
         </div>
         {menu.categories.length > 0 ? (
-          <div className={searchOpen ? "mt-3" : "mt-2 flex justify-end"}>
+          <div className={`flex items-center gap-3 ${searchOpen ? "mt-3" : "mt-2"} ${compact ? "justify-between" : "justify-end"}`}>
+            {compact ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <span className="inline-flex h-9 shrink-0 items-center rounded-lg bg-ink px-2">
+                <img alt="" className="h-6 w-auto" src="/yicem-logo.png" />
+              </span>
+            ) : null}
             {searchOpen ? (
-              <div>
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 rounded-full border border-line bg-card px-3 py-2">
                   <SearchIcon />
                   <input
