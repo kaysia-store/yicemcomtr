@@ -27,7 +27,8 @@ const arabic = Noto_Sans_Arabic({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#e53935",
+  themeColor: "#f7f7f8",
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {

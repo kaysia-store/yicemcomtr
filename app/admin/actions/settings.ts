@@ -20,8 +20,27 @@ export async function login(_prev: ActionState, formData: FormData): Promise<Act
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { status: "error", message: "E-posta veya şifre hatalı." };
+  if (error) return { status: "error", message: loginMessage(error) };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { status: "error", message: "Giriş kabul edildi ama oturum bu tarayıcıya yazılamadı. Sayfayı yenileyip tekrar deneyin." };
+  }
   redirect("/admin");
+}
+
+function loginMessage(error: { code?: string; message?: string }) {
+  const code = error.code ?? "";
+  const message = error.message ?? "";
+  if (code === "email_not_confirmed" || /not confirmed/i.test(message)) {
+    return "E-posta doğrulanmamış. Supabase → Authentication → Users içinde bu kullanıcıyı açıp e-postayı onaylayın. Hesabı yeniden eklerken Auto Confirm User seçili olsun.";
+  }
+  if (code === "over_request_rate_limit" || code === "too_many_requests") {
+    return "Çok fazla deneme oldu. Birkaç dakika sonra tekrar deneyin.";
+  }
+  return "E-posta veya şifre hatalı.";
 }
 
 export async function logout() {

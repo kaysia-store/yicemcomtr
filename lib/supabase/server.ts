@@ -1,8 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
 export async function createClient() {
+  await connection();
   const env = getSupabaseEnv();
   if (!env) {
     throw new Error("Supabase ortam değişkenleri eksik");

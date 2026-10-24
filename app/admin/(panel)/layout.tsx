@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { logout } from "@/app/admin/actions/settings";
 import { AdminNav } from "@/components/admin/nav";
@@ -15,6 +16,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 }
 
 async function AdminFrame({ children }: { children: React.ReactNode }) {
+  await connection();
   let label = "İnceleme modu";
   if (getSupabaseEnv()) {
     const supabase = await createClient();

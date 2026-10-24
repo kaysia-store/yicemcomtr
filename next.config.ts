@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   agentRules: false,
   allowedDevOrigins: ["127.0.0.1"],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "6mb",
+    },
+  },
   turbopack: {
     root: path.join(process.cwd()),
     rules: {

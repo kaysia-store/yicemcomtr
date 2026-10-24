@@ -7,7 +7,8 @@ export const place = {
   landlineLabel: "0242 323 11 77",
   mobileTel: "+905412429007",
   mobileLabel: "0541 242 90 07",
-  mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Fener Mah. 1968 Sk. No: 21/A Muratpaşa Antalya")}`,
+  mapsUrl:
+    "https://www.google.com/maps/place/Yicem+Cafe+%26+Bistro/@36.85307,30.7603213,18.5z/data=!4m14!1m7!3m6!1s0x14c39ae19407ffbb:0x293f413ca8b4d3bb!2sFener,+1968.+Sk.+2%2F1+D:a,+07160+Muratpa%C5%9Fa%2FAntalya!3b1!8m2!3d36.853313!4d30.756232!3m5!1s0x14c39b1ef85787cd:0x144d717288522d90!8m2!3d36.85308!4d30.7609919!16s%2Fg%2F11h9zjrn33?entry=ttu&g_ep=EgoyMDI2MTAxOS4wIKXMDSoASAFQAw%3D%3D",
   sameAs: "https://www.yicem.com.tr/",
 } as const;
 

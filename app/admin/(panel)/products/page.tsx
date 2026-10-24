@@ -42,9 +42,12 @@ async function ProductsContent() {
         title="Ürünler"
       />
       {result.products.length === 0 ? (
-        <p className="rounded-3xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted">
-          Henüz ürün yok.
-        </p>
+        <div className="rounded-3xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted">
+          <p>Henüz ürün yok.</p>
+          <Link className="mt-3 inline-flex text-ink underline" href="/admin/photos">
+            Yerel menüyü Supabase'e aktar
+          </Link>
+        </div>
       ) : (
         <div className="grid gap-8">
           {[...groups.entries()].map(([categoryId, products]) => (

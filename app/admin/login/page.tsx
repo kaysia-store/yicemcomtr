@@ -15,7 +15,7 @@ export default function LoginPage() {
         <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">Yönetim</p>
         <h1 className="mt-2 font-serif text-4xl">Giriş</h1>
         <p className="mt-3 text-sm leading-6 text-muted">
-          Supabase Authentication bölümünde oluşturduğunuz yönetici hesabıyla giriş yapın.
+          Supabase Authentication bölümünde oluşturduğunuz yönetici hesabıyla giriş yapın. Yerel denemede kullanıcının e-postası onaylı olmalıdır.
         </p>
         <div className="mt-6">
           <LoginForm action={login} />

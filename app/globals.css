@@ -79,4 +79,9 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  .menu-root {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
 }

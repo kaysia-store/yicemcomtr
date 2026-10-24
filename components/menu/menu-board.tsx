@@ -256,18 +256,19 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
   const nextCategory = activeIndex >= 0 ? visible[activeIndex + 1] : undefined;
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-lg">
+    <div className="menu-root min-h-dvh w-full">
+    <div className="mx-auto min-h-dvh w-full max-w-lg">
       <header
-        className={`sticky top-0 z-20 border-b border-line/80 bg-paper/90 px-4 pb-3 backdrop-blur transition-[padding] duration-300 ${compact ? "pt-2" : "pt-0"}`}
+        className={`sticky top-0 z-20 border-b border-line bg-paper/95 px-4 backdrop-blur [padding-top:env(safe-area-inset-top)] ${compact ? "pb-2" : "pb-3"}`}
         ref={headerRef}
       >
         <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${compact ? "grid-rows-[0fr]" : "grid-rows-[1fr]"}`}>
           <div className="min-h-0 overflow-hidden" inert={compact}>
-            <div className="-mx-4 flex items-center justify-between gap-3 bg-accent/95 px-4 py-3 text-white backdrop-blur">
+            <div className="flex items-center justify-between gap-3 py-3">
               <div className="flex min-w-0 items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className="h-11 w-auto shrink-0 rounded-lg bg-ink px-1.5 py-1" src="/yicem-logo.png" />
-                <h1 className={menu.showTitle ? "min-w-0 font-serif text-3xl leading-none text-white" : "sr-only"}>
+                <img alt="" className="h-11 w-auto shrink-0" src="/yicem-logo.png" />
+                <h1 className={menu.showTitle ? "min-w-0 truncate font-serif text-3xl leading-none text-ink" : "sr-only"}>
                   {menu.restaurantName}
                 </h1>
               </div>
@@ -324,7 +325,7 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
           </div>
         ) : null}
         {visible.length > 0 ? (
-          <div className={`flex items-center gap-1 ${compact ? "mt-2" : "mt-3"}`}>
+          <div className={`flex items-center gap-1 ${compact ? "mt-1" : "mt-3"}`}>
             <button
               aria-label={t("previousCategory")}
               className="grid size-9 shrink-0 place-items-center rounded-full border border-line bg-card text-ink disabled:opacity-30"
@@ -413,7 +414,7 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
                       </div>
                       <span className="min-w-0 flex-1 py-1">
                         <span className="flex items-start justify-between gap-3">
-                          <span className="font-serif text-xl leading-tight">{product.name}</span>
+                          <span className="font-serif text-xl leading-tight break-words">{product.name}</span>
                           <span className="shrink-0 text-sm font-medium text-accent tabular-nums">{formatPrice(startingPrice(product))}</span>
                         </span>
                         {product.description ? (
@@ -437,7 +438,7 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
         )}
       </main>
 
-      <footer className="border-t border-line pt-8 pr-20 pb-28 pl-4">
+      <footer className="border-t border-line pt-8 pr-20 pl-4 pb-[calc(7rem+env(safe-area-inset-bottom))]">
         <p className="font-serif text-2xl">{menu.restaurantName}</p>
         <p className="mt-4 text-[11px] tracking-[0.22em] text-accent uppercase">{t("address")}</p>
         <address className="mt-2 text-sm leading-6 text-ink not-italic" translate="no">
@@ -456,6 +457,7 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
       {selected ? (
         <ProductSheet closeRef={closeRef} key={selected.id} onClose={() => setSelected(null)} product={selected} />
       ) : null}
+    </div>
     </div>
   );
 }
@@ -543,11 +545,11 @@ function ProductSheet({
 
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center sm:items-center">
-      <button aria-label={t("close")} className="absolute inset-0 bg-ink/45" onClick={onClose} type="button" />
+      <button aria-label={t("close")} className="absolute inset-0 bg-black/60" onClick={onClose} type="button" />
       <div
         aria-labelledby="product-title"
         aria-modal="true"
-        className="relative z-10 max-h-[88vh] w-full overflow-y-auto rounded-t-3xl bg-card p-5 sm:max-w-lg sm:rounded-3xl"
+        className="relative z-10 max-h-[88dvh] w-full overflow-y-auto rounded-t-3xl bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:max-w-lg sm:rounded-3xl"
         role="dialog"
       >
         {product.imageUrl ? (
@@ -659,11 +661,11 @@ function LanguageDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <button aria-label={t("close")} className="absolute inset-0 bg-ink/45" onClick={onClose} type="button" />
+      <button aria-label={t("close")} className="absolute inset-0 bg-black/60" onClick={onClose} type="button" />
       <div
         aria-labelledby="language-title"
         aria-modal="true"
-        className="relative z-10 w-full max-w-lg rounded-t-3xl bg-card p-5 sm:rounded-3xl"
+        className="relative z-10 w-full max-w-lg rounded-t-3xl bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:rounded-3xl"
         role="dialog"
       >
         <div className="flex items-start justify-between gap-3">
@@ -749,7 +751,7 @@ function CallDock({ open, onOpenChange }: { open: boolean; onOpenChange: (open: 
   }, [open, onOpenChange]);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-30">
+    <div className="pointer-events-none fixed inset-x-0 z-30 bottom-[max(1.25rem,env(safe-area-inset-bottom))]">
       <div className="relative mx-auto h-0 w-full max-w-lg">
         <div className="pointer-events-auto absolute right-4 bottom-0 flex flex-col items-end" ref={rootRef}>
           {open ? (

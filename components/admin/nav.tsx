@@ -7,6 +7,7 @@ const items = [
   { href: "/admin", label: "Genel" },
   { href: "/admin/categories", label: "Kategoriler" },
   { href: "/admin/products", label: "Ürünler" },
+  { href: "/admin/photos", label: "Görseller" },
   { href: "/admin/prices", label: "Fiyatlar" },
   { href: "/admin/languages", label: "Diller" },
   { href: "/admin/qr", label: "QR" },
