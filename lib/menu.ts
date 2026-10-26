@@ -4,7 +4,7 @@ import { previewPublicMenu } from "@/lib/preview";
 import { loadRestaurantSettings } from "@/lib/restaurant-settings";
 import { loadFailure } from "@/lib/schema-error";
 import { getSupabaseEnv } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { LoadFailure, MenuCategory, MenuPayload, MenuProduct } from "@/lib/types";
 
 type LocaleName = { locale: string; name: string };
@@ -77,10 +77,17 @@ function one<T>(value: T | T[] | null | undefined): T | null {
 export async function getPublicMenu(
   locale: string,
 ): Promise<{ ok: true; menu: MenuPayload } | LoadFailure | { ok: false; reason: "inactive" }> {
-  if (!getSupabaseEnv()) return previewPublicMenu(locale);
+  const supabase = createPublicClient();
+  if (!supabase) {
+    if (!getSupabaseEnv()) return previewPublicMenu(locale);
+    return {
+      ok: false,
+      reason: "error",
+      message: "Supabase adresi geçersiz. Vercel'de NEXT_PUBLIC_SUPABASE_URL https://cvpazdacfnkjussrydim.supabase.co olmalı.",
+    };
+  }
 
   try {
-    const supabase = await createClient();
     const [settingsResult, languagesResult, categoriesResult] = await Promise.all([
       loadRestaurantSettings(supabase),
       supabase.from("languages").select("code, name, is_active, sort_order").order("sort_order"),

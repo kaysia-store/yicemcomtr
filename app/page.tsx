@@ -1,9 +1,8 @@
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { Suspense } from "react";
 import { LoadingState } from "@/components/loading-state";
 import { readPreview } from "@/lib/preview";
-import { getSupabaseEnv } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export default function HomePage() {
   return (
@@ -14,10 +13,15 @@ export default function HomePage() {
 }
 
 async function HomeRedirect() {
-  if (!getSupabaseEnv()) redirect(`/${readPreview().settings.defaultLocale}`);
+  const supabase = createPublicClient();
+  if (!supabase) redirect(`/${readPreview().settings.defaultLocale}`);
 
-  const supabase = await createClient();
-  const { data } = await supabase.from("restaurant_settings").select("default_locale").eq("id", 1).maybeSingle();
-  redirect(`/${data?.default_locale ?? "tr"}`);
+  try {
+    const { data } = await supabase.from("restaurant_settings").select("default_locale").eq("id", 1).maybeSingle();
+    redirect(`/${data?.default_locale ?? "tr"}`);
+  } catch (error) {
+    unstable_rethrow(error);
+    redirect("/tr");
+  }
   return null;
 }
