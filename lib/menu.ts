@@ -3,7 +3,7 @@ import { asPrice, menuImageUrl } from "@/lib/format";
 import { previewPublicMenu } from "@/lib/preview";
 import { loadRestaurantSettings } from "@/lib/restaurant-settings";
 import { loadFailure } from "@/lib/schema-error";
-import { getSupabaseEnv } from "@/lib/supabase/env";
+import { supabaseEnvError } from "@/lib/supabase/env";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { LoadFailure, MenuCategory, MenuPayload, MenuProduct } from "@/lib/types";
 
@@ -79,12 +79,9 @@ export async function getPublicMenu(
 ): Promise<{ ok: true; menu: MenuPayload } | LoadFailure | { ok: false; reason: "inactive" }> {
   const supabase = createPublicClient();
   if (!supabase) {
-    if (!getSupabaseEnv()) return previewPublicMenu(locale);
-    return {
-      ok: false,
-      reason: "error",
-      message: "Supabase adresi geçersiz. Vercel'de NEXT_PUBLIC_SUPABASE_URL https://cvpazdacfnkjussrydim.supabase.co olmalı.",
-    };
+    const problem = supabaseEnvError();
+    if (problem) return { ok: false, reason: "error", message: problem };
+    return previewPublicMenu(locale);
   }
 
   try {

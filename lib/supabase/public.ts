@@ -4,15 +4,6 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 export function createPublicClient(): SupabaseClient | null {
   const env = getSupabaseEnv();
   if (!env) return null;
-  let hostname = "";
-  try {
-    const parsed = new URL(env.url);
-    hostname = parsed.hostname;
-    if (parsed.protocol !== "https:") return null;
-  } catch {
-    return null;
-  }
-  if (!hostname.endsWith(".supabase.co")) return null;
 
   return createClient(env.url, env.anonKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
