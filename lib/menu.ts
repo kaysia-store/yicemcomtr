@@ -1,3 +1,4 @@
+import { unstable_rethrow } from "next/navigation";
 import { asPrice, menuImageUrl } from "@/lib/format";
 import { previewPublicMenu } from "@/lib/preview";
 import { loadRestaurantSettings } from "@/lib/restaurant-settings";
@@ -170,7 +171,8 @@ export async function getPublicMenu(
         categories,
       },
     };
-  } catch {
+  } catch (error) {
+    unstable_rethrow(error);
     return { ok: false, reason: "error", message: "Menü yüklenemedi." };
   }
 }
