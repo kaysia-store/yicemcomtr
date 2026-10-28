@@ -46,6 +46,58 @@ export const emptyCart: CartState = {
 };
 
 const storageKey = "yicem-cart-v4";
+const profileKey = "yicem-checkout-profile-v1";
+
+export type CheckoutProfile = {
+  remember: boolean;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  address: string;
+};
+
+export function readCheckoutProfile(): CheckoutProfile | null {
+  try {
+    const raw = localStorage.getItem(profileKey);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<CheckoutProfile>;
+    if (parsed.remember !== true) return null;
+    return {
+      remember: true,
+      firstName: typeof parsed.firstName === "string" ? parsed.firstName : "",
+      lastName: typeof parsed.lastName === "string" ? parsed.lastName : "",
+      phone: typeof parsed.phone === "string" ? parsed.phone : "",
+      address: typeof parsed.address === "string" ? parsed.address : "",
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function writeCheckoutProfile(profile: Omit<CheckoutProfile, "remember"> & { remember?: boolean }) {
+  try {
+    localStorage.setItem(
+      profileKey,
+      JSON.stringify({
+        remember: true,
+        firstName: profile.firstName.trim().slice(0, 40),
+        lastName: profile.lastName.trim().slice(0, 40),
+        phone: profile.phone.trim().slice(0, 24),
+        address: profile.address.trim().slice(0, 240),
+      } satisfies CheckoutProfile),
+    );
+  } catch {
+    /* depolama kapalı */
+  }
+}
+
+export function clearCheckoutProfile() {
+  try {
+    localStorage.removeItem(profileKey);
+  } catch {
+    /* ignore */
+  }
+}
 
 export function isMealCardBrandId(value: unknown): value is MealCardBrandId {
   return typeof value === "string" && MEAL_CARD_BRANDS.some((brand) => brand.id === value);
@@ -122,31 +174,19 @@ export function setCartQuantity(cart: CartState, key: string, quantity: number):
 export function readCart(): CartState {
   try {
     const raw = localStorage.getItem(storageKey);
-    if (!raw) return emptyCart;
-    const parsed = JSON.parse(raw) as Partial<CartState> & { customerName?: string };
+    const parsed = raw ? (JSON.parse(raw) as Partial<CartState>) : {};
     const payment: PaymentMethod =
       parsed.paymentMethod === "card" || parsed.paymentMethod === "meal_card" ? parsed.paymentMethod : "cash";
     const mealCardBrand = isMealCardBrandId(parsed.mealCardBrand) ? parsed.mealCardBrand : "";
-    const firstName =
-      typeof parsed.firstName === "string"
-        ? parsed.firstName
-        : typeof parsed.customerName === "string"
-          ? parsed.customerName.split(/\s+/)[0] ?? ""
-          : "";
-    const lastName =
-      typeof parsed.lastName === "string"
-        ? parsed.lastName
-        : typeof parsed.customerName === "string"
-          ? parsed.customerName.split(/\s+/).slice(1).join(" ")
-          : "";
+    const profile = readCheckoutProfile();
     return {
       lines: Array.isArray(parsed.lines) ? parsed.lines.filter(isCartLine) : [],
-      firstName,
-      lastName,
-      phone: typeof parsed.phone === "string" ? parsed.phone : "",
+      firstName: profile?.firstName ?? "",
+      lastName: profile?.lastName ?? "",
+      phone: profile?.phone ?? "",
       paymentMethod: payment,
       mealCardBrand: payment === "meal_card" ? mealCardBrand : "",
-      address: typeof parsed.address === "string" ? parsed.address : "",
+      address: profile?.address ?? "",
       note: typeof parsed.note === "string" ? parsed.note : "",
     };
   } catch {
@@ -156,7 +196,16 @@ export function readCart(): CartState {
 
 export function writeCart(cart: CartState) {
   try {
-    localStorage.setItem(storageKey, JSON.stringify(cart));
+    // Kişisel alanlar ayrı profil anahtarında; sepet yalnızca kalem + ödeme tutar
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        lines: cart.lines,
+        paymentMethod: cart.paymentMethod,
+        mealCardBrand: cart.mealCardBrand,
+        note: cart.note,
+      }),
+    );
   } catch {
     /* depolama kapalıysa sepet yalnızca oturumda kalır */
   }

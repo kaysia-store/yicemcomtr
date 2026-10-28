@@ -58,6 +58,7 @@
     "deliveryAddressPlaceholder": "Mahalle, sokak, bina, daire…",
     "placeOrder": "Sipariş ver",
     "sendingOrder": "Gönderiliyor…",
-    "order": "Sipariş"
+    "order": "Sipariş",
+    "rememberOnDevice": "Bilgilerimi bu cihazda hatırla (ad, soyad, telefon, adres)"
   }
 }

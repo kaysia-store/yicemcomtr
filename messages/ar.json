@@ -58,6 +58,7 @@
     "deliveryAddressPlaceholder": "الشارع، المبنى، الشقة…",
     "placeOrder": "اطلب",
     "sendingOrder": "جاري الإرسال…",
-    "order": "طلب"
+    "order": "طلب",
+    "rememberOnDevice": "احفظ بياناتي على هذا الجهاز (الاسم، الهاتف، العنوان)"
   }
 }

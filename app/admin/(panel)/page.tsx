@@ -53,21 +53,6 @@ async function Dashboard({ searchParams }: { searchParams: Promise<{ saved?: str
           <SettingsForm action={saveRestaurantName} name={result.name} showTitle={result.showTitle} />
         </div>
       </section>
-      <p className="mt-6 text-sm text-muted">
-        Müşteri menüsü:{" "}
-        <Link className="font-medium text-accent" href={`/${result.defaultLocale}`}>
-          /{result.defaultLocale}
-        </Link>
-        {" · "}
-        <a
-          className="font-medium text-accent"
-          href="https://vercel.com/dashboard"
-          rel="noreferrer"
-          target="_blank"
-        >
-          Vercel Analytics
-        </a>
-      </p>
     </div>
   );
 }

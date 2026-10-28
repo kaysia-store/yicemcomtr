@@ -58,6 +58,7 @@
     "deliveryAddressPlaceholder": "Street, building, apartment…",
     "placeOrder": "Place order",
     "sendingOrder": "Sending…",
-    "order": "Order"
+    "order": "Order",
+    "rememberOnDevice": "Remember my details on this device (name, phone, address)"
   }
 }

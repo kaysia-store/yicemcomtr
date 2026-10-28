@@ -5,7 +5,8 @@ import { logout } from "@/app/admin/actions/settings";
 import { AdminNav } from "@/components/admin/nav";
 import { LoadingState } from "@/components/loading-state";
 import { countNewOrders } from "@/lib/admin-orders";
-import { getSiteUrl, getSupabaseEnv } from "@/lib/supabase/env";
+import { purgeExpiredOrderCustomerData } from "@/lib/purge-orders";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 export default function PanelLayout({ children }: { children: React.ReactNode }) {
@@ -19,21 +20,14 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 async function AdminFrame({ children }: { children: React.ReactNode }) {
   await connection();
   let label = "İnceleme modu";
-  let locale = "tr";
   if (getSupabaseEnv()) {
     const supabase = await createClient();
-    const [{ data: auth }, settings] = await Promise.all([
-      supabase.auth.getUser(),
-      supabase.from("restaurant_settings").select("default_locale").eq("id", 1).maybeSingle(),
-    ]);
-    label = auth.user?.email ?? "Yönetici";
-    if (settings.data?.default_locale) locale = String(settings.data.default_locale);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    label = user?.email ?? "Yönetici";
   }
-  const newOrders = await countNewOrders();
-  const configured = getSiteUrl();
-  const site =
-    configured && !/localhost|127\.0\.0\.1/i.test(configured) ? configured : "https://yicem.com.tr";
-  const menuUrl = `${site}/${locale}`;
+  const [newOrders] = await Promise.all([countNewOrders(), purgeExpiredOrderCustomerData()]);
 
   return (
     <div className="min-h-screen md:grid md:grid-cols-[240px_minmax(0,1fr)]">
@@ -48,12 +42,12 @@ async function AdminFrame({ children }: { children: React.ReactNode }) {
           </div>
           <p className="mt-2 truncate text-center text-xs text-muted">{label}</p>
           <a
-            className="mt-2 block text-center text-xs font-medium text-accent hover:underline"
-            href={menuUrl}
+            className="mt-3 block rounded-full border border-line px-3 py-2 text-center text-sm font-medium hover:bg-paper"
+            href="https://yicem.com.tr"
             rel="noreferrer"
             target="_blank"
           >
-            QR menü
+            QR menüye git
           </a>
         </div>
         <AdminNav newOrders={newOrders} />

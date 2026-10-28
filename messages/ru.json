@@ -58,6 +58,7 @@
     "deliveryAddressPlaceholder": "Улица, дом, квартира…",
     "placeOrder": "Заказать",
     "sendingOrder": "Отправка…",
-    "order": "Заказ"
+    "order": "Заказ",
+    "rememberOnDevice": "Запомнить мои данные на этом устройстве (имя, телефон, адрес)"
   }
 }

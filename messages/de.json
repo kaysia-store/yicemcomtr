@@ -58,6 +58,7 @@
     "deliveryAddressPlaceholder": "Straße, Hausnummer, Wohnung…",
     "placeOrder": "Bestellen",
     "sendingOrder": "Wird gesendet…",
-    "order": "Bestellung"
+    "order": "Bestellung",
+    "rememberOnDevice": "Meine Angaben auf diesem Gerät merken (Name, Telefon, Adresse)"
   }
 }

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { placeOrder } from "@/app/admin/actions/orders";
 import {
   cartTotal,
+  clearCheckoutProfile,
   customerFullName,
   emptyCart,
   formatCartMoney,
@@ -12,8 +13,10 @@ import {
   isValidPhone,
   MEAL_CARD_BRANDS,
   paymentLabel,
+  readCheckoutProfile,
   setCartQuantity,
   whatsappOrderUrl,
+  writeCheckoutProfile,
   type CartState,
   type PaymentMethod,
 } from "@/lib/cart";
@@ -43,6 +46,7 @@ export function CartSheet({
   onCloseRef.current = onClose;
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
+  const [remember, setRemember] = useState(false);
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -58,6 +62,10 @@ export function CartSheet({
     };
   }, []);
 
+  useEffect(() => {
+    setRemember(readCheckoutProfile()?.remember === true);
+  }, []);
+
   const total = cartTotal(cart);
   const canSend = cart.lines.length > 0;
   const checkoutReady =
@@ -66,6 +74,30 @@ export function CartSheet({
     isValidPhone(cart.phone) &&
     cart.address.trim().length >= 5 &&
     (cart.paymentMethod !== "meal_card" || Boolean(cart.mealCardBrand));
+
+  function persistProfilePreference() {
+    if (remember) {
+      writeCheckoutProfile({
+        firstName: cart.firstName,
+        lastName: cart.lastName,
+        phone: cart.phone,
+        address: cart.address,
+      });
+    } else {
+      clearCheckoutProfile();
+    }
+  }
+
+  function cartAfterOrder(): CartState {
+    if (!remember) return emptyCart;
+    return {
+      ...emptyCart,
+      firstName: cart.firstName,
+      lastName: cart.lastName,
+      phone: cart.phone,
+      address: cart.address,
+    };
+  }
 
   function submitOrder() {
     if (!orderEnabled) return;
@@ -86,7 +118,8 @@ export function CartSheet({
         setMessage(result.message);
         return;
       }
-      onChange(emptyCart);
+      persistProfilePreference();
+      onChange(cartAfterOrder());
       onOrdered();
       onClose();
     });
@@ -260,6 +293,20 @@ export function CartSheet({
                   value={cart.note}
                 />
               </label>
+              <label className="flex items-start gap-2 text-sm leading-5" htmlFor="cart-remember">
+                <input
+                  checked={remember}
+                  className="mt-0.5 size-4 shrink-0"
+                  id="cart-remember"
+                  onChange={(event) => {
+                    const checked = event.target.checked;
+                    setRemember(checked);
+                    if (!checked) clearCheckoutProfile();
+                  }}
+                  type="checkbox"
+                />
+                <span>{t("rememberOnDevice")}</span>
+              </label>
             </div>
           ) : null}
           {message ? <p className="mt-3 text-sm text-danger">{message}</p> : null}
@@ -284,9 +331,13 @@ export function CartSheet({
             ) : null}
             {whatsappEnabled ? (
               <a
-                aria-disabled={!canSend}
-                className={`btn ${orderEnabled ? "btn-secondary" : "btn-primary"} w-full ${canSend ? "" : "pointer-events-none opacity-50"}`}
-                href={canSend ? whatsappOrderUrl(cart, restaurantName) : undefined}
+                aria-disabled={!canSend || !checkoutReady}
+                className={`btn ${orderEnabled ? "btn-secondary" : "btn-primary"} w-full ${canSend && checkoutReady ? "" : "pointer-events-none opacity-50"}`}
+                href={canSend && checkoutReady ? whatsappOrderUrl(cart, restaurantName) : undefined}
+                onClick={() => {
+                  if (!canSend || !checkoutReady) return;
+                  persistProfilePreference();
+                }}
                 rel="noreferrer"
                 target="_blank"
               >

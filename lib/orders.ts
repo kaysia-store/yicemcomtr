@@ -32,7 +32,7 @@ export type OrderRow = {
 
 export function orderCustomerName(order: Pick<OrderRow, "customerFirstName" | "customerLastName" | "customerName">) {
   const full = `${order.customerFirstName} ${order.customerLastName}`.trim();
-  return full || order.customerName;
+  return full || order.customerName || "Anonim";
 }
 
 export type OrderSettings = {
