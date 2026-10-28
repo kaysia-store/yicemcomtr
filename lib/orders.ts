@@ -14,8 +14,12 @@ export type OrderItem = {
 export type OrderRow = {
   id: string;
   status: OrderStatus;
+  customerFirstName: string;
+  customerLastName: string;
   customerName: string;
+  phone: string;
   paymentMethod: PaymentMethod;
+  mealCardBrand: string;
   address: string;
   note: string;
   items: OrderItem[];
@@ -25,6 +29,11 @@ export type OrderRow = {
   acceptedAt: string | null;
   printedAt: string | null;
 };
+
+export function orderCustomerName(order: Pick<OrderRow, "customerFirstName" | "customerLastName" | "customerName">) {
+  const full = `${order.customerFirstName} ${order.customerLastName}`.trim();
+  return full || order.customerName;
+}
 
 export type OrderSettings = {
   soundEnabled: boolean;
@@ -83,8 +92,4 @@ export function statusLabel(status: OrderStatus) {
   return "Yeni";
 }
 
-export function paymentLabel(method: PaymentMethod) {
-  if (method === "card") return "Kart";
-  if (method === "online") return "Online";
-  return "Nakit";
-}
+export { paymentLabel } from "@/lib/cart";

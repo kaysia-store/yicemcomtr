@@ -2,7 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
-import { cartTotal, type CartLine, type PaymentMethod } from "@/lib/cart";
+import {
+  cartTotal,
+  customerFullName,
+  isMealCardBrandId,
+  isValidPhone,
+  normalizePhone,
+  type CartLine,
+  type MealCardBrandId,
+  type PaymentMethod,
+} from "@/lib/cart";
 import { linesToOrderItems, mapOrderSettings, type OrderStatus } from "@/lib/orders";
 import { revalidateMenu } from "@/lib/revalidate";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -11,46 +20,73 @@ import { createClient } from "@/lib/supabase/server";
 export type PlaceOrderState = { ok: true; id: string } | { ok: false; message: string };
 
 export async function placeOrder(input: {
-  customerName: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
   paymentMethod: PaymentMethod;
+  mealCardBrand?: string;
   address: string;
   note: string;
   locale: string;
   lines: CartLine[];
 }): Promise<PlaceOrderState> {
-  const name = input.customerName.trim();
-  if (!name || name.length > 80) return { ok: false, message: "İsim gerekli." };
-  if (!["cash", "card", "online"].includes(input.paymentMethod)) {
+  const firstName = input.firstName.trim();
+  const lastName = input.lastName.trim();
+  const phone = normalizePhone(input.phone);
+  const address = input.address.trim();
+  const note = input.note.trim();
+  const mealCardBrand: MealCardBrandId | "" =
+    input.paymentMethod === "meal_card" && isMealCardBrandId(input.mealCardBrand) ? input.mealCardBrand : "";
+
+  if (!firstName || firstName.length > 40) return { ok: false, message: "Ad gerekli." };
+  if (!lastName || lastName.length > 40) return { ok: false, message: "Soyad gerekli." };
+  if (!isValidPhone(phone)) return { ok: false, message: "Geçerli bir telefon girin." };
+  if (!["cash", "card", "meal_card"].includes(input.paymentMethod)) {
     return { ok: false, message: "Ödeme şekli geçersiz." };
   }
-  if (input.address.length > 240) return { ok: false, message: "Adres çok uzun." };
-  if (input.note.length > 400) return { ok: false, message: "Not çok uzun." };
+  if (input.paymentMethod === "meal_card" && !mealCardBrand) {
+    return { ok: false, message: "Yemek kartı markası seçin." };
+  }
+  if (address.length < 5 || address.length > 240) return { ok: false, message: "Açık adres gerekli." };
+  if (note.length > 400) return { ok: false, message: "Not çok uzun." };
   if (!input.lines.length) return { ok: false, message: "Sepet boş." };
 
   const supabase = createPublicClient();
   if (!supabase) return { ok: false, message: "Supabase bağlantısı yok." };
 
-  const { data: settingsRow } = await supabase.from("order_settings").select("menu_order_enabled").eq("id", 1).maybeSingle();
-  if (mapOrderSettings(settingsRow as Record<string, unknown> | null).menuOrderEnabled !== true) {
-    return { ok: false, message: "Online sipariş kapalı." };
+  const { data: settingsRow, error: settingsError } = await supabase
+    .from("order_settings")
+    .select("menu_order_enabled")
+    .eq("id", 1)
+    .maybeSingle();
+  if (!settingsError && settingsRow && mapOrderSettings(settingsRow as Record<string, unknown>).menuOrderEnabled !== true) {
+    return { ok: false, message: "Online sipariş kapalı. Admin → Ayarlar’dan açın." };
   }
 
+  const fullName = customerFullName({ firstName, lastName });
   const items = linesToOrderItems(input.lines);
   const total = cartTotal({
     lines: input.lines,
-    customerName: name,
+    firstName,
+    lastName,
+    phone,
     paymentMethod: input.paymentMethod,
-    address: input.address,
-    note: input.note,
+    mealCardBrand,
+    address,
+    note,
   });
 
   const { data, error } = await supabase
     .from("orders")
     .insert({
-      customer_name: name,
+      customer_name: fullName,
+      customer_first_name: firstName,
+      customer_last_name: lastName,
+      phone,
       payment_method: input.paymentMethod,
-      address: input.address.trim(),
-      note: input.note.trim(),
+      meal_card_brand: mealCardBrand,
+      address,
+      note,
       items,
       total,
       locale: input.locale || "tr",
@@ -60,15 +96,22 @@ export async function placeOrder(input: {
     .single();
 
   if (error) {
-    if (/orders|schema cache|does not exist/i.test(error.message)) {
+    if (/row-level security|42501/i.test(error.message)) {
       return {
         ok: false,
-        message: "Sipariş tablosu yok. supabase/migrations/0005_orders.sql dosyasını çalıştırın.",
+        message: "Sipariş yazma izni yok. supabase/migrations/0010_orders_anon_insert_rls.sql dosyasını çalıştırın.",
       };
     }
-    return { ok: false, message: "Sipariş gönderilemedi." };
+    if (/orders|schema cache|does not exist|customer_first|phone|meal_card|payment_method/i.test(error.message)) {
+      return {
+        ok: false,
+        message: "Sipariş tablosu eksik veya eski. 0008, 0009 ve 0010 migration dosyalarını çalıştırın.",
+      };
+    }
+    return { ok: false, message: `Sipariş gönderilemedi: ${error.message}` };
   }
 
+  revalidatePath("/admin/orders");
   return { ok: true, id: String(data.id) };
 }
 

@@ -5,11 +5,21 @@ import { createClient } from "@/lib/supabase/server";
 import { isSchemaError } from "@/lib/schema-error";
 
 function mapOrder(row: Record<string, unknown>): OrderRow {
+  const first = String(row.customer_first_name ?? "").trim();
+  const last = String(row.customer_last_name ?? "").trim();
+  const legacy = String(row.customer_name ?? "").trim();
+  const paymentRaw = String(row.payment_method ?? "cash");
+  const payment: PaymentMethod =
+    paymentRaw === "card" || paymentRaw === "meal_card" ? paymentRaw : "cash";
   return {
     id: String(row.id),
     status: row.status as OrderStatus,
-    customerName: String(row.customer_name ?? ""),
-    paymentMethod: row.payment_method as PaymentMethod,
+    customerFirstName: first,
+    customerLastName: last,
+    customerName: `${first} ${last}`.trim() || legacy,
+    phone: String(row.phone ?? "").trim(),
+    paymentMethod: payment,
+    mealCardBrand: String(row.meal_card_brand ?? "").trim(),
     address: String(row.address ?? ""),
     note: String(row.note ?? ""),
     items: Array.isArray(row.items) ? (row.items as OrderRow["items"]) : [],

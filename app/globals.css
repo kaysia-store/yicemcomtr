@@ -123,4 +123,9 @@
     width: 72mm !important;
     max-width: 72mm !important;
   }
+
+  .receipt.print\:break-after-page,
+  .receipt[class*="break-after"] {
+    break-after: page;
+  }
 }

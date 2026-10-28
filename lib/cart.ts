@@ -11,25 +11,50 @@ export type CartLine = {
   removedIngredients: string[];
 };
 
-export type PaymentMethod = "cash" | "card" | "online";
+export type PaymentMethod = "cash" | "card" | "meal_card";
+
+export const MEAL_CARD_BRANDS = [
+  { id: "multinet", label: "Multinet" },
+  { id: "sodexo", label: "Sodexo" },
+  { id: "setcard", label: "Setcard" },
+  { id: "tokenflex", label: "TokenFlex" },
+  { id: "ticket", label: "Ticket" },
+] as const;
+
+export type MealCardBrandId = (typeof MEAL_CARD_BRANDS)[number]["id"];
 
 export type CartState = {
   lines: CartLine[];
-  customerName: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
   paymentMethod: PaymentMethod;
+  mealCardBrand: MealCardBrandId | "";
   address: string;
   note: string;
 };
 
 export const emptyCart: CartState = {
   lines: [],
-  customerName: "",
+  firstName: "",
+  lastName: "",
+  phone: "",
   paymentMethod: "cash",
+  mealCardBrand: "",
   address: "",
   note: "",
 };
 
-const storageKey = "yicem-cart-v2";
+const storageKey = "yicem-cart-v4";
+
+export function isMealCardBrandId(value: unknown): value is MealCardBrandId {
+  return typeof value === "string" && MEAL_CARD_BRANDS.some((brand) => brand.id === value);
+}
+
+export function mealCardBrandLabel(brand: string | null | undefined) {
+  if (!brand) return "";
+  return MEAL_CARD_BRANDS.find((item) => item.id === brand)?.label ?? brand;
+}
 
 export function parseIngredients(raw: string) {
   return raw
@@ -73,6 +98,10 @@ export function cartTotal(cart: CartState) {
   return cart.lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
 }
 
+export function customerFullName(cart: Pick<CartState, "firstName" | "lastName">) {
+  return `${cart.firstName.trim()} ${cart.lastName.trim()}`.trim();
+}
+
 export function addCartLine(cart: CartState, line: CartLine): CartState {
   const existing = cart.lines.find((item) => item.key === line.key);
   if (!existing) return { ...cart, lines: [...cart.lines, line] };
@@ -94,15 +123,29 @@ export function readCart(): CartState {
   try {
     const raw = localStorage.getItem(storageKey);
     if (!raw) return emptyCart;
-    const parsed = JSON.parse(raw) as Partial<CartState>;
-    const payment =
-      parsed.paymentMethod === "card" || parsed.paymentMethod === "online" || parsed.paymentMethod === "cash"
-        ? parsed.paymentMethod
-        : "cash";
+    const parsed = JSON.parse(raw) as Partial<CartState> & { customerName?: string };
+    const payment: PaymentMethod =
+      parsed.paymentMethod === "card" || parsed.paymentMethod === "meal_card" ? parsed.paymentMethod : "cash";
+    const mealCardBrand = isMealCardBrandId(parsed.mealCardBrand) ? parsed.mealCardBrand : "";
+    const firstName =
+      typeof parsed.firstName === "string"
+        ? parsed.firstName
+        : typeof parsed.customerName === "string"
+          ? parsed.customerName.split(/\s+/)[0] ?? ""
+          : "";
+    const lastName =
+      typeof parsed.lastName === "string"
+        ? parsed.lastName
+        : typeof parsed.customerName === "string"
+          ? parsed.customerName.split(/\s+/).slice(1).join(" ")
+          : "";
     return {
       lines: Array.isArray(parsed.lines) ? parsed.lines.filter(isCartLine) : [],
-      customerName: typeof parsed.customerName === "string" ? parsed.customerName : "",
+      firstName,
+      lastName,
+      phone: typeof parsed.phone === "string" ? parsed.phone : "",
       paymentMethod: payment,
+      mealCardBrand: payment === "meal_card" ? mealCardBrand : "",
       address: typeof parsed.address === "string" ? parsed.address : "",
       note: typeof parsed.note === "string" ? parsed.note : "",
     };
@@ -141,17 +184,31 @@ export function formatCartMoney(value: number) {
   }).format(value);
 }
 
-export function paymentLabel(method: PaymentMethod) {
-  if (method === "card") return "Kart";
-  if (method === "online") return "Online";
+export function paymentLabel(method: PaymentMethod, mealCardBrand?: string | null) {
+  if (method === "card") return "Kredi kartı";
+  if (method === "meal_card") {
+    const brand = mealCardBrandLabel(mealCardBrand);
+    return brand ? `Yemek kartı · ${brand}` : "Yemek kartı";
+  }
   return "Nakit";
+}
+
+export function normalizePhone(value: string) {
+  return value.replace(/[^\d+]/g, "").trim();
+}
+
+export function isValidPhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+  return digits.length >= 10 && digits.length <= 13;
 }
 
 export function whatsappOrderUrl(cart: CartState, restaurantName: string) {
   const phone = place.mobileTel.replace(/\D/g, "");
   const lines: string[] = [`${restaurantName} sipariş`];
-  if (cart.customerName.trim()) lines.push(`İsim: ${cart.customerName.trim()}`);
-  lines.push(`Ödeme: ${paymentLabel(cart.paymentMethod)}`);
+  const name = customerFullName(cart);
+  if (name) lines.push(`İsim: ${name}`);
+  if (cart.phone.trim()) lines.push(`Tel: ${cart.phone.trim()}`);
+  lines.push(`Ödeme: ${paymentLabel(cart.paymentMethod, cart.mealCardBrand)}`);
   if (cart.address.trim()) lines.push(`Adres: ${cart.address.trim()}`);
   lines.push("");
   for (const line of cart.lines) {

@@ -5,8 +5,12 @@ import { useTranslations } from "next-intl";
 import { placeOrder } from "@/app/admin/actions/orders";
 import {
   cartTotal,
+  customerFullName,
   emptyCart,
   formatCartMoney,
+  isMealCardBrandId,
+  isValidPhone,
+  MEAL_CARD_BRANDS,
   paymentLabel,
   setCartQuantity,
   whatsappOrderUrl,
@@ -54,14 +58,23 @@ export function CartSheet({
 
   const total = cartTotal(cart);
   const canSend = cart.lines.length > 0;
+  const checkoutReady =
+    Boolean(cart.firstName.trim()) &&
+    Boolean(cart.lastName.trim()) &&
+    isValidPhone(cart.phone) &&
+    cart.address.trim().length >= 5 &&
+    (cart.paymentMethod !== "meal_card" || Boolean(cart.mealCardBrand));
 
   function submitOrder() {
     if (!orderEnabled) return;
     setMessage("");
     startTransition(async () => {
       const result = await placeOrder({
-        customerName: cart.customerName,
+        firstName: cart.firstName,
+        lastName: cart.lastName,
+        phone: cart.phone,
         paymentMethod: cart.paymentMethod,
+        mealCardBrand: cart.mealCardBrand,
         address: cart.address,
         note: cart.note,
         locale,
@@ -149,14 +162,38 @@ export function CartSheet({
 
           {showCheckoutFields ? (
             <div className="mt-5 grid gap-3">
-              <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-name">
-                {t("customerName")}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-first-name">
+                  {t("firstName")}
+                  <input
+                    className="field"
+                    id="cart-first-name"
+                    onChange={(event) => onChange({ ...cart, firstName: event.target.value })}
+                    placeholder={t("firstNamePlaceholder")}
+                    value={cart.firstName}
+                  />
+                </label>
+                <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-last-name">
+                  {t("lastName")}
+                  <input
+                    className="field"
+                    id="cart-last-name"
+                    onChange={(event) => onChange({ ...cart, lastName: event.target.value })}
+                    placeholder={t("lastNamePlaceholder")}
+                    value={cart.lastName}
+                  />
+                </label>
+              </div>
+              <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-phone">
+                {t("phone")}
                 <input
+                  autoComplete="tel"
                   className="field"
-                  id="cart-name"
-                  onChange={(event) => onChange({ ...cart, customerName: event.target.value })}
-                  placeholder={t("customerNamePlaceholder")}
-                  value={cart.customerName}
+                  id="cart-phone"
+                  inputMode="tel"
+                  onChange={(event) => onChange({ ...cart, phone: event.target.value })}
+                  placeholder={t("phonePlaceholder")}
+                  value={cart.phone}
                 />
               </label>
               <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-payment">
@@ -164,14 +201,43 @@ export function CartSheet({
                 <select
                   className="field"
                   id="cart-payment"
-                  onChange={(event) => onChange({ ...cart, paymentMethod: event.target.value as PaymentMethod })}
+                  onChange={(event) => {
+                    const paymentMethod = event.target.value as PaymentMethod;
+                    onChange({
+                      ...cart,
+                      paymentMethod,
+                      mealCardBrand: paymentMethod === "meal_card" ? cart.mealCardBrand || "multinet" : "",
+                    });
+                  }}
                   value={cart.paymentMethod}
                 >
-                  <option value="cash">{paymentLabel("cash")}</option>
-                  <option value="card">{paymentLabel("card")}</option>
-                  <option value="online">{paymentLabel("online")}</option>
+                  <option value="cash">{t("payCash")}</option>
+                  <option value="card">{t("payCard")}</option>
+                  <option value="meal_card">{t("payMealCard")}</option>
                 </select>
               </label>
+              {cart.paymentMethod === "meal_card" ? (
+                <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-meal-brand">
+                  {t("mealCardBrand")}
+                  <select
+                    className="field"
+                    id="cart-meal-brand"
+                    onChange={(event) =>
+                      onChange({
+                        ...cart,
+                        mealCardBrand: isMealCardBrandId(event.target.value) ? event.target.value : "",
+                      })
+                    }
+                    value={cart.mealCardBrand}
+                  >
+                    {MEAL_CARD_BRANDS.map((brand) => (
+                      <option key={brand.id} value={brand.id}>
+                        {brand.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
               <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-address">
                 {t("deliveryAddress")}
                 <textarea
@@ -202,9 +268,15 @@ export function CartSheet({
             <span className="text-sm text-muted">{t("total")}</span>
             <span className="text-lg font-medium text-accent tabular-nums">{formatCartMoney(total)}</span>
           </div>
+          {showCheckoutFields && customerFullName(cart) ? (
+            <p className="mb-3 text-xs text-muted">
+              {customerFullName(cart)}
+              {cart.phone ? ` · ${cart.phone}` : ""}
+            </p>
+          ) : null}
           <div className="grid gap-2">
             {orderEnabled ? (
-              <button className="btn btn-primary w-full" disabled={!canSend || pending || !cart.customerName.trim()} onClick={submitOrder} type="button">
+              <button className="btn btn-primary w-full" disabled={!canSend || pending || !checkoutReady} onClick={submitOrder} type="button">
                 {pending ? t("sendingOrder") : t("placeOrder")}
               </button>
             ) : null}
