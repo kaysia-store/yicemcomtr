@@ -81,7 +81,7 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
   const [orderNotice, setOrderNotice] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const headerRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const chipRefs = useRef(new Map<string, HTMLButtonElement>());
   const pendingRef = useRef<string | null>(null);
@@ -281,142 +281,161 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
   return (
     <div className="menu-root min-h-dvh w-full">
       <div className="mx-auto min-h-dvh w-full max-w-lg md:max-w-3xl lg:max-w-5xl">
-        <header
-          className={`sticky top-0 z-20 border-b border-peach-dark/20 bg-peach px-4 text-white [padding-top:env(safe-area-inset-top)] ${compact ? "pb-2" : "pb-3"}`}
+        <div
+          className={`sticky top-0 z-20 transition-[padding] duration-300 ease-out ${
+            compact ? "px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2" : "pt-0"
+          }`}
           ref={headerRef}
         >
-          <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${compact ? "grid-rows-[0fr]" : "grid-rows-[1fr]"}`}>
-            <div className="min-h-0 overflow-hidden" inert={compact}>
-              <div className="flex items-center justify-between gap-3 py-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img alt="" className="h-11 w-auto shrink-0" src="/yicem-logo.png" />
-                  <h1 className={menu.showTitle ? "min-w-0 truncate font-serif text-3xl leading-none text-white" : "sr-only"}>
-                    {menu.restaurantName}
-                  </h1>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <PwaInstallButton className="grid size-11 place-items-center rounded-full border border-white/35 bg-white/15 text-white" />
-                  {menu.languages.length > 1 ? (
-                    <button
-                      aria-expanded={languageOpen}
-                      aria-haspopup="dialog"
-                      aria-label={t("language")}
+          <header
+            className={`menu-header text-white transition-[border-radius,box-shadow,padding] duration-300 ease-out ${
+              compact
+                ? "menu-header-island rounded-3xl border border-white/25 px-3 py-2"
+                : "rounded-b-3xl border-b border-peach-dark/25 px-4 pb-3 [padding-top:env(safe-area-inset-top)]"
+            }`}
+          >
+            <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${compact ? "grid-rows-[0fr]" : "grid-rows-[1fr]"}`}>
+              <div className="min-h-0 overflow-hidden" inert={compact}>
+                <div className="flex items-center justify-between gap-3 py-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img alt="" className="h-11 w-auto shrink-0" src="/yicem-logo.png" />
+                    <h1 className={menu.showTitle ? "min-w-0 truncate font-serif text-3xl leading-none text-white" : "sr-only"}>
+                      {menu.restaurantName}
+                    </h1>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <PwaInstallButton className="grid size-11 place-items-center rounded-full border border-white/35 bg-white/15 text-white" />
+                    {menu.languages.length > 1 ? (
+                      <button
+                        aria-expanded={languageOpen}
+                        aria-haspopup="dialog"
+                        aria-label={t("language")}
+                        className="grid size-11 place-items-center rounded-full border border-white/35 bg-white/15 text-white"
+                        onClick={() => setLanguageOpen(true)}
+                        type="button"
+                      >
+                        <GlobeIcon />
+                      </button>
+                    ) : null}
+                    <a
+                      aria-label={t("directions")}
                       className="grid size-11 place-items-center rounded-full border border-white/35 bg-white/15 text-white"
-                      onClick={() => setLanguageOpen(true)}
-                      type="button"
+                      href={place.mapsUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
                     >
-                      <GlobeIcon />
-                    </button>
-                  ) : null}
+                      <PinIcon className="size-5" />
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          {menu.categories.length > 0 ? (
-            <div className={`flex items-center gap-3 ${searchOpen ? "mt-3" : "mt-2"} ${compact ? "justify-between" : "justify-end"}`}>
-              {compact ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img alt="" className="h-9 w-auto shrink-0" src="/yicem-logo.png" />
-              ) : null}
-              {searchOpen ? (
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 rounded-full border border-white/35 bg-white px-3 py-2 text-ink">
-                    <SearchIcon />
-                    <input
-                      aria-label={t("searchLabel")}
-                      className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted"
-                      onChange={(event) => setQuery(event.target.value)}
-                      placeholder={t("searchPlaceholder")}
-                      ref={searchRef}
-                      value={query}
-                    />
-                    <button aria-label={t("clearSearch")} className="grid size-6 place-items-center text-muted" onClick={closeSearch} type="button">
-                      <svg aria-hidden="true" className="size-3.5" fill="none" viewBox="0 0 14 14">
-                        <path d="M3 3l8 8M11 3 3 11" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
-                      </svg>
-                    </button>
+            {menu.categories.length > 0 ? (
+              <div className={`flex items-center gap-3 ${searchOpen ? "mt-3" : "mt-2"} ${compact ? "justify-between" : "justify-end"}`}>
+                {compact ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img alt="" className="h-9 w-auto shrink-0" src="/yicem-logo.png" />
+                ) : null}
+                {searchOpen ? (
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 rounded-full border border-white/35 bg-white px-3 py-2 text-ink">
+                      <SearchIcon />
+                      <input
+                        aria-label={t("searchLabel")}
+                        className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted"
+                        onChange={(event) => setQuery(event.target.value)}
+                        placeholder={t("searchPlaceholder")}
+                        ref={searchRef}
+                        value={query}
+                      />
+                      <button aria-label={t("clearSearch")} className="grid size-6 place-items-center text-muted" onClick={closeSearch} type="button">
+                        <svg aria-hidden="true" className="size-3.5" fill="none" viewBox="0 0 14 14">
+                          <path d="M3 3l8 8M11 3 3 11" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
+                ) : (
+                  <button
+                    aria-expanded={false}
+                    className="flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-3 py-2 text-sm text-white"
+                    onClick={() => {
+                      searchScrollRef.current = window.scrollY;
+                      setSearchOpen(true);
+                    }}
+                    type="button"
+                  >
+                    <SearchIcon />
+                    {t("search")}
+                  </button>
+                )}
+              </div>
+            ) : null}
+            {visible.length > 0 ? (
+              <div className={`flex items-center gap-1 ${compact ? "mt-1" : "mt-3"}`}>
                 <button
-                  aria-expanded={false}
-                  className="flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-3 py-2 text-sm text-white"
-                  onClick={() => {
-                    searchScrollRef.current = window.scrollY;
-                    setSearchOpen(true);
-                  }}
+                  aria-label={t("previousCategory")}
+                  className="grid size-9 shrink-0 place-items-center rounded-full border border-white/35 bg-white/15 text-white disabled:opacity-30"
+                  disabled={!previousCategoryId}
+                  onClick={() => previousCategoryId && focusCategory(previousCategoryId)}
                   type="button"
                 >
-                  <SearchIcon />
-                  {t("search")}
+                  <CategoryArrow direction="previous" />
                 </button>
-              )}
-            </div>
-          ) : null}
-          {visible.length > 0 ? (
-            <div className={`flex items-center gap-1 ${compact ? "mt-1" : "mt-3"}`}>
-              <button
-                aria-label={t("previousCategory")}
-                className="grid size-9 shrink-0 place-items-center rounded-full border border-white/35 bg-white/15 text-white disabled:opacity-30"
-                disabled={!previousCategoryId}
-                onClick={() => previousCategoryId && focusCategory(previousCategoryId)}
-                type="button"
-              >
-                <CategoryArrow direction="previous" />
-              </button>
-              <nav aria-label={t("categories")} className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1" ref={navRef}>
+                <nav aria-label={t("categories")} className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1" ref={navRef}>
+                  <button
+                    aria-current={showAll ? "true" : undefined}
+                    className={
+                      showAll
+                        ? "shrink-0 rounded-full bg-accent px-3 py-2 text-sm text-white"
+                        : "shrink-0 rounded-full border border-white/35 bg-white/15 px-3 py-2 text-sm text-white"
+                    }
+                    onClick={() => focusCategory(ALL_CATEGORY)}
+                    ref={(node) => {
+                      if (node) chipRefs.current.set(ALL_CATEGORY, node);
+                      else chipRefs.current.delete(ALL_CATEGORY);
+                    }}
+                    type="button"
+                  >
+                    {t("allCategories")}
+                  </button>
+                  {visible.map((category) => {
+                    const current = !showAll && category.id === active;
+                    return (
+                      <button
+                        aria-current={current ? "true" : undefined}
+                        className={
+                          current
+                            ? "shrink-0 rounded-full bg-accent px-3 py-2 text-sm text-white"
+                            : "shrink-0 rounded-full border border-white/35 bg-white/15 px-3 py-2 text-sm text-white"
+                        }
+                        key={category.id}
+                        onClick={() => focusCategory(category.id)}
+                        ref={(node) => {
+                          if (node) chipRefs.current.set(category.id, node);
+                          else chipRefs.current.delete(category.id);
+                        }}
+                        type="button"
+                      >
+                        {category.name}
+                      </button>
+                    );
+                  })}
+                </nav>
                 <button
-                  aria-current={showAll ? "true" : undefined}
-                  className={
-                    showAll
-                      ? "shrink-0 rounded-full bg-accent px-3 py-2 text-sm text-white"
-                      : "shrink-0 rounded-full border border-white/35 bg-white/15 px-3 py-2 text-sm text-white"
-                  }
-                  onClick={() => focusCategory(ALL_CATEGORY)}
-                  ref={(node) => {
-                    if (node) chipRefs.current.set(ALL_CATEGORY, node);
-                    else chipRefs.current.delete(ALL_CATEGORY);
-                  }}
+                  aria-label={t("nextCategory")}
+                  className="grid size-9 shrink-0 place-items-center rounded-full border border-white/35 bg-white/15 text-white disabled:opacity-30"
+                  disabled={!nextCategoryId}
+                  onClick={() => nextCategoryId && focusCategory(nextCategoryId)}
                   type="button"
                 >
-                  {t("allCategories")}
+                  <CategoryArrow direction="next" />
                 </button>
-                {visible.map((category) => {
-                  const current = !showAll && category.id === active;
-                  return (
-                    <button
-                      aria-current={current ? "true" : undefined}
-                      className={
-                        current
-                          ? "shrink-0 rounded-full bg-accent px-3 py-2 text-sm text-white"
-                          : "shrink-0 rounded-full border border-white/35 bg-white/15 px-3 py-2 text-sm text-white"
-                      }
-                      key={category.id}
-                      onClick={() => focusCategory(category.id)}
-                      ref={(node) => {
-                        if (node) chipRefs.current.set(category.id, node);
-                        else chipRefs.current.delete(category.id);
-                      }}
-                      type="button"
-                    >
-                      {category.name}
-                    </button>
-                  );
-                })}
-              </nav>
-              <button
-                aria-label={t("nextCategory")}
-                className="grid size-9 shrink-0 place-items-center rounded-full border border-white/35 bg-white/15 text-white disabled:opacity-30"
-                disabled={!nextCategoryId}
-                onClick={() => nextCategoryId && focusCategory(nextCategoryId)}
-                type="button"
-              >
-                <CategoryArrow direction="next" />
-              </button>
-            </div>
-          ) : null}
-        </header>
+              </div>
+            ) : null}
+          </header>
+        </div>
 
         {languageOpen && menu.languages.length > 1 ? (
           <LanguageDialog
@@ -1030,9 +1049,9 @@ function GlobeIcon() {
   );
 }
 
-function PinIcon() {
+function PinIcon({ className = "size-4" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className="size-4" fill="none" viewBox="0 0 24 24">
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
       <path d="M12 21s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10Z" stroke="currentColor" strokeWidth="1.6" />
       <circle cx="12" cy="11" r="2" stroke="currentColor" strokeWidth="1.6" />
     </svg>

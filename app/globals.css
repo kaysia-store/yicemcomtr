@@ -86,6 +86,23 @@
     background: var(--color-paper);
     color: var(--color-ink);
   }
+
+  .menu-header {
+    background-color: var(--color-peach);
+    background-image:
+      radial-gradient(120% 80% at 12% -10%, rgba(255, 255, 255, 0.28), transparent 55%),
+      radial-gradient(90% 70% at 92% 0%, rgba(255, 236, 210, 0.22), transparent 50%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, transparent 42%, rgba(194, 117, 85, 0.22) 100%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    background-blend-mode: soft-light, soft-light, normal, overlay;
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.18);
+  }
+
+  .menu-header-island {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      0 12px 40px -16px rgba(17, 17, 17, 0.45);
+  }
 }
 
 /* POS-80C · 72×297 mm termal fiş */
