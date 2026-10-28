@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { MenuSectionNav } from "@/components/admin/menu-section-nav";
 import { PriceBoard } from "@/components/admin/price-board";
 import { LoadError } from "@/components/load-error";
 import { LoadingState } from "@/components/loading-state";
@@ -26,6 +27,7 @@ async function PricesContent({ searchParams }: { searchParams: Promise<{ saved?:
         description="Taban fiyat ve özellik ek ücretleri aynı tabloda. Yüzde veya sabit tutar ikisine de uygulanır. Kayıt, yalnızca yeni tutarı dolu olan satırlara yazılır."
         title="Fiyat Yönetimi"
       />
+      <MenuSectionNav />
       {saved === "1" ? (
         <div className="mb-4">
           <Notice tone="ok">Fiyatlar kaydedildi.</Notice>

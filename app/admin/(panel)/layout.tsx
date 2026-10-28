@@ -30,12 +30,16 @@ async function AdminFrame({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen md:grid md:grid-cols-[240px_minmax(0,1fr)]">
-      <aside className="flex flex-col border-b border-line bg-card md:min-h-screen md:border-r md:border-b-0">
+      <aside className="flex flex-col border-b border-line bg-card md:sticky md:top-0 md:h-screen md:overflow-y-auto md:border-r md:border-b-0">
         <div className="px-4 py-4">
           <Link className="font-serif text-2xl" href="/admin">
             Yönetim
           </Link>
-          <p className="mt-1 truncate text-xs text-muted">{label}</p>
+          <div className="mt-3 flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img alt="" className="h-24 w-auto object-contain" src="/karakter.png" />
+          </div>
+          <p className="mt-2 truncate text-center text-xs text-muted">{label}</p>
         </div>
         <AdminNav newOrders={newOrders} />
         <div className="mt-auto px-3 py-4">
@@ -53,7 +57,7 @@ async function AdminFrame({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
       <main className="px-4 py-6 md:px-8 md:py-8">
-        <div className="mx-auto w-full max-w-4xl">{children}</div>
+        <div className="mx-auto w-full max-w-5xl">{children}</div>
       </main>
     </div>
   );

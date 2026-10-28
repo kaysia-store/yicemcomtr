@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { OrderSettingsForm } from "@/components/admin/order-settings-form";
+import { QrPanel } from "@/components/admin/qr-panel";
 import { LoadError } from "@/components/load-error";
 import { LoadingState } from "@/components/loading-state";
 import { PageHeader } from "@/components/page-header";
@@ -26,7 +27,7 @@ async function SettingsContent() {
   return (
     <div>
       <PageHeader
-        description="QR menü butonları, bildirim ve POS-80C fiş ayarları."
+        description="QR menü, bildirim ve POS-80C fiş ayarları."
         title="Ayarlar"
       />
       {!result.ok ? (
@@ -35,13 +36,13 @@ async function SettingsContent() {
         </p>
       ) : null}
       <OrderSettingsForm settings={settings} />
-      <section className="mt-8 max-w-xl rounded-3xl border border-line bg-card p-5">
-        <h2 className="font-serif text-2xl">Önerilen ayarlar</h2>
-        <ul className="mt-3 grid list-disc gap-2 pl-5 text-sm leading-6 text-muted">
-          <li>Mutfak kopyası: aynı fişi onayda iki kez yazdır (müşteri + mutfak).</li>
-          <li>Sessiz saat: belirli saatlerde zili kapat, yalnızca ekran rozeti kalsın.</li>
-          <li>Hazırlık süresi: siparişte “~15 dk” tahmini göster, fişe de yaz.</li>
-        </ul>
+
+      <section className="mt-8 max-w-xl scroll-mt-8 rounded-3xl border border-line bg-card p-5" id="qr">
+        <h2 className="font-serif text-2xl">QR kod</h2>
+        <p className="mt-1 text-sm text-muted">Bu kodu masalara bırakın. Okutulunca dijital menü açılır.</p>
+        <div className="mt-4">
+          <QrPanel />
+        </div>
       </section>
     </div>
   );

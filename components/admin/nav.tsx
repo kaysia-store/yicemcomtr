@@ -3,16 +3,34 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+const menuPaths = ["/admin/products", "/admin/categories", "/admin/prices", "/admin/photos"];
+
 const items = [
-  { href: "/admin", label: "Genel" },
-  { href: "/admin/orders", label: "Siparişler" },
-  { href: "/admin/categories", label: "Kategoriler" },
-  { href: "/admin/products", label: "Ürünler" },
-  { href: "/admin/photos", label: "Görseller" },
-  { href: "/admin/prices", label: "Fiyatlar" },
-  { href: "/admin/languages", label: "Diller" },
-  { href: "/admin/qr", label: "QR" },
-  { href: "/admin/settings", label: "Ayarlar" },
+  {
+    href: "/admin",
+    label: "Genel",
+    active: (pathname: string) => pathname === "/admin",
+  },
+  {
+    href: "/admin/orders",
+    label: "Siparişler",
+    active: (pathname: string) => pathname.startsWith("/admin/orders"),
+  },
+  {
+    href: "/admin/products",
+    label: "Ürünler",
+    active: (pathname: string) => menuPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`)),
+  },
+  {
+    href: "/admin/languages",
+    label: "Diller",
+    active: (pathname: string) => pathname.startsWith("/admin/languages"),
+  },
+  {
+    href: "/admin/settings",
+    label: "Ayarlar",
+    active: (pathname: string) => pathname.startsWith("/admin/settings") || pathname.startsWith("/admin/qr"),
+  },
 ];
 
 export function AdminNav({ newOrders = 0 }: { newOrders?: number }) {
@@ -21,7 +39,7 @@ export function AdminNav({ newOrders = 0 }: { newOrders?: number }) {
   return (
     <nav className="no-scrollbar flex gap-1 overflow-x-auto px-3 pb-3 md:grid md:gap-1 md:overflow-visible">
       {items.map((item) => {
-        const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+        const active = item.active(pathname);
         return (
           <Link
             aria-current={active ? "page" : undefined}

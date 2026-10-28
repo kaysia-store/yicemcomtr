@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ImportMenuButton } from "@/components/admin/import-menu-button";
+import { MenuSectionNav } from "@/components/admin/menu-section-nav";
 import { PhotoBoard } from "@/components/admin/photo-board";
 import { LoadError } from "@/components/load-error";
 import { LoadingState } from "@/components/loading-state";
@@ -25,6 +26,7 @@ async function PhotosContent({ searchParams }: { searchParams: Promise<{ importe
     return (
       <div>
         <PageHeader description="Görseller Supabase depolamasına yazılır." title="Görseller" />
+        <MenuSectionNav />
         <Notice tone="info">Supabase bağlı değil. Bağlantıdan sonra yerel menüyü buradan aktarabilirsiniz.</Notice>
       </div>
     );
@@ -39,6 +41,7 @@ async function PhotosContent({ searchParams }: { searchParams: Promise<{ importe
         description="Önce yerel menüyü veritabanına alın. Sonra görselleri sürükleyip tek seferde kaydedin."
         title="Görseller"
       />
+      <MenuSectionNav />
       <div className="grid gap-6">
         {Number.isInteger(imported) && imported > 0 ? <Notice tone="ok">{imported} ürün Supabase'e aktarıldı. Görselleri aşağıya bırakabilirsiniz.</Notice> : null}
         {result.products.length === 0 ? (

@@ -7,6 +7,7 @@ import {
 } from "@/app/admin/actions/categories";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
 import { PublishButton, SortButtons } from "@/components/admin/list-controls";
+import { MenuSectionNav } from "@/components/admin/menu-section-nav";
 import { LoadError } from "@/components/load-error";
 import { LoadingState } from "@/components/loading-state";
 import { PageHeader } from "@/components/page-header";
@@ -37,6 +38,7 @@ async function CategoriesContent() {
         description="Ürünler bu kategorilerin altında sıralanır."
         title="Kategoriler"
       />
+      <MenuSectionNav />
       {result.categories.length === 0 ? (
         <p className="rounded-3xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted">
           Henüz kategori yok.

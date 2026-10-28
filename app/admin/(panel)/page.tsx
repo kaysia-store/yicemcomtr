@@ -4,9 +4,11 @@ import { PageHeader } from "@/components/page-header";
 import { LoadError } from "@/components/load-error";
 import { LoadingState } from "@/components/loading-state";
 import { Notice } from "@/components/notice";
+import { OpsDashboard } from "@/components/admin/ops-dashboard";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { saveRestaurantName } from "@/app/admin/actions/settings";
 import { getDashboard } from "@/lib/admin-data";
+import { loadOpsStats } from "@/lib/ops-stats";
 
 export default function AdminHomePage({
   searchParams,
@@ -21,13 +23,13 @@ export default function AdminHomePage({
 }
 
 async function Dashboard({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
-  const [{ saved }, result] = await Promise.all([searchParams, getDashboard()]);
+  const [{ saved }, result, ops] = await Promise.all([searchParams, getDashboard(), loadOpsStats()]);
   if (!result.ok) return <LoadError message={result.message} reason={result.reason} />;
 
   return (
     <div>
       <PageHeader
-        description="Kategorileri, ürünleri, dilleri ve QR kodu buradan yönetin."
+        description="Bugünkü operasyon özeti, siparişler ve menü yönetimi."
         title={result.name}
       />
       {saved === "1" ? (
@@ -35,6 +37,9 @@ async function Dashboard({ searchParams }: { searchParams: Promise<{ saved?: str
           <Notice tone="ok">Ayarlar kaydedildi.</Notice>
         </div>
       ) : null}
+
+      <OpsDashboard stats={ops} />
+
       <div className="mb-8 grid gap-3 sm:grid-cols-3">
         <Stat href="/admin/categories" label="Kategori" value={result.counts.categories} />
         <Stat href="/admin/products" label="Ürün" value={result.counts.products} />
@@ -51,6 +56,15 @@ async function Dashboard({ searchParams }: { searchParams: Promise<{ saved?: str
         <Link className="font-medium text-accent" href={`/${result.defaultLocale}`}>
           /{result.defaultLocale}
         </Link>
+        {" · "}
+        <a
+          className="font-medium text-accent"
+          href="https://vercel.com/dashboard"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Vercel Analytics
+        </a>
       </p>
     </div>
   );

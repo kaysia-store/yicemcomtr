@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { deleteProduct, moveProduct, toggleProductPublished } from "@/app/admin/actions/products";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
 import { PublishButton, SortButtons } from "@/components/admin/list-controls";
+import { MenuSectionNav } from "@/components/admin/menu-section-nav";
 import { LoadError } from "@/components/load-error";
 import { LoadingState } from "@/components/loading-state";
 import { PageHeader } from "@/components/page-header";
@@ -38,9 +39,10 @@ async function ProductsContent() {
             Ürün ekle
           </Link>
         }
-        description="Fiyat, görsel, içindekiler ve alerjenler ürün kartında görünür."
+        description="Kategori, fiyat ve görseller bu bölümün sekmelerinde."
         title="Ürünler"
       />
+      <MenuSectionNav />
       {result.products.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted">
           <p>Henüz ürün yok.</p>

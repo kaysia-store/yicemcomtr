@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Fraunces, Noto_Sans, Noto_Sans_Arabic, Outfit } from "next/font/google";
 import "./globals.css";
 
@@ -53,7 +55,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html className={`${outfit.variable} ${fraunces.variable} ${noto.variable} ${arabic.variable} h-full antialiased`} lang="tr">
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
