@@ -39,6 +39,8 @@ export function CartSheet({
 }) {
   const t = useTranslations("Menu");
   const closeRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
 
@@ -47,14 +49,14 @@ export function CartSheet({
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
     function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") onCloseRef.current();
     }
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", onKey);
     };
-  }, [onClose]);
+  }, []);
 
   const total = cartTotal(cart);
   const canSend = cart.lines.length > 0;
