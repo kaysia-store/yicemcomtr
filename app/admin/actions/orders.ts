@@ -76,24 +76,24 @@ export async function placeOrder(input: {
     note,
   });
 
-  const { data, error } = await supabase
-    .from("orders")
-    .insert({
-      customer_name: fullName,
-      customer_first_name: firstName,
-      customer_last_name: lastName,
-      phone,
-      payment_method: input.paymentMethod,
-      meal_card_brand: mealCardBrand,
-      address,
-      note,
-      items,
-      total,
-      locale: input.locale || "tr",
-      status: "new",
-    })
-    .select("id")
-    .single();
+  // id'yi istemci üretiriz: insert sonrası .select() anon SELECT politikası ister
+  // ve tüm siparişleri herkese açmak zorunda kalırız.
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("orders").insert({
+    id,
+    customer_name: fullName,
+    customer_first_name: firstName,
+    customer_last_name: lastName,
+    phone,
+    payment_method: input.paymentMethod,
+    meal_card_brand: mealCardBrand,
+    address,
+    note,
+    items,
+    total,
+    locale: input.locale || "tr",
+    status: "new",
+  });
 
   if (error) {
     if (/row-level security|42501/i.test(error.message)) {
@@ -112,7 +112,7 @@ export async function placeOrder(input: {
   }
 
   revalidatePath("/admin/orders");
-  return { ok: true, id: String(data.id) };
+  return { ok: true, id };
 }
 
 export async function setOrderStatus(id: string, status: OrderStatus) {
