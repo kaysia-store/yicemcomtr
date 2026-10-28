@@ -7,6 +7,7 @@ import { LoadingState } from "@/components/loading-state";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { getProductList } from "@/lib/admin-data";
+import { listImageInbox } from "@/lib/image-inbox";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
 export const metadata = { title: "Görseller" };
@@ -32,27 +33,34 @@ async function PhotosContent({ searchParams }: { searchParams: Promise<{ importe
     );
   }
 
-  const result = await getProductList();
+  const [result, inboxResult] = await Promise.all([getProductList(), listImageInbox()]);
   if (!result.ok) return <LoadError message={result.message} reason={result.reason} />;
 
   return (
     <div>
       <PageHeader
-        description="Önce yerel menüyü veritabanına alın. Sonra görselleri sürükleyip tek seferde kaydedin."
+        description="Toplu yükleyin, kaydedin; eşleşmeyenler havuzda kalır, sonra bağlarsınız."
         title="Görseller"
       />
       <MenuSectionNav />
       <div className="grid gap-6">
-        {Number.isInteger(imported) && imported > 0 ? <Notice tone="ok">{imported} ürün Supabase'e aktarıldı. Görselleri aşağıya bırakabilirsiniz.</Notice> : null}
+        {Number.isInteger(imported) && imported > 0 ? (
+          <Notice tone="ok">{imported} ürün Supabase'e aktarıldı. Görselleri aşağıya bırakabilirsiniz.</Notice>
+        ) : null}
+        {!inboxResult.ok && inboxResult.reason === "schema" ? (
+          <Notice tone="info">{inboxResult.message ?? "Bekleyen görseller için 0011_image_inbox.sql çalıştırın."}</Notice>
+        ) : null}
         {result.products.length === 0 ? (
           <div className="grid gap-4 rounded-3xl border border-dashed border-line px-5 py-8">
             <p className="text-sm leading-6 text-muted">
-              Supabase'te ürün yok. Bu bilgisayardaki menü duruyor; aktarınca kategoriler, çeviriler ve seçenekler de gider. Fotoğraflar ayrı yüklenir.
+              Supabase'te ürün yok. Bu bilgisayardaki menü duruyor; aktarınca kategoriler, çeviriler ve seçenekler de gider.
+              Fotoğraflar ayrı yüklenir.
             </p>
             <ImportMenuButton />
           </div>
         ) : (
           <PhotoBoard
+            inbox={inboxResult.items}
             products={result.products.map((product) => ({
               id: product.id,
               name: product.name,

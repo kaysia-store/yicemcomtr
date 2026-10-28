@@ -2,8 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { saveProductImage } from "@/app/admin/actions/photos";
+import {
+  assignInboxToProducts,
+  deleteInboxImage,
+  saveInboxImage,
+  saveProductImage,
+} from "@/app/admin/actions/photos";
 import { Notice } from "@/components/notice";
+import type { InboxImage } from "@/lib/image-inbox";
 
 type PhotoProduct = {
   id: string;
@@ -17,6 +23,10 @@ type PendingFile = {
   file: File;
   url: string;
 };
+
+type MatchingSource =
+  | { kind: "local"; pending: PendingFile }
+  | { kind: "inbox"; item: InboxImage };
 
 const accepted = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -36,17 +46,22 @@ function fileKey(file: File) {
   return `${file.name}:${file.size}:${file.lastModified}`;
 }
 
-export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
+export function PhotoBoard({ products, inbox }: { products: PhotoProduct[]; inbox: InboxImage[] }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [assigned, setAssigned] = useState<Record<string, PendingFile>>({});
   const [loose, setLoose] = useState<PendingFile[]>([]);
-  const [matching, setMatching] = useState<PendingFile | null>(null);
+  const [inboxItems, setInboxItems] = useState(inbox);
+  const [matching, setMatching] = useState<MatchingSource | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
   const [finder, setFinder] = useState("");
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [message, setMessage] = useState<{ tone: "error" | "ok"; text: string } | null>(null);
+
+  useEffect(() => {
+    setInboxItems(inbox);
+  }, [inbox]);
 
   const byName = useMemo(() => {
     const groups = new Map<string, PhotoProduct[]>();
@@ -70,6 +85,7 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
   }, [products]);
 
   const pendingCount = Object.keys(assigned).length;
+  const waitingCount = loose.length + inboxItems.length;
   const finderNeedle = fold(finder.trim());
   const finderResults = useMemo(() => {
     if (!finderNeedle) return products;
@@ -127,7 +143,7 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
     URL.revokeObjectURL(pending.url);
   }
 
-  function assignMany(ids: string[], pending: PendingFile) {
+  function assignLocal(ids: string[], pending: PendingFile) {
     setAssigned((current) => {
       const next = { ...current };
       for (const id of ids) {
@@ -143,6 +159,23 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
     setFinder("");
   }
 
+  async function assignFromInbox(ids: string[], item: InboxImage) {
+    setSaving(true);
+    setMessage(null);
+    const result = await assignInboxToProducts(item.id, ids);
+    setSaving(false);
+    if (!result.ok) {
+      setMessage({ tone: "error", text: result.message });
+      return;
+    }
+    setInboxItems((current) => current.filter((row) => row.id !== item.id));
+    setMatching(null);
+    setPicked([]);
+    setFinder("");
+    setMessage({ tone: "ok", text: "Bekleyen görsel ürüne bağlandı." });
+    router.refresh();
+  }
+
   function clearProduct(productId: string) {
     setAssigned((current) => {
       const previous = current[productId];
@@ -154,14 +187,34 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
     });
   }
 
+  function discardLoose(pending: PendingFile) {
+    setLoose((current) => current.filter((item) => item.key !== pending.key));
+    URL.revokeObjectURL(pending.url);
+    if (matching?.kind === "local" && matching.pending.key === pending.key) setMatching(null);
+  }
+
+  async function discardInbox(item: InboxImage) {
+    const result = await deleteInboxImage(item.id);
+    if (!result.ok) {
+      setMessage({ tone: "error", text: result.message });
+      return;
+    }
+    setInboxItems((current) => current.filter((row) => row.id !== item.id));
+    if (matching?.kind === "inbox" && matching.item.id === item.id) setMatching(null);
+  }
+
   async function saveAll() {
     const entries = Object.entries(assigned);
-    if (entries.length === 0 || saving) return;
+    if ((entries.length === 0 && loose.length === 0) || saving) return;
     setSaving(true);
-    setProgress({ done: 0, total: entries.length });
+    const total = entries.length + loose.length;
+    setProgress({ done: 0, total });
     setMessage(null);
     const failed: string[] = [];
     const saved = new Set<string>();
+    const savedLoose = new Set<string>();
+    let done = 0;
+
     for (const [id, pending] of entries) {
       const body = new FormData();
       body.set("id", id);
@@ -172,8 +225,20 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
         const product = products.find((item) => item.id === id);
         failed.push(`${product?.name ?? "Ürün"}: ${result.message}`);
       }
-      setProgress({ done: saved.size + failed.length, total: entries.length });
+      done += 1;
+      setProgress({ done, total });
     }
+
+    for (const pending of loose) {
+      const body = new FormData();
+      body.set("image", pending.file);
+      const result = await saveInboxImage(body);
+      if (result.ok) savedLoose.add(pending.key);
+      else failed.push(`${pending.file.name}: ${result.message}`);
+      done += 1;
+      setProgress({ done, total });
+    }
+
     setAssigned((current) => {
       const next = { ...current };
       for (const id of saved) {
@@ -183,14 +248,39 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
       }
       return next;
     });
+    setLoose((current) => {
+      const kept: PendingFile[] = [];
+      for (const item of current) {
+        if (savedLoose.has(item.key)) URL.revokeObjectURL(item.url);
+        else kept.push(item);
+      }
+      return kept;
+    });
+
     setSaving(false);
     if (failed.length === 0) {
-      setMessage({ tone: "ok", text: "Görseller kaydedildi." });
+      const parts: string[] = [];
+      if (saved.size > 0) parts.push(`${saved.size} ürün görseli`);
+      if (savedLoose.size > 0) parts.push(`${savedLoose.size} bekleyen`);
+      setMessage({
+        tone: "ok",
+        text: parts.length ? `${parts.join(" + ")} kaydedildi.` : "Kayıt tamam.",
+      });
       router.refresh();
     } else {
       setMessage({ tone: "error", text: failed.slice(0, 4).join(" ") });
+      router.refresh();
     }
   }
+
+  const previewUrl =
+    matching?.kind === "local" ? matching.pending.url : matching?.kind === "inbox" ? matching.item.url : "";
+  const previewName =
+    matching?.kind === "local"
+      ? matching.pending.file.name
+      : matching?.kind === "inbox"
+        ? matching.item.originalName
+        : "";
 
   return (
     <div className="grid gap-6">
@@ -204,7 +294,8 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
       >
         <p className="font-medium">Görselleri buraya bırakın</p>
         <p className="text-sm leading-6 text-muted">
-          Dosya adı ürün adıyla aynıysa kartına yerleşir. Tutmayan görsele tıklayıp ürün arayın. JPEG, PNG veya WebP, en fazla 5 MB.
+          Dosya adı ürün adıyla aynıysa kartına yerleşir. Tutmayanlar kaydetince havuza alınır; sonra eşleştirebilirsiniz.
+          JPEG, PNG veya WebP, en fazla 5 MB.
         </p>
         <div>
           <button className="btn btn-secondary" onClick={() => inputRef.current?.click()} type="button">
@@ -224,25 +315,62 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
         </div>
       </div>
 
-      {loose.length > 0 ? (
+      {waitingCount > 0 ? (
         <div>
-          <h2 className="mb-3 text-sm font-medium">Eşleşmeyen görseller</h2>
+          <h2 className="mb-3 text-sm font-medium">
+            Eşleşmeyen / bekleyen görseller
+            <span className="ml-2 text-muted">({waitingCount})</span>
+          </h2>
           <ul className="flex gap-3 overflow-x-auto pb-1">
+            {inboxItems.map((item) => (
+              <li key={`inbox-${item.id}`}>
+                <div className="grid w-28 gap-2 rounded-2xl border border-accent/30 bg-card p-2">
+                  <button
+                    className="grid gap-2 text-start"
+                    onClick={() => {
+                      setMatching({ kind: "inbox", item });
+                      setPicked([]);
+                      setFinder("");
+                    }}
+                    type="button"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img alt="" className="h-20 w-full rounded-xl object-cover" src={item.url} />
+                    <span className="truncate text-xs text-muted">{item.originalName}</span>
+                    <span className="text-[10px] text-accent">Havuzda</span>
+                  </button>
+                  <button
+                    className="text-start text-[11px] text-danger"
+                    disabled={saving}
+                    onClick={() => void discardInbox(item)}
+                    type="button"
+                  >
+                    Sil
+                  </button>
+                </div>
+              </li>
+            ))}
             {loose.map((item) => (
-              <li key={item.key}>
-                <button
-                  className="grid w-28 gap-2 rounded-2xl border border-line bg-card p-2 text-start"
-                  onClick={() => {
-                    setMatching(item);
-                    setPicked([]);
-                    setFinder("");
-                  }}
-                  type="button"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img alt="" className="h-20 w-full rounded-xl object-cover" src={item.url} />
-                  <span className="truncate text-xs text-muted">{item.file.name}</span>
-                </button>
+              <li key={`loose-${item.key}`}>
+                <div className="grid w-28 gap-2 rounded-2xl border border-line bg-card p-2">
+                  <button
+                    className="grid gap-2 text-start"
+                    onClick={() => {
+                      setMatching({ kind: "local", pending: item });
+                      setPicked([]);
+                      setFinder("");
+                    }}
+                    type="button"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img alt="" className="h-20 w-full rounded-xl object-cover" src={item.url} />
+                    <span className="truncate text-xs text-muted">{item.file.name}</span>
+                    <span className="text-[10px] text-muted">Kaydedilmedi</span>
+                  </button>
+                  <button className="text-start text-[11px] text-danger" onClick={() => discardLoose(item)} type="button">
+                    Sil
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -253,9 +381,25 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
 
       <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-paper/95 px-3 py-3 backdrop-blur">
         <p className="text-sm text-muted">
-          {saving ? `${progress.done} / ${progress.total} kaydediliyor` : pendingCount === 0 ? "Henüz görsel seçilmedi" : `${pendingCount} görsel kaydedilmeyi bekliyor`}
+          {saving
+            ? `${progress.done} / ${progress.total} kaydediliyor`
+            : pendingCount === 0 && loose.length === 0
+              ? inboxItems.length > 0
+                ? `${inboxItems.length} görsel havuzda bekliyor`
+                : "Henüz görsel seçilmedi"
+              : [
+                  pendingCount > 0 ? `${pendingCount} ürün` : null,
+                  loose.length > 0 ? `${loose.length} havuza` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" + ") + " kaydedilecek"}
         </p>
-        <button className="btn btn-primary" disabled={pendingCount === 0 || saving} onClick={saveAll} type="button">
+        <button
+          className="btn btn-primary"
+          disabled={(pendingCount === 0 && loose.length === 0) || saving}
+          onClick={() => void saveAll()}
+          type="button"
+        >
           {saving ? "Kaydediliyor…" : "Tümünü kaydet"}
         </button>
       </div>
@@ -275,7 +419,9 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img alt="" className="h-full w-full object-cover" src={preview} />
                       ) : (
-                        <span className="flex h-full items-center justify-center px-2 text-center text-xs text-muted">Görsel yok</span>
+                        <span className="flex h-full items-center justify-center px-2 text-center text-xs text-muted">
+                          Görsel yok
+                        </span>
                       )}
                     </div>
                     <p className="min-h-10 px-1 text-sm leading-5">{product.name}</p>
@@ -307,10 +453,10 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
           >
             <div className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover" src={matching.url} />
+              <img alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover" src={previewUrl} />
               <div className="min-w-0">
                 <h2 className="truncate font-medium" id="match-title">
-                  {matching.file.name}
+                  {previewName}
                 </h2>
                 <p className="text-sm text-muted">Aynı görseli bir veya birden fazla ürüne bağlayın.</p>
               </div>
@@ -354,11 +500,15 @@ export function PhotoBoard({ products }: { products: PhotoProduct[] }) {
             </ul>
             <button
               className="btn btn-primary mt-3"
-              disabled={picked.length === 0}
-              onClick={() => assignMany(picked, matching)}
+              disabled={picked.length === 0 || saving}
+              onClick={() => {
+                if (!matching) return;
+                if (matching.kind === "local") assignLocal(picked, matching.pending);
+                else void assignFromInbox(picked, matching.item);
+              }}
               type="button"
             >
-              {picked.length === 0 ? "Ürün seçin" : `${picked.length} ürüne eşle`}
+              {picked.length === 0 ? "Ürün seçin" : saving ? "Bağlanıyor…" : `${picked.length} ürüne eşle`}
             </button>
           </div>
         </div>
