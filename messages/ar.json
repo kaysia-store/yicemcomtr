@@ -15,7 +15,6 @@
     "hours": "ساعات العمل",
     "weekdays": "الاثنين – السبت: 09:00 – 20:30",
     "weekend": "مغلق يوم الأحد",
-    "qrAccess": "وصول سريع عبر QR",
     "qrAlt": "رمز QR لقائمة يجم",
     "orderReceived": "تم استلام طلبك.",
     "search": "بحث",
@@ -51,7 +50,6 @@
     "deliveryAddressPlaceholder": "التوصيل أو رقم الطاولة",
     "placeOrder": "اطلب",
     "sendingOrder": "جاري الإرسال…",
-    "order": "طلب",
-    "poweredBy": "القائمة من"
+    "order": "طلب"
   }
 }

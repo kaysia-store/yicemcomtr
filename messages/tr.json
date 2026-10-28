@@ -15,7 +15,6 @@
     "hours": "Çalışma saatleri",
     "weekdays": "Pazartesi – Cumartesi: 09:00 – 20:30",
     "weekend": "Pazar günü kapalı",
-    "qrAccess": "QR ile hızlı erişim",
     "qrAlt": "Yi’Cem menü QR kodu",
     "orderReceived": "Siparişiniz alındı.",
     "search": "Ara",
@@ -51,7 +50,6 @@
     "deliveryAddressPlaceholder": "Teslimat veya masa bilgisi",
     "placeOrder": "Sipariş ver",
     "sendingOrder": "Gönderiliyor…",
-    "order": "Sipariş",
-    "poweredBy": "Hazırlayan"
+    "order": "Sipariş"
   }
 }

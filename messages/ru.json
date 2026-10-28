@@ -15,7 +15,6 @@
     "hours": "Часы работы",
     "weekdays": "Понедельник – суббота: 09:00 – 20:30",
     "weekend": "Воскресенье — выходной",
-    "qrAccess": "Быстрый доступ по QR",
     "qrAlt": "QR-код меню Yi’Cem",
     "orderReceived": "Ваш заказ принят.",
     "search": "Поиск",
@@ -51,7 +50,6 @@
     "deliveryAddressPlaceholder": "Доставка или стол",
     "placeOrder": "Заказать",
     "sendingOrder": "Отправка…",
-    "order": "Заказ",
-    "poweredBy": "Меню от"
+    "order": "Заказ"
   }
 }

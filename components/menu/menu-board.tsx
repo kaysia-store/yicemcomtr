@@ -492,18 +492,18 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
           )}
         </main>
 
-        <footer className="border-t border-line px-4 pt-6 pr-20 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pr-24">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="font-serif text-lg leading-tight md:text-2xl">{menu.restaurantName}</p>
-              <p className="mt-2 text-[10px] tracking-[0.18em] text-accent uppercase md:text-[11px] md:tracking-[0.22em]">{t("address")}</p>
-              <address className="mt-1 text-[11px] leading-4 text-ink not-italic md:text-sm md:leading-5" translate="no">
+        <footer className="bg-[#1f1a17] text-white">
+          <div className="grid grid-cols-[1fr_1fr_auto] items-start gap-x-3 gap-y-0 px-4 pt-6 pr-20 md:pr-24">
+            <div className="min-w-0">
+              <p className="font-serif text-base leading-none md:text-xl">{menu.restaurantName}</p>
+              <p className="mt-2 text-[10px] tracking-[0.18em] text-peach uppercase">{t("address")}</p>
+              <address className="mt-1 text-[11px] leading-4 text-white/75 not-italic md:text-sm md:leading-5" translate="no">
                 {place.streetAddress}
                 <br />
                 {place.district} / {place.city}
               </address>
               <a
-                className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-accent underline-offset-2 hover:underline md:text-sm"
+                className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-peach underline-offset-2 hover:underline md:text-sm"
                 href={place.mapsUrl}
                 rel="noopener noreferrer"
                 target="_blank"
@@ -512,28 +512,31 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
                 {t("directions")}
               </a>
             </div>
-            <div className="min-w-0 flex-1 text-center">
-              <p className="text-[10px] tracking-[0.18em] text-accent uppercase md:text-[11px] md:tracking-[0.22em]">{t("hours")}</p>
-              <p className="mt-1 text-[11px] leading-4 text-ink md:text-sm md:leading-5">{t("weekdays")}</p>
-              <p className="text-[11px] leading-4 text-ink md:text-sm md:leading-5">{t("weekend")}</p>
+            <div className="min-w-0">
+              <div aria-hidden className="h-4 md:h-5" />
+              <p className="mt-2 text-[10px] tracking-[0.18em] text-peach uppercase">{t("hours")}</p>
+              <p className="mt-1 text-[11px] leading-4 text-white/75 md:text-sm md:leading-5">{t("weekdays")}</p>
+              <p className="text-[11px] leading-4 text-white/75 md:text-sm md:leading-5">{t("weekend")}</p>
             </div>
-            <div className="flex shrink-0 flex-col items-center">
-              <p className="text-[10px] tracking-[0.18em] text-accent uppercase md:text-[11px] md:tracking-[0.22em]">{t("qrAccess")}</p>
+            <div className="flex items-start self-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt={t("qrAlt")} className="mt-1 size-14 rounded-xl border border-line bg-card p-1 md:size-20 md:rounded-2xl md:p-1.5" src="/qr.png" />
+              <img
+                alt={t("qrAlt")}
+                className="size-14 rounded-xl border border-white/15 bg-white p-1 md:size-[4.5rem] md:rounded-2xl md:p-1.5"
+                src="/qr.png"
+              />
             </div>
           </div>
-          <p className="mt-4 text-center text-[11px] text-muted">
-            {t("poweredBy")}{" "}
+          <div className="mt-5 border-t border-white/10 px-4 py-3 pr-20 pb-[calc(0.75rem+env(safe-area-inset-bottom)+5.5rem)] text-center md:pr-24">
             <a
-              className="font-medium text-ink underline-offset-2 hover:underline"
+              className="text-[11px] text-white/45 underline-offset-2 hover:text-white/80 hover:underline"
               href="https://kaysia.co"
               rel="noopener noreferrer"
               target="_blank"
             >
               kaysia.co
             </a>
-          </p>
+          </div>
         </footer>
 
         {orderNotice ? (

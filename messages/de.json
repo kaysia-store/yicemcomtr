@@ -15,7 +15,6 @@
     "hours": "Öffnungszeiten",
     "weekdays": "Montag – Samstag: 09:00 – 20:30",
     "weekend": "Sonntags geschlossen",
-    "qrAccess": "Schneller QR-Zugang",
     "qrAlt": "Yi’Cem Menü-QR-Code",
     "orderReceived": "Ihre Bestellung ist eingegangen.",
     "search": "Suche",
@@ -51,7 +50,6 @@
     "deliveryAddressPlaceholder": "Lieferung oder Tisch",
     "placeOrder": "Bestellen",
     "sendingOrder": "Wird gesendet…",
-    "order": "Bestellung",
-    "poweredBy": "Menü von"
+    "order": "Bestellung"
   }
 }
