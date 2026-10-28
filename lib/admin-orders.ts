@@ -1,5 +1,6 @@
 import { defaultOrderSettings, mapOrderSettings, type OrderRow, type OrderStatus } from "@/lib/orders";
 import type { PaymentMethod } from "@/lib/cart";
+import { istanbulDayBounds } from "@/lib/order-day";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { isSchemaError } from "@/lib/schema-error";
@@ -31,15 +32,37 @@ function mapOrder(row: Record<string, unknown>): OrderRow {
   };
 }
 
-export async function listOrders() {
+export async function listOrders(day?: string) {
   if (!getSupabaseEnv()) return { ok: false as const, reason: "setup" as const };
   const supabase = await createClient();
-  const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(100);
+  let query = supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(200);
+  if (day) {
+    const { start, end } = istanbulDayBounds(day);
+    query = query.gte("created_at", start).lt("created_at", end);
+  }
+  const { data, error } = await query;
   if (error) {
     if (isSchemaError(error)) return { ok: false as const, reason: "schema" as const, message: error.message };
     return { ok: false as const, reason: "error" as const, message: "Siparişler yüklenemedi." };
   }
   return { ok: true as const, orders: (data ?? []).map((row) => mapOrder(row as Record<string, unknown>)) };
+}
+
+/** Seçili günden önceki görülmemiş (new) sipariş sayısı */
+export async function countNewOrdersBeforeDay(day: string) {
+  if (!getSupabaseEnv()) return 0;
+  try {
+    const supabase = await createClient();
+    const { start } = istanbulDayBounds(day);
+    const { count } = await supabase
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "new")
+      .lt("created_at", start);
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
 }
 
 export async function getOrder(id: string) {

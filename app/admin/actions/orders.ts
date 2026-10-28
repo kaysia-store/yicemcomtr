@@ -165,3 +165,13 @@ export async function countNewOrders() {
   const { count } = await supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "new");
   return count ?? 0;
 }
+
+export async function deleteOrder(id: string) {
+  const admin = await requireAdmin();
+  if (!admin.ok) return { ok: false as const, message: admin.message };
+
+  const { error } = await admin.supabase.from("orders").delete().eq("id", id);
+  if (error) return { ok: false as const, message: "Sipariş silinemedi." };
+  revalidatePath("/admin/orders");
+  return { ok: true as const };
+}

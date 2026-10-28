@@ -37,7 +37,7 @@ export function OrderSettingsForm({ settings }: { settings: OrderSettings }) {
         <h2 className="font-serif text-2xl">Bildirim ve yazıcı</h2>
         <label className="flex items-center gap-2 text-sm">
           <input defaultChecked={settings.soundEnabled} name="soundEnabled" type="checkbox" />
-          Yeni siparişte zil sesi
+          Yeni siparişte uyarı sesi (açılana kadar)
         </label>
         <label className="flex items-center gap-2 text-sm">
           <input defaultChecked={settings.autoPrintOnAccept} name="autoPrintOnAccept" type="checkbox" />
