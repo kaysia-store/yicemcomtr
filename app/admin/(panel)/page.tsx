@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { connection } from "next/server";
 import { PageHeader } from "@/components/page-header";
 import { LoadError } from "@/components/load-error";
 import { LoadingState } from "@/components/loading-state";
@@ -23,6 +24,7 @@ export default function AdminHomePage({
 }
 
 async function Dashboard({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
+  await connection();
   const [{ saved }, result, ops] = await Promise.all([searchParams, getDashboard(), loadOpsStats()]);
   if (!result.ok) return <LoadError message={result.message} reason={result.reason} />;
 

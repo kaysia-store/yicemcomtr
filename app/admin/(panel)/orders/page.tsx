@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { OrdersBoard } from "@/components/admin/orders-board";
 import { OrdersDateNav } from "@/components/admin/orders-date-nav";
 import { LoadError } from "@/components/load-error";
@@ -19,6 +20,7 @@ export default function OrdersPage({ searchParams }: { searchParams: Promise<{ d
 }
 
 async function OrdersContent({ searchParams }: { searchParams: Promise<{ date?: string }> }) {
+  await connection();
   const query = await searchParams;
   const day = parseDayParam(query.date);
   const [ordersResult, settingsResult, pastUnseen] = await Promise.all([

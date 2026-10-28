@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { formatIstanbulDay, istanbulDayBounds, shiftDay, todayIstanbul } from "@/lib/order-day";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -63,6 +64,7 @@ function isActiveStatus(status: string) {
 }
 
 export async function loadOpsStats(): Promise<OpsStats> {
+  await connection();
   const base = emptyStats();
   if (!getSupabaseEnv()) return base;
 
