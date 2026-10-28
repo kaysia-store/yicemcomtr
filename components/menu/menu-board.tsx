@@ -609,7 +609,10 @@ function ProductCard({
           {product.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img alt="" className={`h-full w-full ${menuImageFit(product.imageUrl)}`} src={product.imageUrl} />
-          ) : null}
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img alt="" className="h-full w-full scale-110 object-contain p-2 opacity-70 blur-[1.5px]" src="/karakter.png" />
+          )}
         </div>
         <span className="min-w-0 flex-1 py-1">
           <span className="flex items-start justify-between gap-3">
@@ -734,7 +737,12 @@ function ProductSheet({
           {product.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img alt="" className={`mb-4 h-52 w-full rounded-2xl ${menuImageFit(product.imageUrl)}`} src={product.imageUrl} />
-          ) : null}
+          ) : (
+            <div className="mb-4 grid h-52 place-items-center overflow-hidden rounded-2xl bg-paper">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img alt="" className="h-40 w-40 object-contain opacity-70 blur-[2px]" src="/karakter.png" />
+            </div>
+          )}
           <div className="flex items-start justify-between gap-3">
             <h2 className="font-serif text-3xl" id="product-title">
               {product.name}

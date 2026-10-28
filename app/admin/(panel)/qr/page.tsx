@@ -21,7 +21,11 @@ async function QrContent() {
   const result = await getDashboard();
   if (!result.ok) return <LoadError message={result.message} reason={result.reason} />;
 
-  const site = getSiteUrl() || "http://localhost:3000";
+  const configured = getSiteUrl();
+  const site =
+    configured && !/localhost|127\.0\.0\.1/i.test(configured)
+      ? configured
+      : "https://yicem.com.tr";
 
   const url = `${site}/${result.defaultLocale}`;
   const dataUrl = await QRCode.toDataURL(url, {

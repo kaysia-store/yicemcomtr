@@ -1,12 +1,22 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Receipt } from "@/components/admin/receipt";
 import { PrintActions } from "@/components/admin/print-actions";
+import { LoadingState } from "@/components/loading-state";
 import { getDashboard } from "@/lib/admin-data";
 import { getOrder } from "@/lib/admin-orders";
 
 export const metadata = { title: "Fiş" };
 
-export default async function PrintOrderPage({ params }: { params: Promise<{ id: string }> }) {
+export default function PrintOrderPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<LoadingState label="Fiş yükleniyor…" />}>
+      <PrintOrderContent params={params} />
+    </Suspense>
+  );
+}
+
+async function PrintOrderContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [orderResult, dashboard] = await Promise.all([getOrder(id), getDashboard()]);
   if (!orderResult.ok) notFound();
