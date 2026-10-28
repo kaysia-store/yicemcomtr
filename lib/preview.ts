@@ -337,6 +337,8 @@ export function previewPublicMenu(locale: string): { ok: true; menu: MenuPayload
       locale,
       languages: active.map((language) => ({ code: language.code, name: language.name })),
       categories,
+      orderEnabled: false,
+      whatsappEnabled: true,
     },
   };
 }

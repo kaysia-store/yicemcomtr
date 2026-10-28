@@ -13,6 +13,8 @@
   --color-warm: #ff7043;
   --color-pine: #1f6a4a;
   --color-danger: #9f2d2d;
+  --color-peach: #d4896a;
+  --color-peach-dark: #c27555;
 }
 
 :lang(ru) {
@@ -83,5 +85,25 @@
   .menu-root {
     background: var(--color-paper);
     color: var(--color-ink);
+  }
+}
+
+/* POS-80C · 72×297 mm termal fiş */
+@page {
+  size: 72mm 297mm;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .receipt {
+    width: 72mm !important;
+    max-width: 72mm !important;
   }
 }

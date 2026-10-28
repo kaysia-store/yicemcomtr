@@ -1,0 +1,30 @@
+{
+  "name": "Yicem Menü",
+  "short_name": "Yicem",
+  "description": "Yicem Cafe & Bistro dijital menü ve sipariş",
+  "start_url": "/tr",
+  "display": "standalone",
+  "background_color": "#efeae2",
+  "theme_color": "#d4896a",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

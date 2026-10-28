@@ -5,15 +5,17 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/admin", label: "Genel" },
+  { href: "/admin/orders", label: "Siparişler" },
   { href: "/admin/categories", label: "Kategoriler" },
   { href: "/admin/products", label: "Ürünler" },
   { href: "/admin/photos", label: "Görseller" },
   { href: "/admin/prices", label: "Fiyatlar" },
   { href: "/admin/languages", label: "Diller" },
   { href: "/admin/qr", label: "QR" },
+  { href: "/admin/settings", label: "Ayarlar" },
 ];
 
-export function AdminNav() {
+export function AdminNav({ newOrders = 0 }: { newOrders?: number }) {
   const pathname = usePathname();
 
   return (
@@ -31,7 +33,14 @@ export function AdminNav() {
             href={item.href}
             key={item.href}
           >
-            {item.label}
+            <span className="inline-flex items-center gap-2">
+              {item.label}
+              {item.href === "/admin/orders" && newOrders > 0 ? (
+                <span className={active ? "rounded-full bg-white/20 px-1.5 text-[11px]" : "rounded-full bg-accent px-1.5 text-[11px] text-white"}>
+                  {newOrders}
+                </span>
+              ) : null}
+            </span>
           </Link>
         );
       })}

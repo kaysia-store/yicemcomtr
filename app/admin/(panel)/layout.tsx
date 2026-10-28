@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { logout } from "@/app/admin/actions/settings";
 import { AdminNav } from "@/components/admin/nav";
 import { LoadingState } from "@/components/loading-state";
+import { countNewOrders } from "@/lib/admin-orders";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,6 +26,7 @@ async function AdminFrame({ children }: { children: React.ReactNode }) {
     } = await supabase.auth.getUser();
     label = user?.email ?? "Yönetici";
   }
+  const newOrders = await countNewOrders();
 
   return (
     <div className="min-h-screen md:grid md:grid-cols-[240px_minmax(0,1fr)]">
@@ -35,7 +37,7 @@ async function AdminFrame({ children }: { children: React.ReactNode }) {
           </Link>
           <p className="mt-1 truncate text-xs text-muted">{label}</p>
         </div>
-        <AdminNav />
+        <AdminNav newOrders={newOrders} />
         <div className="mt-auto px-3 py-4">
           {getSupabaseEnv() ? (
             <form action={logout}>

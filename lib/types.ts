@@ -69,6 +69,8 @@ export type MenuPayload = {
   locale: string;
   languages: { code: string; name: string }[];
   categories: MenuCategory[];
+  orderEnabled: boolean;
+  whatsappEnabled: boolean;
 };
 
 export type CategoryListItem = {

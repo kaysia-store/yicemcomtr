@@ -1,5 +1,6 @@
 import { unstable_rethrow } from "next/navigation";
 import { asPrice, menuImageUrl } from "@/lib/format";
+import { defaultOrderSettings, mapOrderSettings } from "@/lib/orders";
 import { previewPublicMenu } from "@/lib/preview";
 import { loadRestaurantSettings } from "@/lib/restaurant-settings";
 import { loadFailure } from "@/lib/schema-error";
@@ -85,7 +86,7 @@ export async function getPublicMenu(
   }
 
   try {
-    const [settingsResult, languagesResult, categoriesResult] = await Promise.all([
+    const [settingsResult, languagesResult, categoriesResult, orderSettingsResult] = await Promise.all([
       loadRestaurantSettings(supabase),
       supabase.from("languages").select("code, name, is_active, sort_order").order("sort_order"),
       supabase
@@ -130,10 +131,19 @@ export async function getPublicMenu(
         `,
         )
         .order("sort_order"),
+      supabase
+        .from("order_settings")
+        .select("menu_order_enabled, menu_whatsapp_enabled")
+        .eq("id", 1)
+        .maybeSingle(),
     ]);
 
     const error = settingsResult.error ?? languagesResult.error ?? categoriesResult.error;
     if (error) return loadFailure(error);
+
+    const ordering = orderSettingsResult.error
+      ? defaultOrderSettings
+      : mapOrderSettings(orderSettingsResult.data as Record<string, unknown> | null);
 
     const defaultLocale = settingsResult.data?.default_locale ?? "tr";
     const languages = (languagesResult.data ?? []) as {
@@ -173,6 +183,8 @@ export async function getPublicMenu(
         locale,
         languages: active.map((language) => ({ code: language.code, name: language.name })),
         categories,
+        orderEnabled: ordering.menuOrderEnabled,
+        whatsappEnabled: ordering.menuWhatsappEnabled,
       },
     };
   } catch (error) {

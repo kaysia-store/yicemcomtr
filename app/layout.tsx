@@ -27,7 +27,7 @@ const arabic = Noto_Sans_Arabic({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#efeae2",
+  themeColor: "#d4896a",
   viewportFit: "cover",
 };
 
@@ -37,6 +37,17 @@ export const metadata: Metadata = {
     template: "%s · QR Menü",
   },
   description: "Restoranlar için mobil QR menü",
+  applicationName: "Yicem Menü",
+  appleWebApp: {
+    capable: true,
+    title: "Yicem",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png", type: "image/png" }],
+  },
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
