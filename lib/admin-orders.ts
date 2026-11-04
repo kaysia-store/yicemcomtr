@@ -1,5 +1,5 @@
 import { defaultOrderSettings, mapOrderSettings, type OrderRow, type OrderStatus } from "@/lib/orders";
-import type { PaymentMethod } from "@/lib/cart";
+import type { FulfillmentMethod, PaymentMethod } from "@/lib/cart";
 import { istanbulDayBounds } from "@/lib/order-day";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -12,6 +12,8 @@ function mapOrder(row: Record<string, unknown>): OrderRow {
   const paymentRaw = String(row.payment_method ?? "cash");
   const payment: PaymentMethod =
     paymentRaw === "card" || paymentRaw === "meal_card" ? paymentRaw : "cash";
+  const fulfillmentRaw = String(row.fulfillment ?? "delivery");
+  const fulfillment: FulfillmentMethod = fulfillmentRaw === "pickup" ? "pickup" : "delivery";
   return {
     id: String(row.id),
     status: row.status as OrderStatus,
@@ -21,6 +23,7 @@ function mapOrder(row: Record<string, unknown>): OrderRow {
     phone: String(row.phone ?? "").trim(),
     paymentMethod: payment,
     mealCardBrand: String(row.meal_card_brand ?? "").trim(),
+    fulfillment,
     address: String(row.address ?? ""),
     note: String(row.note ?? ""),
     items: Array.isArray(row.items) ? (row.items as OrderRow["items"]) : [],

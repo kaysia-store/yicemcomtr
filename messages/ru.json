@@ -58,7 +58,12 @@
     "deliveryAddressPlaceholder": "Улица, дом, квартира…",
     "placeOrder": "Заказать",
     "sendingOrder": "Отправка…",
+    "placePickupOrder": "Заказать самовывоз",
     "order": "Заказ",
-    "rememberOnDevice": "Запомнить мои данные на этом устройстве (имя, телефон, адрес)"
+    "rememberOnDevice": "Запомнить мои данные на этом устройстве (имя, телефон, адрес)",
+    "fulfillment": "Способ получения",
+    "fulfillmentDelivery": "Доставка",
+    "fulfillmentPickup": "Самовывоз",
+    "fulfillmentPickupHint": "Заберите в ресторане, когда будет готово. Адрес не нужен."
   }
 }

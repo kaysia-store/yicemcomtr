@@ -5,10 +5,12 @@ import { requireAdmin } from "@/lib/auth";
 import {
   cartTotal,
   customerFullName,
+  isFulfillmentMethod,
   isMealCardBrandId,
   isValidPhone,
   normalizePhone,
   type CartLine,
+  type FulfillmentMethod,
   type MealCardBrandId,
   type PaymentMethod,
 } from "@/lib/cart";
@@ -25,6 +27,7 @@ export async function placeOrder(input: {
   phone: string;
   paymentMethod: PaymentMethod;
   mealCardBrand?: string;
+  fulfillment: FulfillmentMethod;
   address: string;
   note: string;
   locale: string;
@@ -33,7 +36,8 @@ export async function placeOrder(input: {
   const firstName = input.firstName.trim();
   const lastName = input.lastName.trim();
   const phone = normalizePhone(input.phone);
-  const address = input.address.trim();
+  const fulfillment: FulfillmentMethod = isFulfillmentMethod(input.fulfillment) ? input.fulfillment : "delivery";
+  const address = fulfillment === "pickup" ? "" : input.address.trim();
   const note = input.note.trim();
   const mealCardBrand: MealCardBrandId | "" =
     input.paymentMethod === "meal_card" && isMealCardBrandId(input.mealCardBrand) ? input.mealCardBrand : "";
@@ -47,7 +51,9 @@ export async function placeOrder(input: {
   if (input.paymentMethod === "meal_card" && !mealCardBrand) {
     return { ok: false, message: "Yemek kartı markası seçin." };
   }
-  if (address.length < 5 || address.length > 240) return { ok: false, message: "Açık adres gerekli." };
+  if (fulfillment === "delivery" && (address.length < 5 || address.length > 240)) {
+    return { ok: false, message: "Açık adres gerekli." };
+  }
   if (note.length > 400) return { ok: false, message: "Not çok uzun." };
   if (!input.lines.length) return { ok: false, message: "Sepet boş." };
 
@@ -72,6 +78,7 @@ export async function placeOrder(input: {
     phone,
     paymentMethod: input.paymentMethod,
     mealCardBrand,
+    fulfillment,
     address,
     note,
   });
@@ -87,6 +94,7 @@ export async function placeOrder(input: {
     phone,
     payment_method: input.paymentMethod,
     meal_card_brand: mealCardBrand,
+    fulfillment,
     address,
     note,
     items,
@@ -102,10 +110,16 @@ export async function placeOrder(input: {
         message: "Sipariş yazma izni yok. supabase/migrations/0010_orders_anon_insert_rls.sql dosyasını çalıştırın.",
       };
     }
+    if (/fulfillment/i.test(error.message)) {
+      return {
+        ok: false,
+        message: "Gel al alanı eksik. supabase/migrations/0012_order_fulfillment.sql dosyasını çalıştırın.",
+      };
+    }
     if (/orders|schema cache|does not exist|customer_first|phone|meal_card|payment_method/i.test(error.message)) {
       return {
         ok: false,
-        message: "Sipariş tablosu eksik veya eski. 0008, 0009 ve 0010 migration dosyalarını çalıştırın.",
+        message: "Sipariş tablosu eksik veya eski. 0008–0012 migration dosyalarını çalıştırın.",
       };
     }
     return { ok: false, message: `Sipariş gönderilemedi: ${error.message}` };

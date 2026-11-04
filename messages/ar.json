@@ -58,7 +58,12 @@
     "deliveryAddressPlaceholder": "الشارع، المبنى، الشقة…",
     "placeOrder": "اطلب",
     "sendingOrder": "جاري الإرسال…",
+    "placePickupOrder": "طلب استلام",
     "order": "طلب",
-    "rememberOnDevice": "احفظ بياناتي على هذا الجهاز (الاسم، الهاتف، العنوان)"
+    "rememberOnDevice": "احفظ بياناتي على هذا الجهاز (الاسم، الهاتف، العنوان)",
+    "fulfillment": "طريقة الاستلام",
+    "fulfillmentDelivery": "توصيل",
+    "fulfillmentPickup": "استلام",
+    "fulfillmentPickupHint": "استلم من المطعم عند الجاهزية. لا حاجة لعنوان."
   }
 }

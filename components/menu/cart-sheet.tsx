@@ -12,12 +12,12 @@ import {
   isMealCardBrandId,
   isValidPhone,
   MEAL_CARD_BRANDS,
-  paymentLabel,
   readCheckoutProfile,
   setCartQuantity,
   whatsappOrderUrl,
   writeCheckoutProfile,
   type CartState,
+  type FulfillmentMethod,
   type PaymentMethod,
 } from "@/lib/cart";
 
@@ -68,11 +68,12 @@ export function CartSheet({
 
   const total = cartTotal(cart);
   const canSend = cart.lines.length > 0;
+  const addressOk = cart.fulfillment === "pickup" || cart.address.trim().length >= 5;
   const checkoutReady =
     Boolean(cart.firstName.trim()) &&
     Boolean(cart.lastName.trim()) &&
     isValidPhone(cart.phone) &&
-    cart.address.trim().length >= 5 &&
+    addressOk &&
     (cart.paymentMethod !== "meal_card" || Boolean(cart.mealCardBrand));
 
   function persistProfilePreference() {
@@ -96,7 +97,12 @@ export function CartSheet({
       lastName: cart.lastName,
       phone: cart.phone,
       address: cart.address,
+      fulfillment: cart.fulfillment,
     };
+  }
+
+  function setFulfillment(fulfillment: FulfillmentMethod) {
+    onChange({ ...cart, fulfillment });
   }
 
   function submitOrder() {
@@ -109,6 +115,7 @@ export function CartSheet({
         phone: cart.phone,
         paymentMethod: cart.paymentMethod,
         mealCardBrand: cart.mealCardBrand,
+        fulfillment: cart.fulfillment,
         address: cart.address,
         note: cart.note,
         locale,
@@ -231,6 +238,38 @@ export function CartSheet({
                   value={cart.phone}
                 />
               </label>
+              <div className="grid gap-1.5">
+                <p className="text-sm font-medium">{t("fulfillment")}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    aria-pressed={cart.fulfillment === "delivery"}
+                    className={
+                      cart.fulfillment === "delivery"
+                        ? "rounded-2xl border border-accent bg-accent px-3 py-2.5 text-sm font-medium text-white"
+                        : "rounded-2xl border border-line bg-paper px-3 py-2.5 text-sm font-medium"
+                    }
+                    onClick={() => setFulfillment("delivery")}
+                    type="button"
+                  >
+                    {t("fulfillmentDelivery")}
+                  </button>
+                  <button
+                    aria-pressed={cart.fulfillment === "pickup"}
+                    className={
+                      cart.fulfillment === "pickup"
+                        ? "rounded-2xl border border-accent bg-accent px-3 py-2.5 text-sm font-medium text-white"
+                        : "rounded-2xl border border-line bg-paper px-3 py-2.5 text-sm font-medium"
+                    }
+                    onClick={() => setFulfillment("pickup")}
+                    type="button"
+                  >
+                    {t("fulfillmentPickup")}
+                  </button>
+                </div>
+                {cart.fulfillment === "pickup" ? (
+                  <p className="text-xs leading-5 text-muted">{t("fulfillmentPickupHint")}</p>
+                ) : null}
+              </div>
               <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-payment">
                 {t("paymentMethod")}
                 <select
@@ -273,16 +312,18 @@ export function CartSheet({
                   </select>
                 </label>
               ) : null}
-              <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-address">
-                {t("deliveryAddress")}
-                <textarea
-                  className="field min-h-20 resize-y"
-                  id="cart-address"
-                  onChange={(event) => onChange({ ...cart, address: event.target.value })}
-                  placeholder={t("deliveryAddressPlaceholder")}
-                  value={cart.address}
-                />
-              </label>
+              {cart.fulfillment === "delivery" ? (
+                <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-address">
+                  {t("deliveryAddress")}
+                  <textarea
+                    className="field min-h-20 resize-y"
+                    id="cart-address"
+                    onChange={(event) => onChange({ ...cart, address: event.target.value })}
+                    placeholder={t("deliveryAddressPlaceholder")}
+                    value={cart.address}
+                  />
+                </label>
+              ) : null}
               <label className="grid gap-1.5 text-sm font-medium" htmlFor="cart-note">
                 {t("orderNote")}
                 <textarea
@@ -326,7 +367,11 @@ export function CartSheet({
           <div className="grid gap-2">
             {orderEnabled ? (
               <button className="btn btn-primary w-full" disabled={!canSend || pending || !checkoutReady} onClick={submitOrder} type="button">
-                {pending ? t("sendingOrder") : t("placeOrder")}
+                {pending
+                  ? t("sendingOrder")
+                  : cart.fulfillment === "pickup"
+                    ? t("placePickupOrder")
+                    : t("placeOrder")}
               </button>
             ) : null}
             {whatsappEnabled ? (

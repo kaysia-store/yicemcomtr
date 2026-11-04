@@ -1,5 +1,5 @@
 import { formatCartMoney } from "@/lib/cart";
-import { orderCustomerName, paymentLabel, type OrderRow } from "@/lib/orders";
+import { fulfillmentLabel, orderCustomerName, paymentLabel, type OrderRow } from "@/lib/orders";
 import { place } from "@/lib/place";
 
 export function Receipt({
@@ -46,9 +46,15 @@ export function Receipt({
           <br />
           Tel: {order.phone || "—"}
           <br />
+          Teslim: {fulfillmentLabel(order.fulfillment)}
+          <br />
           Ödeme: {paymentLabel(order.paymentMethod, order.mealCardBrand)}
         </p>
-        {order.address ? <p className="mt-1">Adres: {order.address}</p> : null}
+        {order.fulfillment === "pickup" ? (
+          <p className="mt-1 font-bold">*** GEL AL ***</p>
+        ) : order.address ? (
+          <p className="mt-1">Adres: {order.address}</p>
+        ) : null}
         {order.note ? <p className="mt-1">Not: {order.note}</p> : null}
         <div className="my-2 border-t border-dashed border-black/40" />
         <p className="font-bold">Sipariş</p>

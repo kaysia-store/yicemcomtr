@@ -57,8 +57,13 @@
     "deliveryAddress": "Açık adres",
     "deliveryAddressPlaceholder": "Mahalle, sokak, bina, daire…",
     "placeOrder": "Sipariş ver",
+    "placePickupOrder": "Gel al siparişi ver",
     "sendingOrder": "Gönderiliyor…",
     "order": "Sipariş",
-    "rememberOnDevice": "Bilgilerimi bu cihazda hatırla (ad, soyad, telefon, adres)"
+    "rememberOnDevice": "Bilgilerimi bu cihazda hatırla (ad, soyad, telefon, adres)",
+    "fulfillment": "Teslim şekli",
+    "fulfillmentDelivery": "Teslimat",
+    "fulfillmentPickup": "Gel al",
+    "fulfillmentPickupHint": "Hazır olunca restorandan teslim alırsınız. Adres gerekmez."
   }
 }

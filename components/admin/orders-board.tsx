@@ -5,9 +5,10 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { deleteOrder, setOrderStatus } from "@/app/admin/actions/orders";
 import { formatCartMoney } from "@/lib/cart";
 import { todayIstanbul } from "@/lib/order-day";
-import { orderCustomerName, paymentLabel, statusLabel, type OrderRow, type OrderSettings } from "@/lib/orders";
+import { fulfillmentLabel, orderCustomerName, paymentLabel, statusLabel, type OrderRow, type OrderSettings } from "@/lib/orders";
 
 const ALERT_SRC = "/order-alert.mp3";
+const ALERT_GAIN = 2.4;
 
 export function OrdersBoard({
   orders,
@@ -23,15 +24,35 @@ export function OrdersBoard({
   const [printOrder, setPrintOrder] = useState<OrderRow | null>(null);
   const promptedRef = useRef<Set<string>>(new Set());
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
   const isToday = day === todayIstanbul();
 
   useEffect(() => {
     const audio = new Audio(ALERT_SRC);
     audio.loop = true;
     audio.preload = "auto";
+    audio.volume = 1;
     audioRef.current = audio;
 
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (Ctx) {
+        const ctx = new Ctx();
+        const source = ctx.createMediaElementSource(audio);
+        const gain = ctx.createGain();
+        gain.gain.value = ALERT_GAIN;
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        audioCtxRef.current = ctx;
+        gainRef.current = gain;
+      }
+    } catch {
+      /* Web Audio yoksa HTMLAudio volume=1 yeterli */
+    }
+
     const unlock = () => {
+      void audioCtxRef.current?.resume().catch(() => {});
       void audio.play().then(() => {
         audio.pause();
         audio.currentTime = 0;
@@ -44,6 +65,9 @@ export function OrdersBoard({
       window.removeEventListener("pointerdown", unlock);
       audio.pause();
       audioRef.current = null;
+      void audioCtxRef.current?.close().catch(() => {});
+      audioCtxRef.current = null;
+      gainRef.current = null;
     };
   }, []);
 
@@ -51,6 +75,9 @@ export function OrdersBoard({
     if (!settings.soundEnabled) return;
     const audio = audioRef.current;
     if (!audio) return;
+    if (gainRef.current) gainRef.current.gain.value = ALERT_GAIN;
+    audio.volume = 1;
+    void audioCtxRef.current?.resume().catch(() => {});
     void audio.play().catch(() => {});
   }
 
@@ -127,13 +154,23 @@ export function OrdersBoard({
                 <p className="font-medium">
                   {orderCustomerName(order)}{" "}
                   <span className="text-xs font-normal text-muted">#{order.id.slice(0, 8).toUpperCase()}</span>
+                  {order.fulfillment === "pickup" ? (
+                    <span className="ml-2 inline-flex rounded-full bg-accent px-2 py-0.5 text-[11px] font-medium text-white">
+                      GEL AL
+                    </span>
+                  ) : null}
                 </p>
                 <p className="mt-1 text-sm text-muted">
-                  {statusLabel(order.status)} · {paymentLabel(order.paymentMethod, order.mealCardBrand)} ·{" "}
+                  {statusLabel(order.status)} · {fulfillmentLabel(order.fulfillment)} ·{" "}
+                  {paymentLabel(order.paymentMethod, order.mealCardBrand)} ·{" "}
                   {new Date(order.createdAt).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}
                 </p>
                 {order.phone ? <p className="mt-1 text-sm tabular-nums">{order.phone}</p> : null}
-                {order.address ? <p className="mt-1 text-sm">{order.address}</p> : null}
+                {order.fulfillment === "pickup" ? (
+                  <p className="mt-1 text-sm font-medium text-accent">Restorandan teslim</p>
+                ) : order.address ? (
+                  <p className="mt-1 text-sm">{order.address}</p>
+                ) : null}
                 {order.note ? <p className="mt-1 text-sm text-muted">Not: {order.note}</p> : null}
               </div>
               <p className="text-lg font-medium text-accent tabular-nums">{formatCartMoney(order.total)}</p>
@@ -169,13 +206,25 @@ export function OrdersBoard({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <button aria-label="Kapat" className="absolute inset-0 bg-black/50" onClick={dismissModal} type="button" />
           <div className="relative z-10 w-full max-w-md rounded-3xl border border-line bg-card p-5 shadow-lg" role="dialog">
-            <h2 className="font-serif text-2xl">Yeni sipariş</h2>
+            <h2 className="font-serif text-2xl">
+              Yeni sipariş
+              {printOrder.fulfillment === "pickup" ? (
+                <span className="ml-2 inline-flex rounded-full bg-accent px-2.5 py-1 align-middle text-sm font-sans font-medium text-white">
+                  GEL AL
+                </span>
+              ) : null}
+            </h2>
             <p className="mt-2 text-sm text-muted">
-              {orderCustomerName(printOrder)} · {paymentLabel(printOrder.paymentMethod, printOrder.mealCardBrand)} ·{" "}
+              {orderCustomerName(printOrder)} · {fulfillmentLabel(printOrder.fulfillment)} ·{" "}
+              {paymentLabel(printOrder.paymentMethod, printOrder.mealCardBrand)} ·{" "}
               <span className="tabular-nums text-accent">{formatCartMoney(printOrder.total)}</span>
             </p>
             {printOrder.phone ? <p className="mt-1 text-sm tabular-nums">{printOrder.phone}</p> : null}
-            {printOrder.address ? <p className="mt-1 text-sm">{printOrder.address}</p> : null}
+            {printOrder.fulfillment === "pickup" ? (
+              <p className="mt-1 text-sm font-medium text-accent">Restorandan teslim</p>
+            ) : printOrder.address ? (
+              <p className="mt-1 text-sm">{printOrder.address}</p>
+            ) : null}
             <ul className="mt-3 grid gap-1 text-sm">
               {printOrder.items.map((item, index) => (
                 <li key={`${printOrder.id}-modal-${index}`}>

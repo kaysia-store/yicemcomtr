@@ -12,6 +12,7 @@ export type CartLine = {
 };
 
 export type PaymentMethod = "cash" | "card" | "meal_card";
+export type FulfillmentMethod = "delivery" | "pickup";
 
 export const MEAL_CARD_BRANDS = [
   { id: "multinet", label: "Multinet" },
@@ -30,6 +31,7 @@ export type CartState = {
   phone: string;
   paymentMethod: PaymentMethod;
   mealCardBrand: MealCardBrandId | "";
+  fulfillment: FulfillmentMethod;
   address: string;
   note: string;
 };
@@ -41,11 +43,12 @@ export const emptyCart: CartState = {
   phone: "",
   paymentMethod: "cash",
   mealCardBrand: "",
+  fulfillment: "delivery",
   address: "",
   note: "",
 };
 
-const storageKey = "yicem-cart-v4";
+const storageKey = "yicem-cart-v5";
 const profileKey = "yicem-checkout-profile-v1";
 
 export type CheckoutProfile = {
@@ -55,6 +58,14 @@ export type CheckoutProfile = {
   phone: string;
   address: string;
 };
+
+export function isFulfillmentMethod(value: unknown): value is FulfillmentMethod {
+  return value === "delivery" || value === "pickup";
+}
+
+export function fulfillmentLabel(method: FulfillmentMethod) {
+  return method === "pickup" ? "Gel al" : "Teslimat";
+}
 
 export function readCheckoutProfile(): CheckoutProfile | null {
   try {
@@ -173,11 +184,12 @@ export function setCartQuantity(cart: CartState, key: string, quantity: number):
 
 export function readCart(): CartState {
   try {
-    const raw = localStorage.getItem(storageKey);
+    const raw = localStorage.getItem(storageKey) ?? localStorage.getItem("yicem-cart-v4");
     const parsed = raw ? (JSON.parse(raw) as Partial<CartState>) : {};
     const payment: PaymentMethod =
       parsed.paymentMethod === "card" || parsed.paymentMethod === "meal_card" ? parsed.paymentMethod : "cash";
     const mealCardBrand = isMealCardBrandId(parsed.mealCardBrand) ? parsed.mealCardBrand : "";
+    const fulfillment = isFulfillmentMethod(parsed.fulfillment) ? parsed.fulfillment : "delivery";
     const profile = readCheckoutProfile();
     return {
       lines: Array.isArray(parsed.lines) ? parsed.lines.filter(isCartLine) : [],
@@ -186,6 +198,7 @@ export function readCart(): CartState {
       phone: profile?.phone ?? "",
       paymentMethod: payment,
       mealCardBrand: payment === "meal_card" ? mealCardBrand : "",
+      fulfillment,
       address: profile?.address ?? "",
       note: typeof parsed.note === "string" ? parsed.note : "",
     };
@@ -203,6 +216,7 @@ export function writeCart(cart: CartState) {
         lines: cart.lines,
         paymentMethod: cart.paymentMethod,
         mealCardBrand: cart.mealCardBrand,
+        fulfillment: cart.fulfillment,
         note: cart.note,
       }),
     );
@@ -242,6 +256,10 @@ export function paymentLabel(method: PaymentMethod, mealCardBrand?: string | nul
   return "Nakit";
 }
 
+export function whatsappFulfillmentLine(cart: CartState) {
+  return cart.fulfillment === "pickup" ? "Teslim: Gel al" : "Teslim: Adrese";
+}
+
 export function normalizePhone(value: string) {
   return value.replace(/[^\d+]/g, "").trim();
 }
@@ -258,7 +276,8 @@ export function whatsappOrderUrl(cart: CartState, restaurantName: string) {
   if (name) lines.push(`İsim: ${name}`);
   if (cart.phone.trim()) lines.push(`Tel: ${cart.phone.trim()}`);
   lines.push(`Ödeme: ${paymentLabel(cart.paymentMethod, cart.mealCardBrand)}`);
-  if (cart.address.trim()) lines.push(`Adres: ${cart.address.trim()}`);
+  lines.push(whatsappFulfillmentLine(cart));
+  if (cart.fulfillment === "delivery" && cart.address.trim()) lines.push(`Adres: ${cart.address.trim()}`);
   lines.push("");
   for (const line of cart.lines) {
     lines.push(`• ${line.quantity}× ${line.name} — ${formatCartMoney(line.unitPrice * line.quantity)}`);

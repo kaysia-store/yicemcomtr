@@ -58,7 +58,12 @@
     "deliveryAddressPlaceholder": "Straße, Hausnummer, Wohnung…",
     "placeOrder": "Bestellen",
     "sendingOrder": "Wird gesendet…",
+    "placePickupOrder": "Abholung bestellen",
     "order": "Bestellung",
-    "rememberOnDevice": "Meine Angaben auf diesem Gerät merken (Name, Telefon, Adresse)"
+    "rememberOnDevice": "Meine Angaben auf diesem Gerät merken (Name, Telefon, Adresse)",
+    "fulfillment": "Lieferart",
+    "fulfillmentDelivery": "Lieferung",
+    "fulfillmentPickup": "Abholung",
+    "fulfillmentPickupHint": "Abholung im Restaurant, wenn fertig. Keine Adresse nötig."
   }
 }

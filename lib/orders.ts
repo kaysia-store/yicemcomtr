@@ -1,4 +1,5 @@
-import type { CartLine, PaymentMethod } from "@/lib/cart";
+import type { CartLine, FulfillmentMethod, PaymentMethod } from "@/lib/cart";
+import { fulfillmentLabel } from "@/lib/cart";
 
 export type OrderStatus = "new" | "accepted" | "printed" | "cancelled";
 
@@ -20,6 +21,7 @@ export type OrderRow = {
   phone: string;
   paymentMethod: PaymentMethod;
   mealCardBrand: string;
+  fulfillment: FulfillmentMethod;
   address: string;
   note: string;
   items: OrderItem[];
@@ -92,4 +94,4 @@ export function statusLabel(status: OrderStatus) {
   return "Yeni";
 }
 
-export { paymentLabel } from "@/lib/cart";
+export { fulfillmentLabel, paymentLabel } from "@/lib/cart";

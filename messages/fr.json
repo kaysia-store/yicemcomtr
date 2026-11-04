@@ -58,7 +58,12 @@
     "deliveryAddressPlaceholder": "Rue, immeuble, appartement…",
     "placeOrder": "Commander",
     "sendingOrder": "Envoi…",
+    "placePickupOrder": "Commander à emporter",
     "order": "Commande",
-    "rememberOnDevice": "Mémoriser mes infos sur cet appareil (nom, téléphone, adresse)"
+    "rememberOnDevice": "Mémoriser mes infos sur cet appareil (nom, téléphone, adresse)",
+    "fulfillment": "Mode de remise",
+    "fulfillmentDelivery": "Livraison",
+    "fulfillmentPickup": "À emporter",
+    "fulfillmentPickupHint": "Retrait au restaurant quand c’est prêt. Pas d’adresse."
   }
 }

@@ -57,8 +57,13 @@
     "deliveryAddress": "Full address",
     "deliveryAddressPlaceholder": "Street, building, apartment…",
     "placeOrder": "Place order",
+    "placePickupOrder": "Place pickup order",
     "sendingOrder": "Sending…",
     "order": "Order",
-    "rememberOnDevice": "Remember my details on this device (name, phone, address)"
+    "rememberOnDevice": "Remember my details on this device (name, phone, address)",
+    "fulfillment": "Fulfillment",
+    "fulfillmentDelivery": "Delivery",
+    "fulfillmentPickup": "Pickup",
+    "fulfillmentPickupHint": "Pick up at the restaurant when ready. No address needed."
   }
 }
