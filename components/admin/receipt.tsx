@@ -69,7 +69,12 @@ export function Receipt({
               </div>
               {item.optionNames.length > 0 ? <p className="text-[10px]">+ {item.optionNames.join(", ")}</p> : null}
               {item.removedIngredients.length > 0 ? (
-                <p className="text-[10px]">- {item.removedIngredients.join(", ")}</p>
+                <div className="text-[10px]">
+                  <p>Çıkarılacaklar:</p>
+                  {item.removedIngredients.map((name) => (
+                    <p key={name}>- {name}</p>
+                  ))}
+                </div>
               ) : null}
             </li>
           ))}

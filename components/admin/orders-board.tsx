@@ -219,24 +219,40 @@ export function OrdersBoard({
   }, [liveOrders, settings.soundEnabled, printOrder, isToday]);
 
   function openPrint(order: OrderRow) {
-    if (order.status === "new") startAlert();
     setPrintOrder(order);
+    if (order.status === "new") startAlert();
   }
 
-  function confirmPrint() {
+  function markAccepted(id: string) {
+    setLiveOrders((current) =>
+      current.map((order) => (order.id === id ? { ...order, status: "accepted" as const } : order)),
+    );
+  }
+
+  function acceptOrder(andPrint: boolean) {
     if (!printOrder) return;
     const id = printOrder.id;
     const wasNew = printOrder.status === "new";
+    promptedRef.current.add(id);
     stopAlert();
     setPrintOrder(null);
-    if (wasNew) {
-      setLiveOrders((current) =>
-        current.map((order) => (order.id === id ? { ...order, status: "accepted" as const } : order)),
-      );
-    }
+    if (wasNew) markAccepted(id);
     startTransition(async () => {
       if (wasNew) await setOrderStatus(id, "accepted");
-      window.open(`/admin/orders/${id}/print`, "_blank", "noopener,noreferrer");
+      if (andPrint) window.open(`/admin/orders/${id}/print`, "_blank", "noopener,noreferrer");
+    });
+  }
+
+  function acceptFromList(order: OrderRow, andPrint: boolean) {
+    promptedRef.current.add(order.id);
+    if (printOrder?.id === order.id) {
+      stopAlert();
+      setPrintOrder(null);
+    }
+    if (order.status === "new") markAccepted(order.id);
+    startTransition(async () => {
+      if (order.status === "new") await setOrderStatus(order.id, "accepted");
+      if (andPrint) window.open(`/admin/orders/${order.id}/print`, "_blank", "noopener,noreferrer");
     });
   }
 
@@ -291,15 +307,29 @@ export function OrdersBoard({
                   <li key={`${order.id}-${index}`}>
                     {item.quantity}× {item.name}
                     {item.optionNames.length ? ` (${item.optionNames.join(", ")})` : ""}
-                    {item.removedIngredients.length ? ` − ${item.removedIngredients.join(", ")}` : ""}
+                    {item.removedIngredients.length > 0 ? (
+                      <span className="mt-0.5 block text-xs text-muted">
+                        Çıkarılacaklar:
+                        {item.removedIngredients.map((name) => (
+                          <span className="block" key={name}>
+                            - {name}
+                          </span>
+                        ))}
+                      </span>
+                    ) : null}
                   </li>
                 ))}
               </ul>
               <div className="mt-4 flex flex-wrap gap-2">
                 {order.status === "new" ? (
-                  <button className="btn btn-primary" disabled={pending} onClick={() => openPrint(order)} type="button">
-                    Onayla ve yazdır
-                  </button>
+                  <>
+                    <button className="btn btn-primary" disabled={pending} onClick={() => acceptFromList(order, false)} type="button">
+                      Onayla
+                    </button>
+                    <button className="btn btn-secondary" disabled={pending} onClick={() => acceptFromList(order, true)} type="button">
+                      Onayla ve yazdır
+                    </button>
+                  </>
                 ) : (
                   <button className="btn btn-secondary" disabled={pending} onClick={() => openPrint(order)} type="button">
                     Fiş yazdır
@@ -316,10 +346,18 @@ export function OrdersBoard({
 
       {printOrder ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <button aria-label="Kapat" className="absolute inset-0 bg-black/50" onClick={dismissModal} type="button" />
+          <button
+            aria-label="Kapat"
+            className="absolute inset-0 bg-black/50"
+            onClick={() => {
+              if (printOrder.status === "new") acceptOrder(false);
+              else dismissModal();
+            }}
+            type="button"
+          />
           <div className="relative z-10 w-full max-w-md rounded-3xl border border-line bg-card p-5 shadow-lg" role="dialog">
             <h2 className="font-serif text-2xl">
-              Yeni sipariş
+              {printOrder.status === "new" ? "Yeni sipariş — onayla" : "Sipariş"}
               {printOrder.fulfillment === "pickup" ? (
                 <span className="ml-2 inline-flex rounded-full bg-accent px-2.5 py-1 align-middle text-sm font-sans font-medium text-white">
                   GEL AL
@@ -341,18 +379,35 @@ export function OrdersBoard({
               {printOrder.items.map((item, index) => (
                 <li key={`${printOrder.id}-modal-${index}`}>
                   {item.quantity}× {item.name}
+                  {item.removedIngredients.length > 0 ? (
+                    <span className="mt-0.5 block text-xs text-muted">
+                      Çıkarılacaklar:
+                      {item.removedIngredients.map((name) => (
+                        <span className="block" key={name}>
+                          - {name}
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
                 </li>
               ))}
             </ul>
             <p className="mt-4 text-xs text-muted">
-              Yazdırınca fiş yazıcıya gider. Kopya sayısı yazıcı / tarayıcı yazdır penceresinden seçilir.
+              Onaylayınca ses ve bildirim kapanır. Yazdırma isteğe bağlıdır.
             </p>
-            <div className="mt-5 flex gap-2">
-              <button className="btn btn-primary flex-1" disabled={pending} onClick={confirmPrint} type="button">
-                Yazdır
-              </button>
-              <button className="btn btn-secondary flex-1" onClick={dismissModal} type="button">
-                Sonra
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+              {printOrder.status === "new" ? (
+                <button className="btn btn-primary flex-1" disabled={pending} onClick={() => acceptOrder(false)} type="button">
+                  Onayla
+                </button>
+              ) : null}
+              <button
+                className={`btn flex-1 ${printOrder.status === "new" ? "btn-secondary" : "btn-primary"}`}
+                disabled={pending}
+                onClick={() => acceptOrder(true)}
+                type="button"
+              >
+                {printOrder.status === "new" ? "Onayla ve yazdır" : "Yazdır"}
               </button>
             </div>
           </div>
