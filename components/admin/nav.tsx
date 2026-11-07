@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useOrdersLive } from "@/components/admin/orders-live-context";
 
 const menuPaths = ["/admin/products", "/admin/categories", "/admin/prices", "/admin/photos"];
 
@@ -33,8 +34,9 @@ const items = [
   },
 ];
 
-export function AdminNav({ newOrders = 0 }: { newOrders?: number }) {
+export function AdminNav() {
   const pathname = usePathname();
+  const { newCount, live } = useOrdersLive();
 
   return (
     <nav className="no-scrollbar flex gap-1 overflow-x-auto px-3 pb-3 md:grid md:gap-1 md:overflow-visible">
@@ -53,10 +55,17 @@ export function AdminNav({ newOrders = 0 }: { newOrders?: number }) {
           >
             <span className="inline-flex items-center gap-2">
               {item.label}
-              {item.href === "/admin/orders" && newOrders > 0 ? (
-                <span className={active ? "rounded-full bg-white/20 px-1.5 text-[11px]" : "rounded-full bg-accent px-1.5 text-[11px] text-white"}>
-                  {newOrders}
+              {item.href === "/admin/orders" && newCount > 0 ? (
+                <span
+                  className={
+                    active ? "rounded-full bg-white/20 px-1.5 text-[11px]" : "rounded-full bg-accent px-1.5 text-[11px] text-white"
+                  }
+                >
+                  {newCount}
                 </span>
+              ) : null}
+              {item.href === "/admin/orders" && live ? (
+                <span aria-hidden className="size-1.5 rounded-full bg-emerald-500" title="Canlı" />
               ) : null}
             </span>
           </Link>

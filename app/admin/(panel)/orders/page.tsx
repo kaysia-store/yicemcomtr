@@ -3,7 +3,6 @@ import { connection } from "next/server";
 import { OrdersBoard } from "@/components/admin/orders-board";
 import { OrdersDateNav } from "@/components/admin/orders-date-nav";
 import { LoadError } from "@/components/load-error";
-import { LoadingState } from "@/components/loading-state";
 import { PageHeader } from "@/components/page-header";
 import { countNewOrdersBeforeDay, listOrders, loadOrderSettings } from "@/lib/admin-orders";
 import { parseDayParam } from "@/lib/order-day";
@@ -13,7 +12,7 @@ export const metadata = { title: "Siparişler" };
 
 export default function OrdersPage({ searchParams }: { searchParams: Promise<{ date?: string }> }) {
   return (
-    <Suspense fallback={<LoadingState />}>
+    <Suspense fallback={null}>
       <OrdersContent searchParams={searchParams} />
     </Suspense>
   );
