@@ -36,7 +36,7 @@ const items = [
 
 export function AdminNav() {
   const pathname = usePathname();
-  const { newCount, live } = useOrdersLive();
+  const { newCount } = useOrdersLive();
 
   return (
     <nav className="no-scrollbar flex gap-1 overflow-x-auto px-3 pb-3 md:grid md:gap-1 md:overflow-visible">
@@ -63,9 +63,6 @@ export function AdminNav() {
                 >
                   {newCount}
                 </span>
-              ) : null}
-              {item.href === "/admin/orders" && live ? (
-                <span aria-hidden className="size-1.5 rounded-full bg-emerald-500" title="Canlı" />
               ) : null}
             </span>
           </Link>
