@@ -122,8 +122,14 @@ export function OrdersBoard({
   }
 
   function dismissModal() {
+    // Onaylamadan kapat: ses kesilir, sipariş Yeni kalır → listedeki Onayla durur
+    if (printOrder) promptedRef.current.add(printOrder.id);
     stopAlert();
     setPrintOrder(null);
+  }
+
+  function syncBadgeFrom(list: OrderRow[]) {
+    setNewCount(list.filter((order) => order.status === "new").length);
   }
 
   async function softFetchDay() {
@@ -224,9 +230,11 @@ export function OrdersBoard({
   }
 
   function markAccepted(id: string) {
-    setLiveOrders((current) =>
-      current.map((order) => (order.id === id ? { ...order, status: "accepted" as const } : order)),
-    );
+    setLiveOrders((current) => {
+      const next = current.map((order) => (order.id === id ? { ...order, status: "accepted" as const } : order));
+      syncBadgeFrom(next);
+      return next;
+    });
   }
 
   function acceptOrder(andPrint: boolean) {
@@ -237,6 +245,7 @@ export function OrdersBoard({
     stopAlert();
     setPrintOrder(null);
     if (wasNew) markAccepted(id);
+    else syncBadgeFrom(liveOrders);
     startTransition(async () => {
       if (wasNew) await setOrderStatus(id, "accepted");
       if (andPrint) window.open(`/admin/orders/${id}/print`, "_blank", "noopener,noreferrer");
@@ -346,15 +355,7 @@ export function OrdersBoard({
 
       {printOrder ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <button
-            aria-label="Kapat"
-            className="absolute inset-0 bg-black/50"
-            onClick={() => {
-              if (printOrder.status === "new") acceptOrder(false);
-              else dismissModal();
-            }}
-            type="button"
-          />
+          <button aria-label="Kapat" className="absolute inset-0 bg-black/50" onClick={dismissModal} type="button" />
           <div className="relative z-10 w-full max-w-md rounded-3xl border border-line bg-card p-5 shadow-lg" role="dialog">
             <h2 className="font-serif text-2xl">
               {printOrder.status === "new" ? "Yeni sipariş — onayla" : "Sipariş"}
@@ -393,21 +394,25 @@ export function OrdersBoard({
               ))}
             </ul>
             <p className="mt-4 text-xs text-muted">
-              Onaylayınca ses ve bildirim kapanır. Yazdırma isteğe bağlıdır.
+              Onaylayınca ses ve yuvarlak rozet kalkar. Modalı kapatırsan sipariş Yeni kalır; listeden Onayla ile devam edebilirsin.
             </p>
-            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+            <div className="mt-5 flex flex-col gap-2">
               {printOrder.status === "new" ? (
-                <button className="btn btn-primary flex-1" disabled={pending} onClick={() => acceptOrder(false)} type="button">
-                  Onayla
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <button className="btn btn-primary flex-1" disabled={pending} onClick={() => acceptOrder(false)} type="button">
+                    Onayla
+                  </button>
+                  <button className="btn btn-secondary flex-1" disabled={pending} onClick={() => acceptOrder(true)} type="button">
+                    Onayla ve yazdır
+                  </button>
+                </div>
+              ) : (
+                <button className="btn btn-primary w-full" disabled={pending} onClick={() => acceptOrder(true)} type="button">
+                  Yazdır
                 </button>
-              ) : null}
-              <button
-                className={`btn flex-1 ${printOrder.status === "new" ? "btn-secondary" : "btn-primary"}`}
-                disabled={pending}
-                onClick={() => acceptOrder(true)}
-                type="button"
-              >
-                {printOrder.status === "new" ? "Onayla ve yazdır" : "Yazdır"}
+              )}
+              <button className="btn btn-secondary w-full" onClick={dismissModal} type="button">
+                Kapat (sonra onayla)
               </button>
             </div>
           </div>
