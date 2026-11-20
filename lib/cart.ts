@@ -136,30 +136,19 @@ export function buildCartLine(
   removedIngredients: string[],
   quantity = 1,
 ): CartLine {
-  const gated = new Set(
-    product.features.flatMap((feature) =>
-      feature.options.flatMap((option) => (option.unlocksFeatureId ? [option.unlocksFeatureId] : [])),
-    ),
-  );
-  const picked = product.features.flatMap((feature) =>
-    feature.options
-      .filter((option) => optionIds.includes(option.id))
-      .map((option) => ({ feature, option })),
-  );
-  const unitPrice = product.price + picked.reduce((sum, item) => sum + item.option.priceDelta, 0);
+  const options = product.features.flatMap((feature) => feature.options.filter((option) => optionIds.includes(option.id)));
+  const unitPrice = product.price + options.reduce((sum, option) => sum + option.priceDelta, 0);
   return {
     key: cartLineKey(
       product.id,
-      picked.map((item) => item.option.id),
+      options.map((option) => option.id),
       removedIngredients,
     ),
     productId: product.id,
     name: product.name,
     unitPrice,
     quantity,
-    optionNames: picked.map(({ feature, option }) =>
-      gated.has(feature.id) ? `${feature.name}: ${option.name}` : option.name,
-    ),
+    optionNames: options.map((option) => option.name),
     removedIngredients,
   };
 }
