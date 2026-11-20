@@ -21,6 +21,8 @@ export type MenuOption = {
   name: string;
   priceDelta: number;
   isDefault: boolean;
+  /** Bu seçenek seçilince açılan alt özellik (ör. içecek) */
+  unlocksFeatureId: string | null;
 };
 
 export type MenuFeature = {
@@ -55,6 +57,7 @@ export type ProductChoice = {
   name: string;
   priceDelta: number;
   isDefault: boolean;
+  unlocksFeatureId: string | null;
 };
 
 export type MenuCategory = {

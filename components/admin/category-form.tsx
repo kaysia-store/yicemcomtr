@@ -60,7 +60,8 @@ export function CategoryForm({
         <div>
           <h2 className="font-medium">Ürün özellikleri</h2>
           <p className="mt-1 text-sm leading-6 text-muted">
-            Burada yalnızca soru tanımlanır. Ekmek tek seçim, içindekiler çoklu seçim olabilir. Seçenek adları ve ek
+            Burada yalnızca soru tanımlanır. Alt seçim için ayrı özellik ekleyin (ör. İçecek); üründe üst seçeneğe
+            “Şunu açar” ile bağlanır. Ekmek tek seçim, içindekiler çoklu seçim olabilir. Seçenek adları ve ek
             ücretler her ürünün kendi sayfasında yazılır. Özelliği silmek, ürünlerdeki seçeneklerini de siler.
           </p>
         </div>

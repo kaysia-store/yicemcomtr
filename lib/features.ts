@@ -15,6 +15,7 @@ export type OptionDraft = {
   name: string;
   priceDelta: number;
   isDefault: boolean;
+  unlocksFeatureId: string | null;
 };
 
 export function readFeatureDrafts(raw: string): { ok: true; features: FeatureDraft[] } | { ok: false; message: string } {
@@ -83,7 +84,18 @@ export function readOptionDrafts(
     let isDefault = row.isDefault === true;
     if (isDefault && feature.selection === "single" && seenDefault.has(featureId)) isDefault = false;
     if (isDefault) seenDefault.add(featureId);
-    options.push({ id, featureId, name, priceDelta: price.price, isDefault });
+    const unlocksRaw = typeof row.unlocksFeatureId === "string" ? row.unlocksFeatureId.trim() : "";
+    let unlocksFeatureId: string | null = null;
+    if (unlocksRaw) {
+      if (!uuidPattern.test(unlocksRaw) || !allowed.has(unlocksRaw)) {
+        return { ok: false, message: "Açılan alt özellik geçersiz." };
+      }
+      if (unlocksRaw === featureId) {
+        return { ok: false, message: "Seçenek kendi özelliğini açamaz." };
+      }
+      unlocksFeatureId = unlocksRaw;
+    }
+    options.push({ id, featureId, name, priceDelta: price.price, isDefault, unlocksFeatureId });
   }
 
   const byFeature = new Map<string, OptionDraft[]>();

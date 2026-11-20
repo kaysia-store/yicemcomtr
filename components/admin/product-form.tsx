@@ -13,6 +13,7 @@ type OptionRow = {
   name: string;
   price: string;
   isDefault: boolean;
+  unlocksFeatureId: string;
 };
 
 type ProductFormValues = {
@@ -51,6 +52,7 @@ export function ProductForm({
         name: option.name,
         price: String(option.priceDelta),
         isDefault: option.isDefault,
+        unlocksFeatureId: option.unlocksFeatureId ?? "",
       });
       initial[option.featureId] = list;
     }
@@ -70,6 +72,7 @@ export function ProductForm({
         name: row.name,
         priceDelta: row.price,
         isDefault: row.isDefault,
+        unlocksFeatureId: row.unlocksFeatureId || null,
       })),
     ),
   );
@@ -147,7 +150,7 @@ export function ProductForm({
           <h2 className="font-medium">Seçenekler</h2>
           <p className="mt-1 text-sm leading-6 text-muted">
             Ek ücret taban fiyata eklenir. 0 TL, seçeneğin fiyata dahil olduğu anlamına gelir. Sorular kategori
-            sayfasından gelir.
+            sayfasından gelir. Bir seçenek başka bir özelliği açabilir (ör. Cips+içecek → İçecek).
           </p>
         </div>
         {features.length === 0 ? (
@@ -179,6 +182,24 @@ export function ProductForm({
                       value={row.price}
                     />
                   </label>
+                  <label className="grid gap-1.5 text-sm font-medium">
+                    Şunu açar
+                    <select
+                      className="field"
+                      onChange={(event) => updateRow(feature.id, row.key, { unlocksFeatureId: event.target.value })}
+                      value={row.unlocksFeatureId}
+                    >
+                      <option value="">— Yok —</option>
+                      {features
+                        .filter((item) => item.id !== feature.id)
+                        .map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.name}
+                            {item.required ? " (zorunlu)" : ""}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <label className="flex items-center gap-2 text-sm">
                       <input checked={row.isDefault} onChange={() => toggleDefault(feature, row.key)} type="checkbox" />
@@ -207,7 +228,14 @@ export function ProductForm({
                       ...current,
                       [feature.id]: [
                         ...(current[feature.id] ?? []),
-                        { key: crypto.randomUUID(), id: "", name: "", price: "0", isDefault: false },
+                        {
+                          key: crypto.randomUUID(),
+                          id: "",
+                          name: "",
+                          price: "0",
+                          isDefault: false,
+                          unlocksFeatureId: "",
+                        },
                       ],
                     }))
                   }

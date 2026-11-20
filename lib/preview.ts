@@ -23,7 +23,15 @@ export type PreviewDb = {
   productAllergens: { productId: string; code: string }[];
   features: { id: string; categoryId: string; selection: "single" | "multiple"; isRequired: boolean; sortOrder: number }[];
   featureTranslations: { featureId: string; locale: string; name: string }[];
-  options: { id: string; productId: string; featureId: string; priceDelta: number; isDefault: boolean; sortOrder: number }[];
+  options: {
+    id: string;
+    productId: string;
+    featureId: string;
+    priceDelta: number;
+    isDefault: boolean;
+    sortOrder: number;
+    unlocksFeatureId: string | null;
+  }[];
   optionTranslations: { optionId: string; locale: string; name: string }[];
 };
 
@@ -111,14 +119,30 @@ function seed(): PreviewDb {
     breads.forEach((bread, sortOrder) => {
       const id = nid("d", optionNo);
       optionNo += 1;
-      options.push({ id, productId, featureId: breadId, priceDelta: bread.priceDelta, isDefault: bread.isDefault, sortOrder });
+      options.push({
+        id,
+        productId,
+        featureId: breadId,
+        priceDelta: bread.priceDelta,
+        isDefault: bread.isDefault,
+        sortOrder,
+        unlocksFeatureId: null,
+      });
       menuLanguages.forEach((language) => {
         optionTranslations.push({ optionId: id, locale: language.code, name: bread.name[language.code] });
       });
     });
     const id = nid("d", optionNo);
     optionNo += 1;
-    options.push({ id, productId, featureId: menuId, priceDelta: 100, isDefault: false, sortOrder: 0 });
+    options.push({
+      id,
+      productId,
+      featureId: menuId,
+      priceDelta: 100,
+      isDefault: false,
+      sortOrder: 0,
+      unlocksFeatureId: null,
+    });
     menuLanguages.forEach((language) => {
       optionTranslations.push({ optionId: id, locale: language.code, name: menuChoice[language.code] });
     });
@@ -177,7 +201,9 @@ function ensureFeatures(db: PreviewDb) {
 
 export function readPreview(): PreviewDb {
   try {
-    const db = ensureMenuLocales(ensureFeatures(JSON.parse(readFileSync(filePath, "utf8")) as PreviewDb));
+    const db = ensureMenuLocales(
+      ensureOptionUnlocks(ensureFeatures(JSON.parse(readFileSync(filePath, "utf8")) as PreviewDb)),
+    );
     if (typeof db.settings.showTitle !== "boolean") db.settings.showTitle = false;
     return db;
   } catch {
@@ -185,6 +211,18 @@ export function readPreview(): PreviewDb {
     writePreview(initial);
     return initial;
   }
+}
+
+function ensureOptionUnlocks(db: PreviewDb) {
+  let changed = false;
+  for (const option of db.options) {
+    if (option.unlocksFeatureId === undefined) {
+      option.unlocksFeatureId = null;
+      changed = true;
+    }
+  }
+  if (changed) writePreview(db);
+  return db;
 }
 
 function ensureMenuLocales(db: PreviewDb) {
@@ -256,6 +294,7 @@ function menuFeatures(db: PreviewDb, productId: string, categoryId: string, loca
             name: optionName,
             priceDelta: option.priceDelta,
             isDefault: option.isDefault,
+            unlocksFeatureId: option.unlocksFeatureId ?? null,
           };
         })
         .filter((option): option is NonNullable<typeof option> => option !== null);
@@ -531,6 +570,7 @@ export function previewProductEditor(id: string) {
           ) ?? "",
           priceDelta: option.priceDelta,
           isDefault: option.isDefault,
+          unlocksFeatureId: option.unlocksFeatureId ?? null,
         })),
     },
   };
@@ -663,7 +703,14 @@ function syncPreviewOptions(
   db: PreviewDb,
   productId: string,
   categoryId: string,
-  drafts: { id: string; featureId: string; name: string; priceDelta: number; isDefault: boolean }[],
+  drafts: {
+    id: string;
+    featureId: string;
+    name: string;
+    priceDelta: number;
+    isDefault: boolean;
+    unlocksFeatureId: string | null;
+  }[],
 ) {
   const locale = db.settings.defaultLocale;
   const allowed = new Set(db.features.filter((feature) => feature.categoryId === categoryId).map((feature) => feature.id));
@@ -676,11 +723,16 @@ function syncPreviewOptions(
     const sortOrder = sortByFeature.get(draft.featureId) ?? 0;
     sortByFeature.set(draft.featureId, sortOrder + 1);
     kept.add(id);
+    const unlocksFeatureId =
+      draft.unlocksFeatureId && allowed.has(draft.unlocksFeatureId) && draft.unlocksFeatureId !== draft.featureId
+        ? draft.unlocksFeatureId
+        : null;
     if (existing) {
       existing.featureId = draft.featureId;
       existing.priceDelta = draft.priceDelta;
       existing.isDefault = draft.isDefault;
       existing.sortOrder = sortOrder;
+      existing.unlocksFeatureId = unlocksFeatureId;
     } else {
       db.options.push({
         id,
@@ -689,6 +741,7 @@ function syncPreviewOptions(
         priceDelta: draft.priceDelta,
         isDefault: draft.isDefault,
         sortOrder,
+        unlocksFeatureId,
       });
     }
     const text = db.optionTranslations.find((item) => item.optionId === id && item.locale === locale);

@@ -15,8 +15,16 @@ import {
   type CartState,
 } from "@/lib/cart";
 import { formatPrice, menuImageFit } from "@/lib/format";
+import {
+  gatedFeatureIds,
+  isFeatureVisible,
+  pruneLockedSelections,
+  requiredFeaturesReady,
+  unlockedFeatureIds,
+  visibleFeatures,
+} from "@/lib/option-unlock";
 import { place } from "@/lib/place";
-import type { MenuCategory, MenuPayload, MenuProduct } from "@/lib/types";
+import type { MenuCategory, MenuFeature, MenuPayload, MenuProduct } from "@/lib/types";
 import { CartSheet } from "@/components/menu/cart-sheet";
 import { PwaInstallButton } from "@/components/menu/pwa-install-button";
 
@@ -661,18 +669,48 @@ function startingPrice(product: MenuProduct) {
   return product.price + selectedExtra(product, defaultSelection(product));
 }
 
+function applyFeatureDefaults(feature: MenuFeature, selected: Set<string>) {
+  const defaults = feature.options.filter((option) => option.isDefault);
+  if (feature.selection === "single") {
+    const choice = defaults[0] ?? (feature.required ? feature.options[0] : undefined);
+    if (choice) selected.add(choice.id);
+    return;
+  }
+  defaults.forEach((option) => selected.add(option.id));
+}
+
 function defaultSelection(product: MenuProduct) {
   const selected = new Set<string>();
+  const gated = gatedFeatureIds(product);
   for (const feature of product.features) {
-    const defaults = feature.options.filter((option) => option.isDefault);
-    if (feature.selection === "single") {
-      const choice = defaults[0] ?? (feature.required ? feature.options[0] : undefined);
-      if (choice) selected.add(choice.id);
-    } else {
-      defaults.forEach((option) => selected.add(option.id));
+    if (gated.has(feature.id)) continue;
+    applyFeatureDefaults(feature, selected);
+  }
+  let changed = true;
+  while (changed) {
+    changed = false;
+    const unlocked = unlockedFeatureIds(product, selected);
+    for (const feature of product.features) {
+      if (!gated.has(feature.id) || !unlocked.has(feature.id)) continue;
+      if (feature.options.some((option) => selected.has(option.id))) continue;
+      const before = selected.size;
+      applyFeatureDefaults(feature, selected);
+      if (selected.size > before) changed = true;
     }
   }
   return selected;
+}
+
+function ensureUnlockedDefaults(product: MenuProduct, selected: Set<string>) {
+  const next = new Set(selected);
+  const gated = gatedFeatureIds(product);
+  const unlocked = unlockedFeatureIds(product, next);
+  for (const feature of product.features) {
+    if (!isFeatureVisible(feature.id, gated, unlocked)) continue;
+    if (feature.options.some((option) => next.has(option.id))) continue;
+    applyFeatureDefaults(feature, next);
+  }
+  return next;
 }
 
 function selectedExtra(product: MenuProduct, selected: Set<string>) {
@@ -700,6 +738,8 @@ function ProductSheet({
   const [removed, setRemoved] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(1);
   const ingredients = useMemo(() => parseIngredients(product.ingredients), [product.ingredients]);
+  const shownFeatures = useMemo(() => visibleFeatures(product, selected), [product, selected]);
+  const canAdd = requiredFeaturesReady(shownFeatures, selected);
   const total = (product.price + selectedExtra(product, selected)) * quantity;
 
   function choose(featureId: string, optionId: string, selection: "single" | "multiple") {
@@ -711,15 +751,13 @@ function ProductSheet({
         const already = next.has(optionId) && feature.options.filter((option) => next.has(option.id)).length === 1;
         for (const option of feature.options) next.delete(option.id);
         if (!(already && !feature.required)) next.add(optionId);
-        return next;
-      }
-      if (next.has(optionId)) {
+      } else if (next.has(optionId)) {
         if (feature.required && feature.options.filter((option) => next.has(option.id)).length === 1) return current;
         next.delete(optionId);
       } else {
         next.add(optionId);
       }
-      return next;
+      return ensureUnlockedDefaults(product, pruneLockedSelections(product, next));
     });
   }
 
@@ -756,7 +794,7 @@ function ProductSheet({
           </div>
           <p className="mt-2 text-lg font-medium text-accent tabular-nums">{formatPrice(total)}</p>
           {product.description ? <p className="mt-4 leading-7 text-ink">{product.description}</p> : null}
-          {product.features.map((feature) => (
+          {shownFeatures.map((feature) => (
             <fieldset className="mt-5" key={feature.id}>
               <legend className="text-sm font-medium tracking-wide text-accent uppercase">
                 {feature.name}
@@ -848,7 +886,11 @@ function ProductSheet({
             </div>
             <button
               className="btn btn-primary min-w-0 flex-1"
-              onClick={() => onAdd(product, [...selected], removed, quantity)}
+              disabled={!canAdd}
+              onClick={() => {
+                if (!canAdd) return;
+                onAdd(product, [...selected], removed, quantity);
+              }}
               type="button"
             >
               {t("addToCart")} · {formatPrice(total)}

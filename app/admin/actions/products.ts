@@ -173,8 +173,14 @@ async function syncProductOptions(supabase: SupabaseClient, productId: string, l
       price_delta: draft.priceDelta,
       is_default: draft.isDefault,
       sort_order: sortOrder,
+      unlocks_feature_id: draft.unlocksFeatureId,
     });
-    if (optionError) return "Seçenek kaydedilemedi.";
+    if (optionError) {
+      if (/unlocks_feature/i.test(optionError.message)) {
+        return "Alt özellik alanı eksik. supabase/migrations/0014_option_unlocks_feature.sql dosyasını çalıştırın.";
+      }
+      return "Seçenek kaydedilemedi.";
+    }
     const { error: nameError } = await supabase.from("product_option_translations").upsert({
       option_id: optionId,
       locale,

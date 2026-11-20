@@ -44,6 +44,7 @@ type RawOption = {
   price_delta: number | string;
   is_default: boolean;
   sort_order: number;
+  unlocks_feature_id: string | null;
   product_option_translations: LocaleName[] | null;
 };
 
@@ -125,6 +126,7 @@ export async function getPublicMenu(
               price_delta,
               is_default,
               sort_order,
+              unlocks_feature_id,
               product_option_translations (locale, name)
             )
           )
@@ -234,6 +236,7 @@ function toMenuProduct(product: RawProduct, features: RawFeature[], locale: stri
               name: optionName,
               priceDelta: asPrice(option.price_delta),
               isDefault: option.is_default,
+              unlocksFeatureId: option.unlocks_feature_id ? String(option.unlocks_feature_id) : null,
             };
           })
           .filter((option): option is NonNullable<typeof option> => option !== null);

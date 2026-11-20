@@ -327,7 +327,7 @@ export async function getProductEditor(id: string): Promise<
   const { data, error } = await client.supabase
     .from("products")
     .select(
-      "id, category_id, price, image_path, is_published, product_translations(locale, name, description, ingredients), product_allergens(allergen_code), product_options(id, feature_id, price_delta, is_default, sort_order, product_option_translations(locale, name))",
+      "id, category_id, price, image_path, is_published, product_translations(locale, name, description, ingredients), product_allergens(allergen_code), product_options(id, feature_id, price_delta, is_default, sort_order, unlocks_feature_id, product_option_translations(locale, name))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -350,6 +350,7 @@ export async function getProductEditor(id: string): Promise<
           price_delta: number | string;
           is_default: boolean;
           sort_order: number;
+          unlocks_feature_id: string | null;
           product_option_translations: NameRow[] | null;
         }[]
       | null;
@@ -376,6 +377,7 @@ export async function getProductEditor(id: string): Promise<
           name: pick(option.product_option_translations, locale, locale)?.name ?? "",
           priceDelta: asPrice(option.price_delta),
           isDefault: option.is_default,
+          unlocksFeatureId: option.unlocks_feature_id ? String(option.unlocks_feature_id) : null,
         })),
     },
   };
