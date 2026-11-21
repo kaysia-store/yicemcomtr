@@ -1,5 +1,6 @@
 import { unstable_rethrow } from "next/navigation";
 import { asPrice, menuImageUrl } from "@/lib/format";
+import { attachExtrasToMenu } from "@/lib/menu-extras";
 import { defaultOrderSettings, mapOrderSettings } from "@/lib/orders";
 import { previewPublicMenu } from "@/lib/preview";
 import { loadRestaurantSettings } from "@/lib/restaurant-settings";
@@ -157,7 +158,7 @@ export async function getPublicMenu(
       return { ok: false, reason: "inactive" };
     }
 
-    const categories = ((categoriesResult.data ?? []) as RawCategory[])
+    const baseCategories = ((categoriesResult.data ?? []) as RawCategory[])
       .filter((category) => category.is_published)
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((category) => {
@@ -174,6 +175,8 @@ export async function getPublicMenu(
         return { id: category.id, name: categoryName, products } satisfies MenuCategory;
       })
       .filter((category): category is MenuCategory => category !== null);
+
+    const categories = await attachExtrasToMenu(supabase, baseCategories, locale, defaultLocale);
 
     return {
       ok: true,
@@ -217,6 +220,7 @@ function toMenuProduct(product: RawProduct, features: RawFeature[], locale: stri
     price: asPrice(product.price),
     imageUrl: menuImageUrl(product.image_path),
     allergens,
+    extras: [],
     features: features
       .slice()
       .sort((a, b) => a.sort_order - b.sort_order)

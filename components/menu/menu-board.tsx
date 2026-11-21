@@ -8,16 +8,18 @@ import {
   buildCartLine,
   cartCount,
   emptyCart,
-  parseIngredients,
   readCart,
   writeCart,
   whatsappOrderUrl,
   type CartState,
 } from "@/lib/cart";
+import type { ExtraPickState } from "@/lib/extra-selection";
 import { formatPrice, menuImageFit } from "@/lib/format";
+import { productNeedsConfiguration } from "@/lib/menu-extras";
 import { place } from "@/lib/place";
 import type { MenuCategory, MenuPayload, MenuProduct } from "@/lib/types";
 import { CartSheet } from "@/components/menu/cart-sheet";
+import { ProductSheet } from "@/components/menu/product-sheet";
 import { PwaInstallButton } from "@/components/menu/pwa-install-button";
 
 function categoryUnderHeader(categories: { id: string }[], header: HTMLElement | null) {
@@ -261,15 +263,21 @@ export function MenuBoard({ menu }: { menu: MenuPayload }) {
   }
 
   function quickAdd(product: MenuProduct) {
-    if (product.features.length > 0) {
+    if (productNeedsConfiguration(product)) {
       setSelected(product);
       return;
     }
     setCart((current) => addCartLine(current, buildCartLine(product, [], [], 1)));
   }
 
-  function addConfigured(product: MenuProduct, optionIds: string[], removed: string[], quantity: number) {
-    setCart((current) => addCartLine(current, buildCartLine(product, optionIds, removed, quantity)));
+  function addConfigured(
+    product: MenuProduct,
+    optionIds: string[],
+    removed: string[],
+    quantity: number,
+    extraPicks: Record<string, ExtraPickState>,
+  ) {
+    setCart((current) => addCartLine(current, buildCartLine(product, optionIds, removed, quantity, extraPicks)));
     setSelected(null);
   }
 
@@ -658,10 +666,6 @@ function CategoryArrow({ direction }: { direction: "previous" | "next" }) {
 }
 
 function startingPrice(product: MenuProduct) {
-  return product.price + selectedExtra(product, defaultSelection(product));
-}
-
-function defaultSelection(product: MenuProduct) {
   const selected = new Set<string>();
   for (const feature of product.features) {
     const defaults = feature.options.filter((option) => option.isDefault);
@@ -672,192 +676,11 @@ function defaultSelection(product: MenuProduct) {
       defaults.forEach((option) => selected.add(option.id));
     }
   }
-  return selected;
-}
-
-function selectedExtra(product: MenuProduct, selected: Set<string>) {
-  return product.features.reduce(
+  const featureExtra = product.features.reduce(
     (sum, feature) => sum + feature.options.reduce((inner, option) => inner + (selected.has(option.id) ? option.priceDelta : 0), 0),
     0,
   );
-}
-
-function ProductSheet({
-  product,
-  onClose,
-  onAdd,
-  closeRef,
-  cartEnabled,
-}: {
-  product: MenuProduct;
-  onClose: () => void;
-  onAdd: (product: MenuProduct, optionIds: string[], removed: string[], quantity: number) => void;
-  closeRef: React.RefObject<HTMLButtonElement | null>;
-  cartEnabled: boolean;
-}) {
-  const t = useTranslations("Menu");
-  const [selected, setSelected] = useState(() => defaultSelection(product));
-  const [removed, setRemoved] = useState<string[]>([]);
-  const [quantity, setQuantity] = useState(1);
-  const ingredients = useMemo(() => parseIngredients(product.ingredients), [product.ingredients]);
-  const total = (product.price + selectedExtra(product, selected)) * quantity;
-
-  function choose(featureId: string, optionId: string, selection: "single" | "multiple") {
-    setSelected((current) => {
-      const next = new Set(current);
-      const feature = product.features.find((item) => item.id === featureId);
-      if (!feature) return current;
-      if (selection === "single") {
-        const already = next.has(optionId) && feature.options.filter((option) => next.has(option.id)).length === 1;
-        for (const option of feature.options) next.delete(option.id);
-        if (!(already && !feature.required)) next.add(optionId);
-        return next;
-      }
-      if (next.has(optionId)) {
-        if (feature.required && feature.options.filter((option) => next.has(option.id)).length === 1) return current;
-        next.delete(optionId);
-      } else {
-        next.add(optionId);
-      }
-      return next;
-    });
-  }
-
-  function toggleIngredient(name: string) {
-    setRemoved((current) => (current.includes(name) ? current.filter((item) => item !== name) : [...current, name]));
-  }
-
-  return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center sm:items-center">
-      <button aria-label={t("close")} className="absolute inset-0 bg-black/60" onClick={onClose} type="button" />
-      <div
-        aria-labelledby="product-title"
-        aria-modal="true"
-        className="relative z-10 flex max-h-[88dvh] w-full max-w-lg flex-col rounded-t-3xl bg-card sm:rounded-3xl"
-        role="dialog"
-      >
-        <div className="min-h-0 flex-1 overflow-y-auto p-5">
-          {product.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img alt="" className={`mb-4 h-52 w-full rounded-2xl ${menuImageFit(product.imageUrl)}`} src={product.imageUrl} />
-          ) : (
-            <div className="mb-4 grid h-52 place-items-center overflow-hidden rounded-2xl bg-paper">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" className="h-40 w-40 object-contain opacity-70 blur-[2px]" src="/karakter.png" />
-            </div>
-          )}
-          <div className="flex items-start justify-between gap-3">
-            <h2 className="font-serif text-3xl" id="product-title">
-              {product.name}
-            </h2>
-            <button className="btn btn-secondary shrink-0" onClick={onClose} ref={closeRef} type="button">
-              {t("close")}
-            </button>
-          </div>
-          <p className="mt-2 text-lg font-medium text-accent tabular-nums">{formatPrice(total)}</p>
-          {product.description ? <p className="mt-4 leading-7 text-ink">{product.description}</p> : null}
-          {product.features.map((feature) => (
-            <fieldset className="mt-5" key={feature.id}>
-              <legend className="text-sm font-medium tracking-wide text-accent uppercase">
-                {feature.name}
-                {feature.required ? ` · ${t("requiredChoice")}` : ""}
-              </legend>
-              <div className="mt-2 grid gap-2">
-                {feature.options.map((option) => (
-                  <label className="flex items-center justify-between gap-3 rounded-2xl border border-line px-3 py-3 text-sm" key={option.id}>
-                    <span className="flex items-center gap-2">
-                      <input
-                        checked={selected.has(option.id)}
-                        name={`feature-${feature.id}`}
-                        onChange={() => {
-                          if (feature.selection === "single" && !feature.required && selected.has(option.id)) return;
-                          choose(feature.id, option.id, feature.selection);
-                        }}
-                        onClick={() => {
-                          if (feature.selection === "single" && !feature.required && selected.has(option.id)) {
-                            choose(feature.id, option.id, feature.selection);
-                          }
-                        }}
-                        type={feature.selection === "single" ? "radio" : "checkbox"}
-                      />
-                      {option.name}
-                    </span>
-                    <span className="shrink-0 tabular-nums text-muted">
-                      {option.priceDelta > 0 ? `+${formatPrice(option.priceDelta)}` : t("included")}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          ))}
-          {ingredients.length > 0 ? (
-            <div className="mt-5">
-              <h3 className="text-sm font-medium tracking-wide text-accent uppercase">{t("ingredients")}</h3>
-              <p className="mt-1 text-xs text-muted">{t("removedHint")}</p>
-              <ul className="mt-2 flex flex-wrap gap-2">
-                {ingredients.map((item) => {
-                  const out = removed.includes(item);
-                  return (
-                    <li key={item}>
-                      <button
-                        className={`rounded-full border px-3 py-1.5 text-sm ${out ? "border-danger/40 text-danger line-through" : "border-line text-ink"}`}
-                        onClick={() => toggleIngredient(item)}
-                        type="button"
-                      >
-                        {item}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ) : null}
-          {product.allergens.length > 0 ? (
-            <div className="mt-5">
-              <h3 className="text-sm font-medium tracking-wide text-accent uppercase">{t("allergens")}</h3>
-              <ul className="mt-2 flex flex-wrap gap-2">
-                {product.allergens.map((allergen) => (
-                  <li className="rounded-full bg-paper px-3 py-1 text-sm" key={allergen.code}>
-                    {allergen.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-        </div>
-        {cartEnabled ? (
-          <div className="flex items-center gap-3 border-t border-line px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <div className="flex items-center gap-2">
-              <button
-                aria-label={t("decrease")}
-                className="grid size-10 place-items-center rounded-full border border-line"
-                onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                type="button"
-              >
-                −
-              </button>
-              <span className="min-w-6 text-center tabular-nums">{quantity}</span>
-              <button
-                aria-label={t("increase")}
-                className="grid size-10 place-items-center rounded-full border border-line"
-                onClick={() => setQuantity((value) => value + 1)}
-                type="button"
-              >
-                +
-              </button>
-            </div>
-            <button
-              className="btn btn-primary min-w-0 flex-1"
-              onClick={() => onAdd(product, [...selected], removed, quantity)}
-              type="button"
-            >
-              {t("addToCart")} · {formatPrice(total)}
-            </button>
-          </div>
-        ) : null}
-      </div>
-    </div>
-  );
+  return product.price + featureExtra;
 }
 
 function rememberLanguage() {

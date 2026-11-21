@@ -18,6 +18,8 @@ import { createClient } from "@/lib/supabase/server";
 import type {
   CategoryFeature,
   CategoryListItem,
+  ExtraOptionEditor,
+  ExtraOptionListItem,
   LanguageItem,
   LoadFailure,
   ProductChoice,
@@ -128,27 +130,92 @@ export async function getCategoryList(): Promise<{ ok: true; categories: Categor
 export async function getCategoryEditor(id: string): Promise<
   | {
       ok: true;
-      category: { id: string; name: string; isPublished: boolean; features: CategoryFeature[] } | null;
+      category: {
+        id: string;
+        name: string;
+        isPublished: boolean;
+        features: CategoryFeature[];
+        extraOptionIds: string[];
+      } | null;
+      extraOptions: { id: string; name: string; kind: string }[];
     }
   | LoadFailure
 > {
-  if (!getSupabaseEnv()) return previewCategoryEditor(id);
+  if (!getSupabaseEnv()) {
+    const preview = previewCategoryEditor(id);
+    return {
+      ok: true as const,
+      category: preview.category ? { ...preview.category, extraOptionIds: [] } : null,
+      extraOptions: [],
+    };
+  }
   const client = await clientOrSetup();
   if (!client.ok) return client;
 
   const locale = await getDefaultLocale(client.supabase);
-  const { data, error } = await client.supabase
-    .from("categories")
-    .select(
-      "id, is_published, category_translations(locale, name), category_features(id, selection, is_required, sort_order, category_feature_translations(locale, name))",
-    )
-    .eq("id", id)
-    .maybeSingle();
+  const [categoryResult, extrasResult, bindsResult] = await Promise.all([
+    client.supabase
+      .from("categories")
+      .select(
+        "id, is_published, category_translations(locale, name), category_features(id, selection, is_required, sort_order, category_feature_translations(locale, name))",
+      )
+      .eq("id", id)
+      .maybeSingle(),
+    client.supabase
+      .from("extra_options")
+      .select("id, kind, sort_order, extra_option_translations(locale, name)")
+      .order("sort_order"),
+    client.supabase
+      .from("category_extra_options")
+      .select("extra_option_id, sort_order")
+      .eq("category_id", id)
+      .order("sort_order"),
+  ]);
 
-  if (error) return loadFailure(error);
-  if (!data) return { ok: true, category: null };
+  if (categoryResult.error) return loadFailure(categoryResult.error);
+  if (extrasResult.error) {
+    if (/extra_option/i.test(extrasResult.error.message)) {
+      // migration henüz yoksa kategori yine açılsın
+      const data = categoryResult.data;
+      if (!data) return { ok: true, category: null, extraOptions: [] };
+      const row = data as {
+        id: string;
+        is_published: boolean;
+        category_translations: NameRow[] | null;
+        category_features:
+          | {
+              id: string;
+              selection: "single" | "multiple";
+              is_required: boolean;
+              sort_order: number;
+              category_feature_translations: NameRow[] | null;
+            }[]
+          | null;
+      };
+      return {
+        ok: true,
+        category: {
+          id: row.id,
+          name: pick(row.category_translations, locale, locale)?.name ?? "",
+          isPublished: row.is_published,
+          features: (row.category_features ?? [])
+            .sort((a, b) => a.sort_order - b.sort_order)
+            .map((feature) => ({
+              id: feature.id,
+              name: pick(feature.category_feature_translations, locale, locale)?.name ?? "",
+              selection: feature.selection === "multiple" ? "multiple" : "single",
+              required: feature.is_required,
+            })),
+          extraOptionIds: [],
+        },
+        extraOptions: [],
+      };
+    }
+    return loadFailure(extrasResult.error);
+  }
+  if (!categoryResult.data) return { ok: true, category: null, extraOptions: [] };
 
-  const row = data as {
+  const row = categoryResult.data as {
     id: string;
     is_published: boolean;
     category_translations: NameRow[] | null;
@@ -162,6 +229,21 @@ export async function getCategoryEditor(id: string): Promise<
         }[]
       | null;
   };
+
+  const boundIds = ((bindsResult.data ?? []) as { extra_option_id: string; sort_order: number }[])
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((item) => item.extra_option_id);
+
+  const extraOptions = ((extrasResult.data ?? []) as {
+    id: string;
+    kind: string;
+    sort_order: number;
+    extra_option_translations: NameRow[] | null;
+  }[]).map((item) => ({
+    id: item.id,
+    name: pick(item.extra_option_translations, locale, locale)?.name ?? "—",
+    kind: item.kind,
+  }));
 
   return {
     ok: true,
@@ -177,7 +259,179 @@ export async function getCategoryEditor(id: string): Promise<
           selection: feature.selection === "multiple" ? "multiple" : "single",
           required: feature.is_required,
         })),
+      extraOptionIds: boundIds,
     },
+    extraOptions,
+  };
+}
+
+export async function getExtraOptionList(): Promise<{ ok: true; extras: ExtraOptionListItem[] } | LoadFailure> {
+  if (!getSupabaseEnv()) return { ok: true, extras: [] };
+  const client = await clientOrSetup();
+  if (!client.ok) return client;
+
+  const locale = await getDefaultLocale(client.supabase);
+  const { data, error } = await client.supabase
+    .from("extra_options")
+    .select(
+      "id, kind, selection, is_required, price, menu_category_id, sort_order, extra_option_translations(locale, name), extra_option_choices(id), category_extra_options(category_id)",
+    )
+    .order("sort_order");
+
+  if (error) {
+    if (/extra_option/i.test(error.message)) {
+      return { ok: false, reason: "schema", message: "supabase/migrations/0014_extra_options.sql dosyasını çalıştırın." };
+    }
+    return loadFailure(error);
+  }
+
+  const categoryIds = [
+    ...new Set(
+      ((data ?? []) as { menu_category_id: string | null }[])
+        .map((row) => row.menu_category_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const categoryNameById = new Map<string, string>();
+  if (categoryIds.length > 0) {
+    const { data: cats } = await client.supabase
+      .from("categories")
+      .select("id, category_translations(locale, name)")
+      .in("id", categoryIds);
+    for (const row of (cats ?? []) as { id: string; category_translations: NameRow[] | null }[]) {
+      categoryNameById.set(row.id, pick(row.category_translations, locale, locale)?.name ?? "—");
+    }
+  }
+
+  const extras = ((data ?? []) as {
+    id: string;
+    kind: "fixed" | "menu" | "list";
+    selection: "single" | "multiple";
+    is_required: boolean;
+    price: number | string;
+    menu_category_id: string | null;
+    sort_order: number;
+    extra_option_translations: NameRow[] | null;
+    extra_option_choices: { id: string }[] | null;
+    category_extra_options: { category_id: string }[] | null;
+  }[]).map((row) => ({
+    id: row.id,
+    name: pick(row.extra_option_translations, locale, locale)?.name ?? "",
+    kind: row.kind,
+    selection: row.selection === "multiple" ? "multiple" : "single",
+    required: row.is_required,
+    price: asPrice(row.price),
+    menuCategoryId: row.menu_category_id,
+    menuCategoryName: row.menu_category_id ? categoryNameById.get(row.menu_category_id) ?? null : null,
+    choiceCount: (row.extra_option_choices ?? []).length,
+    boundCategoryCount: (row.category_extra_options ?? []).length,
+  }) satisfies ExtraOptionListItem);
+
+  return { ok: true, extras };
+}
+
+export async function getExtraOptionEditor(id: string): Promise<
+  | { ok: true; extra: ExtraOptionEditor | null; categories: { id: string; name: string }[] }
+  | LoadFailure
+> {
+  if (!getSupabaseEnv()) return { ok: true, extra: null, categories: [] };
+  const client = await clientOrSetup();
+  if (!client.ok) return client;
+
+  const locale = await getDefaultLocale(client.supabase);
+  const [extraResult, categoriesResult] = await Promise.all([
+    client.supabase
+      .from("extra_options")
+      .select(
+        "id, kind, selection, is_required, price, menu_category_id, extra_option_translations(locale, name), extra_option_choices(id, price_delta, is_default, sort_order, extra_option_choice_translations(locale, name))",
+      )
+      .eq("id", id)
+      .maybeSingle(),
+    client.supabase
+      .from("categories")
+      .select("id, sort_order, category_translations(locale, name)")
+      .order("sort_order"),
+  ]);
+
+  if (extraResult.error) {
+    if (/extra_option/i.test(extraResult.error.message)) {
+      return { ok: false, reason: "schema", message: "supabase/migrations/0014_extra_options.sql dosyasını çalıştırın." };
+    }
+    return loadFailure(extraResult.error);
+  }
+  if (categoriesResult.error) return loadFailure(categoriesResult.error);
+
+  const categories = ((categoriesResult.data ?? []) as {
+    id: string;
+    category_translations: NameRow[] | null;
+  }[]).map((row) => ({
+    id: row.id,
+    name: pick(row.category_translations, locale, locale)?.name ?? "—",
+  }));
+
+  if (!extraResult.data) return { ok: true, extra: null, categories };
+
+  const row = extraResult.data as {
+    id: string;
+    kind: "fixed" | "menu" | "list";
+    selection: "single" | "multiple";
+    is_required: boolean;
+    price: number | string;
+    menu_category_id: string | null;
+    extra_option_translations: NameRow[] | null;
+    extra_option_choices:
+      | {
+          id: string;
+          price_delta: number | string;
+          is_default: boolean;
+          sort_order: number;
+          extra_option_choice_translations: NameRow[] | null;
+        }[]
+      | null;
+  };
+
+  return {
+    ok: true,
+    extra: {
+      id: row.id,
+      name: pick(row.extra_option_translations, locale, locale)?.name ?? "",
+      kind: row.kind,
+      selection: row.selection === "multiple" ? "multiple" : "single",
+      required: row.is_required,
+      price: asPrice(row.price),
+      menuCategoryId: row.menu_category_id,
+      choices: (row.extra_option_choices ?? [])
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map((choice) => ({
+          id: choice.id,
+          name: pick(choice.extra_option_choice_translations, locale, locale)?.name ?? "",
+          priceDelta: asPrice(choice.price_delta),
+          isDefault: choice.is_default,
+        })),
+    },
+    categories,
+  };
+}
+
+export async function getExtraOptionCreateData(): Promise<
+  | { ok: true; categories: { id: string; name: string }[] }
+  | LoadFailure
+> {
+  if (!getSupabaseEnv()) return { ok: true, categories: [] };
+  const client = await clientOrSetup();
+  if (!client.ok) return client;
+  const locale = await getDefaultLocale(client.supabase);
+  const { data, error } = await client.supabase
+    .from("categories")
+    .select("id, sort_order, category_translations(locale, name)")
+    .order("sort_order");
+  if (error) return loadFailure(error);
+  return {
+    ok: true,
+    categories: ((data ?? []) as { id: string; category_translations: NameRow[] | null }[]).map((row) => ({
+      id: row.id,
+      name: pick(row.category_translations, locale, locale)?.name ?? "—",
+    })),
   };
 }
 

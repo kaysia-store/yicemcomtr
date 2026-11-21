@@ -31,6 +31,31 @@ export type MenuFeature = {
   options: MenuOption[];
 };
 
+export type MenuExtraChoice = {
+  id: string;
+  name: string;
+  priceDelta: number;
+  isDefault: boolean;
+};
+
+export type MenuExtraMenuProduct = {
+  id: string;
+  name: string;
+  price: number;
+  features: MenuFeature[];
+};
+
+export type MenuExtra = {
+  id: string;
+  name: string;
+  kind: "fixed" | "menu" | "list";
+  selection: "single" | "multiple";
+  required: boolean;
+  price: number;
+  choices: MenuExtraChoice[];
+  menuProducts: MenuExtraMenuProduct[];
+};
+
 export type MenuProduct = {
   id: string;
   name: string;
@@ -40,6 +65,33 @@ export type MenuProduct = {
   imageUrl: string | null;
   allergens: MenuAllergen[];
   features: MenuFeature[];
+  extras: MenuExtra[];
+};
+
+export type ExtraOptionKind = "fixed" | "menu" | "list";
+
+export type ExtraOptionListItem = {
+  id: string;
+  name: string;
+  kind: ExtraOptionKind;
+  selection: "single" | "multiple";
+  required: boolean;
+  price: number;
+  menuCategoryId: string | null;
+  menuCategoryName: string | null;
+  choiceCount: number;
+  boundCategoryCount: number;
+};
+
+export type ExtraOptionEditor = {
+  id: string;
+  name: string;
+  kind: ExtraOptionKind;
+  selection: "single" | "multiple";
+  required: boolean;
+  price: number;
+  menuCategoryId: string | null;
+  choices: { id: string; name: string; priceDelta: number; isDefault: boolean }[];
 };
 
 export type CategoryFeature = {

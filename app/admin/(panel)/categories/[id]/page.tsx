@@ -36,7 +36,7 @@ async function Editor({ params }: { params: Promise<{ id: string }> }) {
         }
         title="Kategoriyi düzenle"
       />
-      <CategoryForm action={saveCategory} category={result.category} />
+      <CategoryForm action={saveCategory} category={result.category} extraOptions={result.extraOptions} />
     </div>
   );
 }

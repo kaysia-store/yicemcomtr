@@ -8,6 +8,7 @@ const tabs = [
   { href: "/admin/categories", label: "Kategoriler" },
   { href: "/admin/prices", label: "Fiyatlar" },
   { href: "/admin/photos", label: "Görseller" },
+  { href: "/admin/extras", label: "Ek seçenekler" },
 ];
 
 export function MenuSectionNav() {

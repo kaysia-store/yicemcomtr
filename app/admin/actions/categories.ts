@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { getDefaultLocale, nextSortOrder } from "@/lib/admin-data";
 import { readFeatureDrafts } from "@/lib/features";
+import { readBoundExtraIds } from "@/lib/extras";
 import { revalidateMenu } from "@/lib/revalidate";
 import type { ActionState } from "@/lib/types";
 import { readText, uuidPattern } from "@/lib/validators";
@@ -33,6 +34,10 @@ export async function saveCategory(_prev: ActionState, formData: FormData): Prom
   }
   const featureResult = readFeatureDrafts(typeof formData.get("featuresJson") === "string" ? String(formData.get("featuresJson")) : "[]");
   if (!featureResult.ok) return { status: "error", message: featureResult.message };
+  const extrasResult = readBoundExtraIds(
+    typeof formData.get("extraOptionIdsJson") === "string" ? String(formData.get("extraOptionIdsJson")) : "[]",
+  );
+  if (!extrasResult.ok) return { status: "error", message: extrasResult.message };
 
   const locale = await getDefaultLocale(auth.supabase);
   let categoryId = id;
@@ -64,8 +69,49 @@ export async function saveCategory(_prev: ActionState, formData: FormData): Prom
   const featureError = await syncCategoryFeatures(auth.supabase, categoryId, locale, featureResult.features);
   if (featureError) return { status: "error", message: featureError };
 
+  const bindError = await syncCategoryExtras(auth.supabase, categoryId, extrasResult.ids);
+  if (bindError) return { status: "error", message: bindError };
+
   revalidateMenu();
   redirect("/admin/categories");
+}
+
+async function syncCategoryExtras(supabase: SupabaseClient, categoryId: string, extraIds: string[]) {
+  const { data, error } = await supabase
+    .from("category_extra_options")
+    .select("extra_option_id")
+    .eq("category_id", categoryId);
+  if (error) {
+    if (/category_extra_options|extra_option/i.test(error.message)) {
+      return extraIds.length === 0
+        ? null
+        : "Ek seçenek tabloları eksik. supabase/migrations/0014_extra_options.sql dosyasını çalıştırın.";
+    }
+    return "Ek seçenek bağları yüklenemedi.";
+  }
+  const existing = new Set(((data ?? []) as { extra_option_id: string }[]).map((row) => row.extra_option_id));
+  const kept = new Set(extraIds);
+
+  for (let index = 0; index < extraIds.length; index += 1) {
+    const extraOptionId = extraIds[index];
+    const { error: upsertError } = await supabase.from("category_extra_options").upsert({
+      category_id: categoryId,
+      extra_option_id: extraOptionId,
+      sort_order: index,
+    });
+    if (upsertError) return "Ek seçenek bağlanamadı.";
+  }
+
+  const removed = [...existing].filter((id) => !kept.has(id));
+  if (removed.length > 0) {
+    const { error: deleteError } = await supabase
+      .from("category_extra_options")
+      .delete()
+      .eq("category_id", categoryId)
+      .in("extra_option_id", removed);
+    if (deleteError) return "Ek seçenek bağı silinemedi.";
+  }
+  return null;
 }
 
 async function syncCategoryFeatures(

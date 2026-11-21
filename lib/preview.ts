@@ -321,6 +321,7 @@ export function previewPublicMenu(locale: string): { ok: true; menu: MenuPayload
             imageUrl: menuImageUrl(product.imagePath),
             allergens,
             features: menuFeatures(db, product.id, category.id, locale, fallback),
+            extras: [],
           };
         })
         .filter((product): product is NonNullable<typeof product> => product !== null);

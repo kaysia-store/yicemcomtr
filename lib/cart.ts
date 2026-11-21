@@ -1,3 +1,5 @@
+import type { ExtraPickState } from "@/lib/extra-selection";
+import { extrasFingerprint, extrasLabels, extrasTotal } from "@/lib/extra-selection";
 import { place } from "@/lib/place";
 import type { MenuProduct } from "@/lib/types";
 
@@ -126,8 +128,8 @@ export function parseIngredients(raw: string) {
     .filter(Boolean);
 }
 
-export function cartLineKey(productId: string, optionIds: string[], removed: string[]) {
-  return [productId, [...optionIds].sort().join("|"), [...removed].sort().join("|")].join("::");
+export function cartLineKey(productId: string, optionIds: string[], removed: string[], extrasKey = "") {
+  return [productId, [...optionIds].sort().join("|"), [...removed].sort().join("|"), extrasKey].join("::");
 }
 
 export function buildCartLine(
@@ -135,20 +137,24 @@ export function buildCartLine(
   optionIds: string[],
   removedIngredients: string[],
   quantity = 1,
+  extraPicks: Record<string, ExtraPickState> = {},
 ): CartLine {
   const options = product.features.flatMap((feature) => feature.options.filter((option) => optionIds.includes(option.id)));
-  const unitPrice = product.price + options.reduce((sum, option) => sum + option.priceDelta, 0);
+  const unitPrice =
+    product.price + options.reduce((sum, option) => sum + option.priceDelta, 0) + extrasTotal(product, extraPicks);
+  const optionNames = [...options.map((option) => option.name), ...extrasLabels(product, extraPicks)];
   return {
     key: cartLineKey(
       product.id,
       options.map((option) => option.id),
       removedIngredients,
+      extrasFingerprint(product, extraPicks),
     ),
     productId: product.id,
     name: product.name,
     unitPrice,
     quantity,
-    optionNames: options.map((option) => option.name),
+    optionNames,
     removedIngredients,
   };
 }
