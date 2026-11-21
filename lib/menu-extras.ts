@@ -266,7 +266,7 @@ async function loadFeaturesForProducts(
       is_required,
       sort_order,
       category_feature_translations (locale, name),
-      product_options (
+      product_options!product_options_feature_id_fkey (
         id,
         product_id,
         price_delta,
