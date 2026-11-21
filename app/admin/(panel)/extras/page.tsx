@@ -60,6 +60,7 @@ async function ExtrasContent() {
                   {item.kind === "fixed" || item.kind === "menu" ? ` · ${formatPrice(item.price)}` : ""}
                   {item.kind === "list" ? ` · ${item.choiceCount} seçenek` : ""}
                   {item.kind === "menu" && item.menuCategoryName ? ` · ${item.menuCategoryName}` : ""}
+                  {item.boundProductCount > 0 ? ` · ${item.boundProductCount} ürün` : ""}
                   {item.boundCategoryCount > 0 ? ` · ${item.boundCategoryCount} kategori` : ""}
                 </p>
               </div>

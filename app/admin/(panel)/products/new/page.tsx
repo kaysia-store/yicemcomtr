@@ -40,7 +40,12 @@ async function NewProductContent() {
           .
         </p>
       ) : (
-        <ProductForm action={saveProduct} allergens={result.allergens} categories={result.categories} />
+        <ProductForm
+          action={saveProduct}
+          allergens={result.allergens}
+          categories={result.categories}
+          extras={result.extras}
+        />
       )}
     </div>
   );

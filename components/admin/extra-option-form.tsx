@@ -16,15 +16,18 @@ type ChoiceRow = {
 export function ExtraOptionForm({
   action,
   categories,
+  products = [],
   extra,
 }: {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
   categories: { id: string; name: string }[];
+  products?: { id: string; name: string; categoryId: string; categoryName: string }[];
   extra?: ExtraOptionEditor;
 }) {
   const [state, formAction] = useActionState(action, idleActionState);
   const [kind, setKind] = useState<ExtraOptionKind>(extra?.kind ?? "fixed");
   const [selection, setSelection] = useState<"single" | "multiple">(extra?.selection ?? "single");
+  const [boundProducts, setBoundProducts] = useState<string[]>(() => extra?.productIds ?? []);
   const [choices, setChoices] = useState<ChoiceRow[]>(
     () =>
       extra?.choices.map((choice) => ({
@@ -65,6 +68,7 @@ export function ExtraOptionForm({
       {state.status === "error" ? <Notice tone="error">{state.message}</Notice> : null}
       {extra ? <input type="hidden" name="id" value={extra.id} /> : null}
       <input name="choicesJson" type="hidden" value={choicesJson} />
+      <input name="productIdsJson" type="hidden" value={JSON.stringify(boundProducts)} />
       <input name="kind" type="hidden" value={kind} />
       <input name="selection" type="hidden" value={selection} />
 
@@ -216,7 +220,50 @@ export function ExtraOptionForm({
         </section>
       ) : null}
 
-      <p className="text-sm text-muted">Ad varsayılan dil olan Türkçe için kaydedilir. Bağlamayı kategori sayfasından yapın.</p>
+      <section className="grid gap-3 rounded-3xl border border-line bg-card p-4">
+        <div>
+          <h2 className="font-medium">Ürünlere bağla</h2>
+          <p className="mt-1 text-sm leading-6 text-muted">
+            Tek ürüne veya birden fazla ürüne işaretleyin. Farklı kategorilerdeki ürünler aynı ek seçeneği
+            paylaşabilir. Kategori bağını da kategori sayfasından kullanabilirsiniz.
+          </p>
+        </div>
+        {products.length === 0 ? (
+          <p className="text-sm text-muted">Henüz ürün yok.</p>
+        ) : (
+          <div className="grid max-h-80 gap-3 overflow-y-auto pr-1">
+            {[...new Set(products.map((item) => item.categoryName))].map((categoryName) => (
+              <div key={categoryName}>
+                <p className="mb-1 text-xs font-medium tracking-wide text-muted uppercase">{categoryName}</p>
+                <ul className="grid gap-1">
+                  {products
+                    .filter((item) => item.categoryName === categoryName)
+                    .map((item) => (
+                      <li key={item.id}>
+                        <label className="flex items-center gap-2 rounded-2xl border border-line px-3 py-2 text-sm">
+                          <input
+                            checked={boundProducts.includes(item.id)}
+                            onChange={() =>
+                              setBoundProducts((current) =>
+                                current.includes(item.id)
+                                  ? current.filter((id) => id !== item.id)
+                                  : [...current, item.id],
+                              )
+                            }
+                            type="checkbox"
+                          />
+                          {item.name}
+                        </label>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <p className="text-sm text-muted">Ad varsayılan dil olan Türkçe için kaydedilir.</p>
       <div>
         <SubmitButton>{extra ? "Güncelle" : "Ekle"}</SubmitButton>
       </div>

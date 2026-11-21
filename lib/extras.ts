@@ -105,18 +105,30 @@ export function readChoiceDrafts(
 }
 
 export function readBoundExtraIds(raw: string): { ok: true; ids: string[] } | { ok: false; message: string } {
+  return readUuidList(raw, "Ek seçenek bağları okunamadı.", "Ek seçenek bağı geçersiz.");
+}
+
+export function readBoundProductIds(raw: string): { ok: true; ids: string[] } | { ok: false; message: string } {
+  return readUuidList(raw, "Ürün bağları okunamadı.", "Ürün bağı geçersiz.");
+}
+
+function readUuidList(
+  raw: string,
+  parseMessage: string,
+  invalidMessage: string,
+): { ok: true; ids: string[] } | { ok: false; message: string } {
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw || "[]");
   } catch {
-    return { ok: false, message: "Ek seçenek bağları okunamadı." };
+    return { ok: false, message: parseMessage };
   }
-  if (!Array.isArray(parsed)) return { ok: false, message: "Ek seçenek bağları okunamadı." };
+  if (!Array.isArray(parsed)) return { ok: false, message: parseMessage };
   const ids: string[] = [];
   const seen = new Set<string>();
   for (const item of parsed) {
     if (typeof item !== "string" || !uuidPattern.test(item)) {
-      return { ok: false, message: "Ek seçenek bağı geçersiz." };
+      return { ok: false, message: invalidMessage };
     }
     if (seen.has(item)) continue;
     seen.add(item);

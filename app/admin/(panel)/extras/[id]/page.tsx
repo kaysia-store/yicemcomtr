@@ -36,7 +36,12 @@ async function Editor({ params }: { params: Promise<{ id: string }> }) {
         }
         title="Ek seçeneği düzenle"
       />
-      <ExtraOptionForm action={saveExtraOption} categories={result.categories} extra={result.extra} />
+      <ExtraOptionForm
+        action={saveExtraOption}
+        categories={result.categories}
+        extra={result.extra}
+        products={result.products}
+      />
     </div>
   );
 }

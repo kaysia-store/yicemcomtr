@@ -62,6 +62,7 @@ async function Editor({
         action={saveProduct}
         allergens={optionsResult.allergens}
         categories={optionsResult.categories}
+        extras={optionsResult.extras}
         product={{
           ...product,
           price: product.price.toFixed(2),

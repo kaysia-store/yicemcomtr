@@ -271,12 +271,37 @@ export async function getExtraOptionList(): Promise<{ ok: true; extras: ExtraOpt
   if (!client.ok) return client;
 
   const locale = await getDefaultLocale(client.supabase);
-  const { data, error } = await client.supabase
+  const fullList = await client.supabase
     .from("extra_options")
     .select(
-      "id, kind, selection, is_required, price, menu_category_id, sort_order, extra_option_translations(locale, name), extra_option_choices(id), category_extra_options(category_id)",
+      "id, kind, selection, is_required, price, menu_category_id, sort_order, extra_option_translations(locale, name), extra_option_choices(id), category_extra_options(category_id), product_extra_options(product_id)",
     )
     .order("sort_order");
+  const fallbackList =
+    fullList.error && /product_extra_options/i.test(fullList.error.message)
+      ? await client.supabase
+          .from("extra_options")
+          .select(
+            "id, kind, selection, is_required, price, menu_category_id, sort_order, extra_option_translations(locale, name), extra_option_choices(id), category_extra_options(category_id)",
+          )
+          .order("sort_order")
+      : null;
+  const data = (fallbackList?.data ?? fullList.data) as
+    | {
+        id: string;
+        kind: "fixed" | "menu" | "list";
+        selection: "single" | "multiple";
+        is_required: boolean;
+        price: number | string;
+        menu_category_id: string | null;
+        sort_order: number;
+        extra_option_translations: NameRow[] | null;
+        extra_option_choices: { id: string }[] | null;
+        category_extra_options: { category_id: string }[] | null;
+        product_extra_options?: { product_id: string }[] | null;
+      }[]
+    | null;
+  const error = fallbackList?.error ?? fullList.error;
 
   if (error) {
     if (/extra_option/i.test(error.message)) {
@@ -303,18 +328,7 @@ export async function getExtraOptionList(): Promise<{ ok: true; extras: ExtraOpt
     }
   }
 
-  const extras = ((data ?? []) as {
-    id: string;
-    kind: "fixed" | "menu" | "list";
-    selection: "single" | "multiple";
-    is_required: boolean;
-    price: number | string;
-    menu_category_id: string | null;
-    sort_order: number;
-    extra_option_translations: NameRow[] | null;
-    extra_option_choices: { id: string }[] | null;
-    category_extra_options: { category_id: string }[] | null;
-  }[]).map((row) => ({
+  const extras = (data ?? []).map((row) => ({
     id: row.id,
     name: pick(row.extra_option_translations, locale, locale)?.name ?? "",
     kind: row.kind,
@@ -325,21 +339,60 @@ export async function getExtraOptionList(): Promise<{ ok: true; extras: ExtraOpt
     menuCategoryName: row.menu_category_id ? categoryNameById.get(row.menu_category_id) ?? null : null,
     choiceCount: (row.extra_option_choices ?? []).length,
     boundCategoryCount: (row.category_extra_options ?? []).length,
+    boundProductCount: (row.product_extra_options ?? []).length,
   }) satisfies ExtraOptionListItem);
 
   return { ok: true, extras };
 }
 
+async function loadProductPicker(supabase: Awaited<ReturnType<typeof createClient>>, locale: string) {
+  const { data, error } = await supabase
+    .from("products")
+    .select(
+      "id, category_id, sort_order, product_translations(locale, name), categories(sort_order, category_translations(locale, name))",
+    )
+    .order("sort_order");
+  if (error) return { ok: false as const, error };
+  const products = ((data ?? []) as {
+    id: string;
+    category_id: string;
+    sort_order: number;
+    product_translations: NameRow[] | null;
+    categories:
+      | { sort_order: number; category_translations: NameRow[] | null }
+      | { sort_order: number; category_translations: NameRow[] | null }[]
+      | null;
+  }[])
+    .map((row) => {
+      const category = Array.isArray(row.categories) ? row.categories[0] : row.categories;
+      return {
+        id: row.id,
+        name: pick(row.product_translations, locale, locale)?.name ?? "—",
+        categoryId: row.category_id,
+        categoryName: category ? pick(category.category_translations, locale, locale)?.name ?? "—" : "—",
+        categorySort: category?.sort_order ?? 0,
+        productSort: row.sort_order,
+      };
+    })
+    .sort((a, b) => a.categorySort - b.categorySort || a.productSort - b.productSort || a.name.localeCompare(b.name, "tr"));
+  return { ok: true as const, products };
+}
+
 export async function getExtraOptionEditor(id: string): Promise<
-  | { ok: true; extra: ExtraOptionEditor | null; categories: { id: string; name: string }[] }
+  | {
+      ok: true;
+      extra: ExtraOptionEditor | null;
+      categories: { id: string; name: string }[];
+      products: { id: string; name: string; categoryId: string; categoryName: string }[];
+    }
   | LoadFailure
 > {
-  if (!getSupabaseEnv()) return { ok: true, extra: null, categories: [] };
+  if (!getSupabaseEnv()) return { ok: true, extra: null, categories: [], products: [] };
   const client = await clientOrSetup();
   if (!client.ok) return client;
 
   const locale = await getDefaultLocale(client.supabase);
-  const [extraResult, categoriesResult] = await Promise.all([
+  const [extraResult, categoriesResult, productsResult, bindsResult] = await Promise.all([
     client.supabase
       .from("extra_options")
       .select(
@@ -351,6 +404,12 @@ export async function getExtraOptionEditor(id: string): Promise<
       .from("categories")
       .select("id, sort_order, category_translations(locale, name)")
       .order("sort_order"),
+    loadProductPicker(client.supabase, locale),
+    client.supabase
+      .from("product_extra_options")
+      .select("product_id, sort_order")
+      .eq("extra_option_id", id)
+      .order("sort_order"),
   ]);
 
   if (extraResult.error) {
@@ -360,6 +419,7 @@ export async function getExtraOptionEditor(id: string): Promise<
     return loadFailure(extraResult.error);
   }
   if (categoriesResult.error) return loadFailure(categoriesResult.error);
+  if (!productsResult.ok) return loadFailure(productsResult.error);
 
   const categories = ((categoriesResult.data ?? []) as {
     id: string;
@@ -369,7 +429,14 @@ export async function getExtraOptionEditor(id: string): Promise<
     name: pick(row.category_translations, locale, locale)?.name ?? "—",
   }));
 
-  if (!extraResult.data) return { ok: true, extra: null, categories };
+  const productIds =
+    bindsResult.error && /product_extra_options/i.test(bindsResult.error.message)
+      ? []
+      : ((bindsResult.data ?? []) as { product_id: string }[]).map((row) => row.product_id);
+
+  if (!extraResult.data) {
+    return { ok: true, extra: null, categories, products: productsResult.products };
+  }
 
   const row = extraResult.data as {
     id: string;
@@ -408,30 +475,38 @@ export async function getExtraOptionEditor(id: string): Promise<
           priceDelta: asPrice(choice.price_delta),
           isDefault: choice.is_default,
         })),
+      productIds,
     },
     categories,
+    products: productsResult.products,
   };
 }
 
 export async function getExtraOptionCreateData(): Promise<
-  | { ok: true; categories: { id: string; name: string }[] }
+  | {
+      ok: true;
+      categories: { id: string; name: string }[];
+      products: { id: string; name: string; categoryId: string; categoryName: string }[];
+    }
   | LoadFailure
 > {
-  if (!getSupabaseEnv()) return { ok: true, categories: [] };
+  if (!getSupabaseEnv()) return { ok: true, categories: [], products: [] };
   const client = await clientOrSetup();
   if (!client.ok) return client;
   const locale = await getDefaultLocale(client.supabase);
-  const { data, error } = await client.supabase
-    .from("categories")
-    .select("id, sort_order, category_translations(locale, name)")
-    .order("sort_order");
-  if (error) return loadFailure(error);
+  const [categoriesResult, productsResult] = await Promise.all([
+    client.supabase.from("categories").select("id, sort_order, category_translations(locale, name)").order("sort_order"),
+    loadProductPicker(client.supabase, locale),
+  ]);
+  if (categoriesResult.error) return loadFailure(categoriesResult.error);
+  if (!productsResult.ok) return loadFailure(productsResult.error);
   return {
     ok: true,
-    categories: ((data ?? []) as { id: string; category_translations: NameRow[] | null }[]).map((row) => ({
+    categories: ((categoriesResult.data ?? []) as { id: string; category_translations: NameRow[] | null }[]).map((row) => ({
       id: row.id,
       name: pick(row.category_translations, locale, locale)?.name ?? "—",
     })),
+    products: productsResult.products,
   };
 }
 
@@ -498,15 +573,19 @@ export async function getProductOptions(): Promise<
       ok: true;
       categories: { id: string; name: string; features: CategoryFeature[] }[];
       allergens: { code: string; name: string }[];
+      extras: { id: string; name: string; kind: string }[];
     }
   | LoadFailure
 > {
-  if (!getSupabaseEnv()) return previewProductOptions();
+  if (!getSupabaseEnv()) {
+    const preview = previewProductOptions();
+    return { ok: true as const, categories: preview.categories, allergens: preview.allergens, extras: [] };
+  }
   const client = await clientOrSetup();
   if (!client.ok) return client;
   const locale = await getDefaultLocale(client.supabase);
 
-  const [categories, allergens] = await Promise.all([
+  const [categories, allergens, extrasResult] = await Promise.all([
     client.supabase
       .from("categories")
       .select(
@@ -517,9 +596,26 @@ export async function getProductOptions(): Promise<
       .from("allergens")
       .select("code, sort_order, allergen_translations(locale, name)")
       .order("sort_order"),
+    client.supabase
+      .from("extra_options")
+      .select("id, kind, sort_order, extra_option_translations(locale, name)")
+      .order("sort_order"),
   ]);
   const error = categories.error ?? allergens.error;
   if (error) return loadFailure(error);
+
+  const extras =
+    extrasResult.error && /extra_option/i.test(extrasResult.error.message)
+      ? []
+      : ((extrasResult.data ?? []) as {
+          id: string;
+          kind: string;
+          extra_option_translations: NameRow[] | null;
+        }[]).map((row) => ({
+          id: row.id,
+          name: pick(row.extra_option_translations, locale, locale)?.name ?? "—",
+          kind: row.kind,
+        }));
 
   return {
     ok: true,
@@ -553,6 +649,7 @@ export async function getProductOptions(): Promise<
         name: pick(allergen.allergen_translations, locale, locale)?.name ?? allergen.code,
       }),
     ),
+    extras,
   };
 }
 
@@ -570,26 +667,40 @@ export async function getProductEditor(id: string): Promise<
         imageUrl: string | null;
         allergenCodes: string[];
         options: ProductChoice[];
+        extraOptionIds: string[];
       } | null;
     }
   | LoadFailure
 > {
-  if (!getSupabaseEnv()) return previewProductEditor(id);
+  if (!getSupabaseEnv()) {
+    const preview = previewProductEditor(id);
+    return {
+      ok: true as const,
+      product: preview.product ? { ...preview.product, extraOptionIds: [] } : null,
+    };
+  }
   const client = await clientOrSetup();
   if (!client.ok) return client;
   const locale = await getDefaultLocale(client.supabase);
-  const { data, error } = await client.supabase
-    .from("products")
-    .select(
-      "id, category_id, price, image_path, is_published, product_translations(locale, name, description, ingredients), product_allergens(allergen_code), product_options(id, feature_id, price_delta, is_default, sort_order, product_option_translations(locale, name))",
-    )
-    .eq("id", id)
-    .maybeSingle();
+  const [productResult, bindsResult] = await Promise.all([
+    client.supabase
+      .from("products")
+      .select(
+        "id, category_id, price, image_path, is_published, product_translations(locale, name, description, ingredients), product_allergens(allergen_code), product_options(id, feature_id, price_delta, is_default, sort_order, product_option_translations(locale, name))",
+      )
+      .eq("id", id)
+      .maybeSingle(),
+    client.supabase
+      .from("product_extra_options")
+      .select("extra_option_id, sort_order")
+      .eq("product_id", id)
+      .order("sort_order"),
+  ]);
 
-  if (error) return loadFailure(error);
-  if (!data) return { ok: true, product: null };
+  if (productResult.error) return loadFailure(productResult.error);
+  if (!productResult.data) return { ok: true, product: null };
 
-  const row = data as {
+  const row = productResult.data as {
     id: string;
     category_id: string;
     price: number | string;
@@ -609,6 +720,10 @@ export async function getProductEditor(id: string): Promise<
       | null;
   };
   const copy = pick(row.product_translations, locale, locale);
+  const extraOptionIds =
+    bindsResult.error && /product_extra_options/i.test(bindsResult.error.message)
+      ? []
+      : ((bindsResult.data ?? []) as { extra_option_id: string }[]).map((item) => item.extra_option_id);
 
   return {
     ok: true,
@@ -631,6 +746,7 @@ export async function getProductEditor(id: string): Promise<
           priceDelta: asPrice(option.price_delta),
           isDefault: option.is_default,
         })),
+      extraOptionIds,
     },
   };
 }

@@ -81,6 +81,7 @@ export type ExtraOptionListItem = {
   menuCategoryName: string | null;
   choiceCount: number;
   boundCategoryCount: number;
+  boundProductCount: number;
 };
 
 export type ExtraOptionEditor = {
@@ -92,6 +93,7 @@ export type ExtraOptionEditor = {
   price: number;
   menuCategoryId: string | null;
   choices: { id: string; name: string; priceDelta: number; isDefault: boolean }[];
+  productIds: string[];
 };
 
 export type CategoryFeature = {

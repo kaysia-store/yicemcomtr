@@ -34,7 +34,7 @@ async function NewExtraContent() {
         }
         title="Yeni ek seçenek"
       />
-      <ExtraOptionForm action={saveExtraOption} categories={result.categories} />
+      <ExtraOptionForm action={saveExtraOption} categories={result.categories} products={result.products} />
     </div>
   );
 }

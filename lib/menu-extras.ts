@@ -9,8 +9,14 @@ function pick<T extends { locale: string }>(rows: T[] | null | undefined, locale
   return list.find((row) => row.locale === locale) ?? list.find((row) => row.locale === fallback);
 }
 
-type RawBind = {
+type RawCategoryBind = {
   category_id: string;
+  sort_order: number;
+  extra_options: RawExtra | RawExtra[] | null;
+};
+
+type RawProductBind = {
+  product_id: string;
   sort_order: number;
   extra_options: RawExtra | RawExtra[] | null;
 };
@@ -39,7 +45,76 @@ function one<T>(value: T | T[] | null | undefined): T | null {
   return Array.isArray(value) ? (value[0] ?? null) : value;
 }
 
-/** Kategoriye bağlı ek seçenekleri ürünlere yazar. */
+const extraSelect = `
+  id,
+  kind,
+  selection,
+  is_required,
+  price,
+  menu_category_id,
+  extra_option_translations (locale, name),
+  extra_option_choices (
+    id,
+    price_delta,
+    is_default,
+    sort_order,
+    extra_option_choice_translations (locale, name)
+  )
+`;
+
+function mapRawExtra(
+  raw: RawExtra,
+  locale: string,
+  fallback: string,
+  productsByCategory: Map<string, MenuExtraMenuProduct[]>,
+): MenuExtra | null {
+  const name = pick(raw.extra_option_translations, locale, fallback)?.name;
+  if (!name) return null;
+
+  const choices = (raw.extra_option_choices ?? [])
+    .slice()
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((choice) => {
+      const choiceName = pick(choice.extra_option_choice_translations, locale, fallback)?.name;
+      if (!choiceName) return null;
+      return {
+        id: choice.id,
+        name: choiceName,
+        priceDelta: asPrice(choice.price_delta),
+        isDefault: choice.is_default,
+      };
+    })
+    .filter((choice): choice is NonNullable<typeof choice> => choice !== null);
+
+  if (raw.kind === "list" && choices.length === 0) return null;
+  if (raw.kind === "menu" && !(raw.menu_category_id && (productsByCategory.get(raw.menu_category_id)?.length ?? 0) > 0)) {
+    return null;
+  }
+
+  return {
+    id: raw.id,
+    name,
+    kind: raw.kind,
+    selection: raw.selection === "multiple" ? "multiple" : "single",
+    required: raw.is_required,
+    price: asPrice(raw.price),
+    choices,
+    menuProducts: raw.kind === "menu" && raw.menu_category_id ? productsByCategory.get(raw.menu_category_id) ?? [] : [],
+  };
+}
+
+function mergeExtras(primary: MenuExtra[], secondary: MenuExtra[]) {
+  const seen = new Set(primary.map((item) => item.id));
+  const merged = primary.slice();
+  for (const item of secondary) {
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
+    merged.push(item);
+  }
+  return merged;
+}
+
+/** Kategori ve ürün bağlarını birleştirerek ek seçenekleri yazar. */
 export async function attachExtrasToMenu(
   supabase: SupabaseClient,
   categories: MenuCategory[],
@@ -47,36 +122,25 @@ export async function attachExtrasToMenu(
   fallback: string,
 ): Promise<MenuCategory[]> {
   const categoryIds = categories.map((category) => category.id);
+  const productIds = categories.flatMap((category) => category.products.map((product) => product.id));
   if (categoryIds.length === 0) return categories;
 
-  const { data, error } = await supabase
-    .from("category_extra_options")
-    .select(
-      `
-      category_id,
-      sort_order,
-      extra_options (
-        id,
-        kind,
-        selection,
-        is_required,
-        price,
-        menu_category_id,
-        extra_option_translations (locale, name),
-        extra_option_choices (
-          id,
-          price_delta,
-          is_default,
-          sort_order,
-          extra_option_choice_translations (locale, name)
-        )
-      )
-    `,
-    )
-    .in("category_id", categoryIds)
-    .order("sort_order");
+  const [categoryBindsResult, productBindsResult] = await Promise.all([
+    supabase
+      .from("category_extra_options")
+      .select(`category_id, sort_order, extra_options ( ${extraSelect} )`)
+      .in("category_id", categoryIds)
+      .order("sort_order"),
+    productIds.length > 0
+      ? supabase
+          .from("product_extra_options")
+          .select(`product_id, sort_order, extra_options ( ${extraSelect} )`)
+          .in("product_id", productIds)
+          .order("sort_order")
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
-  if (error) return categories;
+  if (categoryBindsResult.error && productBindsResult.error) return categories;
 
   const productsByCategory = new Map<string, MenuExtraMenuProduct[]>();
   for (const category of categories) {
@@ -92,8 +156,16 @@ export async function attachExtrasToMenu(
   }
 
   const menuCategoryIds = new Set<string>();
-  const binds = (data ?? []) as RawBind[];
-  for (const row of binds) {
+  const categoryBinds = (categoryBindsResult.error ? [] : categoryBindsResult.data ?? []) as RawCategoryBind[];
+  const productBinds = (
+    productBindsResult.error && /product_extra_options/i.test(productBindsResult.error.message)
+      ? []
+      : productBindsResult.error
+        ? []
+        : productBindsResult.data ?? []
+  ) as RawProductBind[];
+
+  for (const row of [...categoryBinds, ...productBinds]) {
     const extra = one(row.extra_options);
     if (extra?.kind === "menu" && extra.menu_category_id) menuCategoryIds.add(extra.menu_category_id);
   }
@@ -105,54 +177,32 @@ export async function attachExtrasToMenu(
   }
 
   const byCategory = new Map<string, MenuExtra[]>();
-  for (const row of binds) {
+  for (const row of categoryBinds) {
     const raw = one(row.extra_options);
     if (!raw) continue;
-    const name = pick(raw.extra_option_translations, locale, fallback)?.name;
-    if (!name) continue;
-
-    const choices = (raw.extra_option_choices ?? [])
-      .slice()
-      .sort((a, b) => a.sort_order - b.sort_order)
-      .map((choice) => {
-        const choiceName = pick(choice.extra_option_choice_translations, locale, fallback)?.name;
-        if (!choiceName) return null;
-        return {
-          id: choice.id,
-          name: choiceName,
-          priceDelta: asPrice(choice.price_delta),
-          isDefault: choice.is_default,
-        };
-      })
-      .filter((choice): choice is NonNullable<typeof choice> => choice !== null);
-
-    if (raw.kind === "list" && choices.length === 0) continue;
-    if (raw.kind === "menu" && !(raw.menu_category_id && (productsByCategory.get(raw.menu_category_id)?.length ?? 0) > 0)) {
-      continue;
-    }
-
-    const extra: MenuExtra = {
-      id: raw.id,
-      name,
-      kind: raw.kind,
-      selection: raw.selection === "multiple" ? "multiple" : "single",
-      required: raw.is_required,
-      price: asPrice(raw.price),
-      choices,
-      menuProducts:
-        raw.kind === "menu" && raw.menu_category_id ? productsByCategory.get(raw.menu_category_id) ?? [] : [],
-    };
-
+    const extra = mapRawExtra(raw, locale, fallback, productsByCategory);
+    if (!extra) continue;
     const list = byCategory.get(row.category_id) ?? [];
     list.push(extra);
     byCategory.set(row.category_id, list);
+  }
+
+  const byProduct = new Map<string, MenuExtra[]>();
+  for (const row of productBinds) {
+    const raw = one(row.extra_options);
+    if (!raw) continue;
+    const extra = mapRawExtra(raw, locale, fallback, productsByCategory);
+    if (!extra) continue;
+    const list = byProduct.get(row.product_id) ?? [];
+    list.push(extra);
+    byProduct.set(row.product_id, list);
   }
 
   return categories.map((category) => ({
     ...category,
     products: category.products.map((product) => ({
       ...product,
-      extras: byCategory.get(category.id) ?? [],
+      extras: mergeExtras(byProduct.get(product.id) ?? [], byCategory.get(category.id) ?? []),
     })),
   }));
 }

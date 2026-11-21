@@ -26,21 +26,25 @@ type ProductFormValues = {
   imageUrl: string | null;
   allergenCodes: string[];
   options: ProductChoice[];
+  extraOptionIds?: string[];
 };
 
 export function ProductForm({
   action,
   categories,
   allergens,
+  extras = [],
   product,
 }: {
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
   categories: { id: string; name: string; features: CategoryFeature[] }[];
   allergens: { code: string; name: string }[];
+  extras?: { id: string; name: string; kind: string }[];
   product?: ProductFormValues;
 }) {
   const [state, formAction] = useActionState(action, idleActionState);
   const [categoryId, setCategoryId] = useState(product?.categoryId ?? categories[0]?.id ?? "");
+  const [boundExtras, setBoundExtras] = useState<string[]>(() => product?.extraOptionIds ?? []);
   const [rows, setRows] = useState<Record<string, OptionRow[]>>(() => {
     const initial: Record<string, OptionRow[]> = {};
     for (const option of product?.options ?? []) {
@@ -98,6 +102,7 @@ export function ProductForm({
       {state.status === "error" ? <Notice tone="error">{state.message}</Notice> : null}
       {product ? <input type="hidden" name="id" value={product.id} /> : null}
       <input name="optionsJson" type="hidden" value={optionsJson} />
+      <input name="extraOptionIdsJson" type="hidden" value={JSON.stringify(boundExtras)} />
       <ImageField currentUrl={product?.imageUrl ?? null} />
       <label className="grid gap-1.5 text-sm font-medium" htmlFor="product-category">
         Kategori
@@ -142,6 +147,40 @@ export function ProductForm({
         İçindekiler
         <textarea className="field min-h-28" defaultValue={product?.ingredients ?? ""} id="product-ingredients" maxLength={2000} name="ingredients" />
       </label>
+      <section className="grid gap-3 rounded-3xl border border-line bg-card p-4">
+        <div>
+          <h2 className="font-medium">Ek seçenekler</h2>
+          <p className="mt-1 text-sm leading-6 text-muted">
+            Bu ürüne özel bağlayın (tek veya birden fazla ürün aynı kataloğu paylaşabilir). Tanımlar Ek seçenekler
+            sekmesinde.
+          </p>
+        </div>
+        {extras.length === 0 ? (
+          <p className="text-sm text-muted">Henüz ek seçenek yok.</p>
+        ) : (
+          <ul className="grid gap-2">
+            {extras.map((item) => (
+              <li key={item.id}>
+                <label className="flex items-center gap-2 rounded-2xl border border-line px-3 py-2 text-sm">
+                  <input
+                    checked={boundExtras.includes(item.id)}
+                    onChange={() =>
+                      setBoundExtras((current) =>
+                        current.includes(item.id) ? current.filter((id) => id !== item.id) : [...current, item.id],
+                      )
+                    }
+                    type="checkbox"
+                  />
+                  <span className="font-medium">{item.name}</span>
+                  <span className="text-xs text-muted">
+                    {item.kind === "menu" ? "Menüden" : item.kind === "list" ? "Liste" : "Sabit"}
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
       <section className="grid gap-4">
         <div>
           <h2 className="font-medium">Seçenekler</h2>

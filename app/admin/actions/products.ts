@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { getDefaultLocale, nextSortOrder } from "@/lib/admin-data";
+import { readBoundExtraIds } from "@/lib/extras";
 import { readOptionDrafts, type OptionDraft } from "@/lib/features";
 import { removeProductImages, uploadProductImage } from "@/lib/images";
 import { revalidateMenu } from "@/lib/revalidate";
@@ -150,8 +151,55 @@ export async function saveProduct(_prev: ActionState, formData: FormData): Promi
     redirect(`/admin/products/${id}?error=${encodeURIComponent(optionError)}`);
   }
 
+  const extrasBind = readBoundExtraIds(
+    typeof formData.get("extraOptionIdsJson") === "string" ? String(formData.get("extraOptionIdsJson")) : "[]",
+  );
+  if (!extrasBind.ok) return { status: "error", message: extrasBind.message };
+  const extrasError = await syncProductExtras(auth.supabase, id, extrasBind.ids);
+  if (extrasError) {
+    redirect(`/admin/products/${id}?error=${encodeURIComponent(extrasError)}`);
+  }
+
   revalidateMenu();
   redirect("/admin/products");
+}
+
+async function syncProductExtras(supabase: SupabaseClient, productId: string, extraIds: string[]) {
+  const { data, error } = await supabase
+    .from("product_extra_options")
+    .select("extra_option_id")
+    .eq("product_id", productId);
+  if (error) {
+    if (/product_extra_options/i.test(error.message)) {
+      return extraIds.length === 0
+        ? null
+        : "Ürün bağ tablosu eksik. supabase/migrations/0015_product_extra_options.sql dosyasını çalıştırın.";
+    }
+    return "Ek seçenek bağları yüklenemedi.";
+  }
+  const existing = new Set(((data ?? []) as { extra_option_id: string }[]).map((row) => row.extra_option_id));
+  const kept = new Set(extraIds);
+
+  for (let index = 0; index < extraIds.length; index += 1) {
+    const extraOptionId = extraIds[index];
+    const { error: upsertError } = await supabase.from("product_extra_options").upsert({
+      product_id: productId,
+      extra_option_id: extraOptionId,
+      sort_order: index,
+    });
+    if (upsertError) return "Ek seçenek ürüne bağlanamadı.";
+  }
+
+  const removed = [...existing].filter((id) => !kept.has(id));
+  if (removed.length > 0) {
+    const { error: deleteError } = await supabase
+      .from("product_extra_options")
+      .delete()
+      .eq("product_id", productId)
+      .in("extra_option_id", removed);
+    if (deleteError) return "Ek seçenek bağı silinemedi.";
+  }
+  return null;
 }
 
 async function syncProductOptions(supabase: SupabaseClient, productId: string, locale: string, drafts: OptionDraft[]) {
