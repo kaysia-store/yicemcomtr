@@ -142,9 +142,12 @@ export function ExtraOptionForm({
             <option value="multiple">Çoklu seçim (checkbox)</option>
           </select>
         </label>
-        <label className="flex items-center gap-2 pt-6 text-sm">
-          <input defaultChecked={extra?.required ?? false} name="isRequired" type="checkbox" value="true" />
-          Zorunlu
+        <label className="grid gap-1 pt-6 text-sm">
+          <span className="flex items-center gap-2">
+            <input defaultChecked={extra?.required ?? false} name="isRequired" type="checkbox" value="true" />
+            Zorunlu
+          </span>
+          <span className="text-xs text-muted">Kapalıysa müşteri “Ekle” ile isterse seçer; açık zorunlu olur.</span>
         </label>
       </div>
 

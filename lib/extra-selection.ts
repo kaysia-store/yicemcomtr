@@ -1,7 +1,7 @@
 import type { MenuExtra, MenuFeature, MenuProduct } from "@/lib/types";
 
 export type ExtraPickState = {
-  /** fixed: seçili mi */
+  /** fixed / liste / menü: ek seçenek aktif mi (opt-in) */
   fixedOn: boolean;
   /** list: seçilen choice id'leri */
   choiceIds: string[];
@@ -21,18 +21,21 @@ export function nestedPickKey(productId: string, nestedExtraId: string) {
   return `${productId}::${nestedExtraId}`;
 }
 
+/** Zorunlu olanlar için varsayılan; opsiyoneller boş başlar (opt-in). */
 function defaultPickForExtra(extra: MenuExtra): ExtraPickState {
   const pick = emptyExtraPick();
+  if (!extra.required) return pick;
+
+  pick.fixedOn = true;
   if (extra.kind === "list") {
     const defaults = extra.choices.filter((choice) => choice.isDefault);
     if (extra.selection === "single") {
-      const choice = defaults[0] ?? (extra.required ? extra.choices[0] : undefined);
+      const choice = defaults[0] ?? extra.choices[0];
       if (choice) pick.choiceIds = [choice.id];
     } else {
-      pick.choiceIds = defaults.map((choice) => choice.id);
+      pick.choiceIds = defaults.length > 0 ? defaults.map((choice) => choice.id) : extra.choices[0] ? [extra.choices[0].id] : [];
     }
   }
-  if (extra.kind === "fixed" && extra.required) pick.fixedOn = true;
   return pick;
 }
 
@@ -42,6 +45,11 @@ export function defaultExtraPicks(extras: MenuExtra[]) {
     map[extra.id] = defaultPickForExtra(extra);
   }
   return map;
+}
+
+function extraIsActive(extra: MenuExtra, pick: ExtraPickState) {
+  if (extra.required) return true;
+  return pick.fixedOn || pick.choiceIds.length > 0 || pick.menuProductIds.length > 0;
 }
 
 function nestedAmount(extra: MenuExtra, pick: ExtraPickState) {
@@ -57,7 +65,8 @@ function nestedAmount(extra: MenuExtra, pick: ExtraPickState) {
 }
 
 function leafExtraAmount(extra: MenuExtra, pick: ExtraPickState) {
-  if (extra.kind === "fixed") return pick.fixedOn ? extra.price : 0;
+  if (!extraIsActive(extra, pick)) return 0;
+  if (extra.kind === "fixed") return extra.price;
   if (extra.kind === "list") {
     return extra.choices
       .filter((choice) => pick.choiceIds.includes(choice.id))
@@ -68,7 +77,7 @@ function leafExtraAmount(extra: MenuExtra, pick: ExtraPickState) {
 
 export function extraAmount(extra: MenuExtra, pick: ExtraPickState) {
   if (extra.kind === "fixed" || extra.kind === "list") return leafExtraAmount(extra, pick);
-  if (!pick.menuProductIds.length) return 0;
+  if (!extraIsActive(extra, pick) || pick.menuProductIds.length === 0) return 0;
   let sum = extra.price;
   for (const product of extra.menuProducts) {
     if (!pick.menuProductIds.includes(product.id)) continue;
@@ -83,8 +92,9 @@ export function extraAmount(extra: MenuExtra, pick: ExtraPickState) {
 
 export function extraLabels(extra: MenuExtra, pick: ExtraPickState) {
   const labels: string[] = [];
+  if (!extraIsActive(extra, pick)) return labels;
   if (extra.kind === "fixed") {
-    if (pick.fixedOn) labels.push(extra.name);
+    labels.push(extra.name);
     return labels;
   }
   if (extra.kind === "list") {
@@ -152,17 +162,15 @@ function featureReady(feature: MenuFeature, selected: Set<string>) {
 }
 
 function leafExtraReady(extra: MenuExtra, pick: ExtraPickState) {
-  if (extra.kind === "fixed") return !extra.required || pick.fixedOn;
-  if (extra.kind === "list") {
-    if (!extra.required && pick.choiceIds.length === 0) return true;
-    return pick.choiceIds.length > 0;
-  }
+  if (!extraIsActive(extra, pick)) return !extra.required;
+  if (extra.kind === "fixed") return true;
+  if (extra.kind === "list") return pick.choiceIds.length > 0;
   return true;
 }
 
 export function extraReady(extra: MenuExtra, pick: ExtraPickState) {
   if (extra.kind === "fixed" || extra.kind === "list") return leafExtraReady(extra, pick);
-  if (!extra.required && pick.menuProductIds.length === 0) return true;
+  if (!extraIsActive(extra, pick)) return !extra.required;
   if (pick.menuProductIds.length === 0) return false;
   if (extra.selection === "single" && pick.menuProductIds.length !== 1) return false;
   for (const product of extra.menuProducts) {
@@ -189,7 +197,7 @@ export function productFeaturesReady(product: MenuProduct, selected: Set<string>
 
 export type ConfigStep =
   | { type: "features" }
-  | { type: "extra"; extraId: string }
+  | { type: "extras" }
   | { type: "menu-features"; extraId: string; productId: string }
   | { type: "menu-extra"; extraId: string; productId: string; nestedExtraId: string }
   | { type: "ingredients" };
@@ -197,11 +205,12 @@ export type ConfigStep =
 export function buildConfigSteps(product: MenuProduct, picks: Record<string, ExtraPickState>): ConfigStep[] {
   const steps: ConfigStep[] = [];
   if (product.features.length > 0) steps.push({ type: "features" });
+  if (product.extras.length > 0) steps.push({ type: "extras" });
 
   for (const extra of product.extras) {
-    steps.push({ type: "extra", extraId: extra.id });
     if (extra.kind !== "menu") continue;
     const pick = picks[extra.id] ?? emptyExtraPick();
+    if (!extraIsActive(extra, pick)) continue;
     for (const menuProduct of extra.menuProducts) {
       if (!pick.menuProductIds.includes(menuProduct.id)) continue;
       if (menuProduct.features.length > 0) {
@@ -222,7 +231,7 @@ export function buildConfigSteps(product: MenuProduct, picks: Record<string, Ext
   return steps;
 }
 
-/** Menü ürünü seçilince nested ek seçenek varsayılanlarını doldur */
+/** Menü ürünü seçilince nested ek seçenek varsayılanlarını doldur (yalnızca zorunlular). */
 export function ensureNestedDefaults(extra: MenuExtra, pick: ExtraPickState): ExtraPickState {
   if (extra.kind !== "menu") return pick;
   let nestedPicks = pick.nestedPicks;
@@ -237,7 +246,6 @@ export function ensureNestedDefaults(extra: MenuExtra, pick: ExtraPickState): Ex
       changed = true;
     }
   }
-  // Seçimi kalkmış ürünlerin nested pick'lerini temizle
   for (const key of Object.keys(nestedPicks)) {
     const productId = key.split("::")[0];
     if (pick.menuProductIds.includes(productId)) continue;
@@ -247,3 +255,5 @@ export function ensureNestedDefaults(extra: MenuExtra, pick: ExtraPickState): Ex
   }
   return changed ? { ...pick, nestedPicks } : pick;
 }
+
+export { extraIsActive };

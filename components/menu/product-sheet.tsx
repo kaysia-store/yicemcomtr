@@ -8,6 +8,7 @@ import {
   defaultExtraPicks,
   emptyExtraPick,
   ensureNestedDefaults,
+  extraIsActive,
   extrasTotal,
   nestedPickKey,
   productExtrasReady,
@@ -133,50 +134,74 @@ function ExtraStep({
   }
 
   if (extra.kind === "list") {
+    const active = extraIsActive(extra, pick);
     return (
-      <fieldset className="mt-5">
-        <legend className="text-sm font-medium tracking-wide text-accent uppercase">
+      <div className="mt-5">
+        <p className="text-sm font-medium tracking-wide text-accent uppercase">
           {extra.name}
           {extra.required ? ` · ${requiredLabel}` : ""}
-        </legend>
-        <div className="mt-2 grid gap-2">
-          {extra.choices.map((choice) => (
-            <label
-              className="flex items-center justify-between gap-3 rounded-2xl border border-line px-3 py-3 text-sm"
-              key={choice.id}
-            >
-              <span className="flex items-center gap-2">
-                <input
-                  checked={pick.choiceIds.includes(choice.id)}
-                  name={`extra-list-${extra.id}`}
-                  onChange={() => {
-                    if (extra.selection === "single") {
-                      const already = pick.choiceIds.length === 1 && pick.choiceIds[0] === choice.id;
-                      onChange({
-                        ...pick,
-                        choiceIds: already && !extra.required ? [] : [choice.id],
-                      });
-                      return;
-                    }
-                    const has = pick.choiceIds.includes(choice.id);
-                    if (has) {
-                      if (extra.required && pick.choiceIds.length === 1) return;
-                      onChange({ ...pick, choiceIds: pick.choiceIds.filter((id) => id !== choice.id) });
-                    } else {
-                      onChange({ ...pick, choiceIds: [...pick.choiceIds, choice.id] });
-                    }
-                  }}
-                  type={extra.selection === "single" ? "radio" : "checkbox"}
-                />
-                {choice.name}
-              </span>
-              <span className="shrink-0 tabular-nums text-muted">
-                {choice.priceDelta > 0 ? `+${formatPrice(choice.priceDelta)}` : includedLabel}
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+        </p>
+        {!extra.required ? (
+          <label className="mt-2 flex items-center justify-between gap-3 rounded-2xl border border-line px-3 py-3 text-sm">
+            <span className="flex items-center gap-2">
+              <input
+                checked={active}
+                onChange={() => {
+                  if (active) onChange(emptyExtraPick());
+                  else onChange({ ...emptyExtraPick(), fixedOn: true });
+                }}
+                type="checkbox"
+              />
+              {t("addExtra")}
+            </span>
+          </label>
+        ) : null}
+        {active ? (
+          <div className="mt-2 grid gap-2">
+            {extra.choices.map((choice) => (
+              <label
+                className="flex items-center justify-between gap-3 rounded-2xl border border-line px-3 py-3 text-sm"
+                key={choice.id}
+              >
+                <span className="flex items-center gap-2">
+                  <input
+                    checked={pick.choiceIds.includes(choice.id)}
+                    name={`extra-list-${extra.id}`}
+                    onChange={() => {
+                      if (extra.selection === "single") {
+                        const already = pick.choiceIds.length === 1 && pick.choiceIds[0] === choice.id;
+                        onChange({
+                          ...pick,
+                          fixedOn: true,
+                          choiceIds: already && !extra.required ? [] : [choice.id],
+                        });
+                        return;
+                      }
+                      const has = pick.choiceIds.includes(choice.id);
+                      if (has) {
+                        if (extra.required && pick.choiceIds.length === 1) return;
+                        const choiceIds = pick.choiceIds.filter((id) => id !== choice.id);
+                        onChange({
+                          ...pick,
+                          fixedOn: choiceIds.length > 0 || extra.required,
+                          choiceIds,
+                        });
+                      } else {
+                        onChange({ ...pick, fixedOn: true, choiceIds: [...pick.choiceIds, choice.id] });
+                      }
+                    }}
+                    type={extra.selection === "single" ? "radio" : "checkbox"}
+                  />
+                  {choice.name}
+                </span>
+                <span className="shrink-0 tabular-nums text-muted">
+                  {choice.priceDelta > 0 ? `+${formatPrice(choice.priceDelta)}` : includedLabel}
+                </span>
+              </label>
+            ))}
+          </div>
+        ) : null}
+      </div>
     );
   }
 
@@ -315,17 +340,7 @@ export function ProductSheet({
   function stepReady() {
     if (!step) return canProceedFeatures && canProceedExtras;
     if (step.type === "features") return canProceedFeatures;
-    if (step.type === "extra") {
-      const extra = product.extras.find((item) => item.id === step.extraId);
-      if (!extra) return true;
-      const pick = extraPicks[extra.id] ?? emptyExtraPick();
-      if (extra.kind === "fixed") return !extra.required || pick.fixedOn;
-      if (extra.kind === "list") return !extra.required || pick.choiceIds.length > 0;
-      if (extra.kind === "menu") {
-        if (!extra.required && !pick.fixedOn && pick.menuProductIds.length === 0) return true;
-        return pick.menuProductIds.length > 0;
-      }
-    }
+    if (step.type === "extras") return canProceedExtras;
     if (step.type === "menu-features") {
       const extra = product.extras.find((item) => item.id === step.extraId);
       const menuProduct = extra?.menuProducts.find((item) => item.id === step.productId);
@@ -343,8 +358,8 @@ export function ProductSheet({
       if (!nested) return true;
       const parentPick = extraPicks[step.extraId] ?? emptyExtraPick();
       const nestedPick = parentPick.nestedPicks[nestedPickKey(step.productId, nested.id)] ?? emptyExtraPick();
-      if (nested.kind === "fixed") return !nested.required || nestedPick.fixedOn;
-      if (nested.kind === "list") return !nested.required || nestedPick.choiceIds.length > 0;
+      if (!extraIsActive(nested, nestedPick)) return !nested.required;
+      if (nested.kind === "list") return nestedPick.choiceIds.length > 0;
       return true;
     }
     return true;
@@ -410,17 +425,25 @@ export function ProductSheet({
         />
       );
     }
-    if (step.type === "extra") {
-      const extra = product.extras.find((item) => item.id === step.extraId);
-      if (!extra) return null;
+    if (step.type === "extras") {
       return (
-        <ExtraStep
-          extra={extra}
-          includedLabel={t("included")}
-          onChange={(next) => setExtraPicks((current) => ({ ...current, [extra.id]: next }))}
-          pick={extraPicks[extra.id] ?? emptyExtraPick()}
-          requiredLabel={t("requiredChoice")}
-        />
+        <div>
+          {product.extras.map((extra) => (
+            <ExtraStep
+              extra={extra}
+              includedLabel={t("included")}
+              key={extra.id}
+              onChange={(next) =>
+                setExtraPicks((current) => ({
+                  ...current,
+                  [extra.id]: ensureNestedDefaults(extra, next),
+                }))
+              }
+              pick={extraPicks[extra.id] ?? emptyExtraPick()}
+              requiredLabel={t("requiredChoice")}
+            />
+          ))}
+        </div>
       );
     }
     if (step.type === "menu-features") {
