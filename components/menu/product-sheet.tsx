@@ -7,7 +7,9 @@ import {
   buildConfigSteps,
   defaultExtraPicks,
   emptyExtraPick,
+  ensureNestedDefaults,
   extrasTotal,
+  nestedPickKey,
   productExtrasReady,
   productFeaturesReady,
   type ExtraPickState,
@@ -107,6 +109,10 @@ function ExtraStep({
 }) {
   const t = useTranslations("Menu");
 
+  function commit(next: ExtraPickState) {
+    onChange(ensureNestedDefaults(extra, next));
+  }
+
   if (extra.kind === "fixed") {
     return (
       <label className="mt-5 flex items-center justify-between gap-3 rounded-2xl border border-line px-3 py-3 text-sm">
@@ -190,11 +196,7 @@ function ExtraStep({
               checked={pick.fixedOn || pick.menuProductIds.length > 0}
               onChange={() => {
                 const on = !(pick.fixedOn || pick.menuProductIds.length > 0);
-                onChange(
-                  on
-                    ? { ...pick, fixedOn: true }
-                    : { ...emptyExtraPick() },
-                );
+                commit(on ? { ...pick, fixedOn: true } : emptyExtraPick());
               }}
               type="checkbox"
             />
@@ -223,14 +225,13 @@ function ExtraStep({
                     if (extra.selection === "single") {
                       const already = pick.menuProductIds.length === 1 && pick.menuProductIds[0] === item.id;
                       if (already && !extra.required) {
-                        onChange({ ...pick, menuProductIds: [], menuOptionIds: [], fixedOn: false });
+                        commit({ ...pick, menuProductIds: [], menuOptionIds: [], fixedOn: false, nestedPicks: {} });
                         return;
                       }
-                      // clear options of previous products
                       const keepOptions = item.features.flatMap((feature) =>
                         feature.options.filter((option) => pick.menuOptionIds.includes(option.id)).map((option) => option.id),
                       );
-                      onChange({
+                      commit({
                         ...pick,
                         fixedOn: true,
                         menuProductIds: [item.id],
@@ -244,14 +245,14 @@ function ExtraStep({
                       const removeIds = new Set(
                         item.features.flatMap((feature) => feature.options.map((option) => option.id)),
                       );
-                      onChange({
+                      commit({
                         ...pick,
                         menuProductIds: pick.menuProductIds.filter((id) => id !== item.id),
                         menuOptionIds: pick.menuOptionIds.filter((id) => !removeIds.has(id)),
                         fixedOn: pick.menuProductIds.length > 1,
                       });
                     } else {
-                      onChange({
+                      commit({
                         ...pick,
                         fixedOn: true,
                         menuProductIds: [...pick.menuProductIds, item.id],
@@ -334,6 +335,17 @@ export function ProductSheet({
         if (!feature.required) return true;
         return feature.options.some((option) => selectedOpts.has(option.id));
       });
+    }
+    if (step.type === "menu-extra") {
+      const extra = product.extras.find((item) => item.id === step.extraId);
+      const menuProduct = extra?.menuProducts.find((item) => item.id === step.productId);
+      const nested = menuProduct?.extras.find((item) => item.id === step.nestedExtraId);
+      if (!nested) return true;
+      const parentPick = extraPicks[step.extraId] ?? emptyExtraPick();
+      const nestedPick = parentPick.nestedPicks[nestedPickKey(step.productId, nested.id)] ?? emptyExtraPick();
+      if (nested.kind === "fixed") return !nested.required || nestedPick.fixedOn;
+      if (nested.kind === "list") return !nested.required || nestedPick.choiceIds.length > 0;
+      return true;
     }
     return true;
   }
@@ -427,6 +439,38 @@ export function ProductSheet({
             }
             requiredLabel={t("requiredChoice")}
             selected={selectedOpts}
+          />
+        </div>
+      );
+    }
+    if (step.type === "menu-extra") {
+      const extra = product.extras.find((item) => item.id === step.extraId);
+      const menuProduct = extra?.menuProducts.find((item) => item.id === step.productId);
+      const nested = menuProduct?.extras.find((item) => item.id === step.nestedExtraId);
+      if (!extra || !menuProduct || !nested) return null;
+      const parentPick = extraPicks[extra.id] ?? emptyExtraPick();
+      const key = nestedPickKey(menuProduct.id, nested.id);
+      const nestedPick = parentPick.nestedPicks[key] ?? emptyExtraPick();
+      return (
+        <div>
+          <p className="mt-5 text-sm font-medium text-ink">{menuProduct.name}</p>
+          <ExtraStep
+            extra={nested}
+            includedLabel={t("included")}
+            onChange={(next) =>
+              setExtraPicks((current) => {
+                const currentParent = current[extra.id] ?? emptyExtraPick();
+                return {
+                  ...current,
+                  [extra.id]: {
+                    ...currentParent,
+                    nestedPicks: { ...currentParent.nestedPicks, [key]: next },
+                  },
+                };
+              })
+            }
+            pick={nestedPick}
+            requiredLabel={t("requiredChoice")}
           />
         </div>
       );

@@ -9,40 +9,65 @@ export type ExtraPickState = {
   menuProductIds: string[];
   /** menu ürün özellik seçimleri: option id set */
   menuOptionIds: string[];
+  /** menü ürününe bağlı ek seçenekler: `${productId}::${nestedExtraId}` */
+  nestedPicks: Record<string, ExtraPickState>;
 };
 
 export function emptyExtraPick(): ExtraPickState {
-  return { fixedOn: false, choiceIds: [], menuProductIds: [], menuOptionIds: [] };
+  return { fixedOn: false, choiceIds: [], menuProductIds: [], menuOptionIds: [], nestedPicks: {} };
+}
+
+export function nestedPickKey(productId: string, nestedExtraId: string) {
+  return `${productId}::${nestedExtraId}`;
+}
+
+function defaultPickForExtra(extra: MenuExtra): ExtraPickState {
+  const pick = emptyExtraPick();
+  if (extra.kind === "list") {
+    const defaults = extra.choices.filter((choice) => choice.isDefault);
+    if (extra.selection === "single") {
+      const choice = defaults[0] ?? (extra.required ? extra.choices[0] : undefined);
+      if (choice) pick.choiceIds = [choice.id];
+    } else {
+      pick.choiceIds = defaults.map((choice) => choice.id);
+    }
+  }
+  if (extra.kind === "fixed" && extra.required) pick.fixedOn = true;
+  return pick;
 }
 
 export function defaultExtraPicks(extras: MenuExtra[]) {
   const map: Record<string, ExtraPickState> = {};
   for (const extra of extras) {
-    const pick = emptyExtraPick();
-    if (extra.kind === "list") {
-      const defaults = extra.choices.filter((choice) => choice.isDefault);
-      if (extra.selection === "single") {
-        const choice = defaults[0] ?? (extra.required ? extra.choices[0] : undefined);
-        if (choice) pick.choiceIds = [choice.id];
-      } else {
-        pick.choiceIds = defaults.map((choice) => choice.id);
-      }
-    }
-    if (extra.kind === "fixed" && extra.required) pick.fixedOn = true;
-    map[extra.id] = pick;
+    map[extra.id] = defaultPickForExtra(extra);
   }
   return map;
 }
 
-export function extraAmount(extra: MenuExtra, pick: ExtraPickState) {
+function nestedAmount(extra: MenuExtra, pick: ExtraPickState) {
+  let sum = 0;
+  for (const product of extra.menuProducts) {
+    if (!pick.menuProductIds.includes(product.id)) continue;
+    for (const nested of product.extras) {
+      const nestedPick = pick.nestedPicks[nestedPickKey(product.id, nested.id)] ?? emptyExtraPick();
+      sum += leafExtraAmount(nested, nestedPick);
+    }
+  }
+  return sum;
+}
+
+function leafExtraAmount(extra: MenuExtra, pick: ExtraPickState) {
   if (extra.kind === "fixed") return pick.fixedOn ? extra.price : 0;
   if (extra.kind === "list") {
     return extra.choices
       .filter((choice) => pick.choiceIds.includes(choice.id))
       .reduce((sum, choice) => sum + choice.priceDelta, 0);
   }
-  // menu: paket fiyatı + seçilen ürün özellik ekleri (ürün fiyatı dahil değil)
-  if (!pick.menuProductIds.length && !extra.required) return 0;
+  return 0;
+}
+
+export function extraAmount(extra: MenuExtra, pick: ExtraPickState) {
+  if (extra.kind === "fixed" || extra.kind === "list") return leafExtraAmount(extra, pick);
   if (!pick.menuProductIds.length) return 0;
   let sum = extra.price;
   for (const product of extra.menuProducts) {
@@ -53,7 +78,7 @@ export function extraAmount(extra: MenuExtra, pick: ExtraPickState) {
       }
     }
   }
-  return sum;
+  return sum + nestedAmount(extra, pick);
 }
 
 export function extraLabels(extra: MenuExtra, pick: ExtraPickState) {
@@ -78,6 +103,10 @@ export function extraLabels(extra: MenuExtra, pick: ExtraPickState) {
         if (pick.menuOptionIds.includes(option.id)) labels.push(`${feature.name}: ${option.name}`);
       }
     }
+    for (const nested of product.extras) {
+      const nestedPick = pick.nestedPicks[nestedPickKey(product.id, nested.id)] ?? emptyExtraPick();
+      labels.push(...extraLabels(nested, nestedPick));
+    }
   }
   return labels;
 }
@@ -94,12 +123,24 @@ export function extrasFingerprint(product: MenuProduct, picks: Record<string, Ex
   return product.extras
     .map((extra) => {
       const pick = picks[extra.id] ?? emptyExtraPick();
+      const nested = Object.keys(pick.nestedPicks)
+        .sort()
+        .map((key) => {
+          const nestedPick = pick.nestedPicks[key] ?? emptyExtraPick();
+          return [
+            key,
+            nestedPick.fixedOn ? "1" : "0",
+            [...nestedPick.choiceIds].sort().join(","),
+          ].join("=");
+        })
+        .join(";");
       return [
         extra.id,
         pick.fixedOn ? "1" : "0",
         [...pick.choiceIds].sort().join(","),
         [...pick.menuProductIds].sort().join(","),
         [...pick.menuOptionIds].sort().join(","),
+        nested,
       ].join(":");
     })
     .join("|");
@@ -110,17 +151,17 @@ function featureReady(feature: MenuFeature, selected: Set<string>) {
   return feature.options.some((option) => selected.has(option.id));
 }
 
-export function extraReady(extra: MenuExtra, pick: ExtraPickState) {
-  if (extra.kind === "fixed") {
-    return !extra.required || pick.fixedOn;
-  }
+function leafExtraReady(extra: MenuExtra, pick: ExtraPickState) {
+  if (extra.kind === "fixed") return !extra.required || pick.fixedOn;
   if (extra.kind === "list") {
     if (!extra.required && pick.choiceIds.length === 0) return true;
-    if (extra.required && pick.choiceIds.length === 0) return false;
-    return true;
+    return pick.choiceIds.length > 0;
   }
-  // menu
-  const active = pick.menuProductIds.length > 0 || pick.fixedOn;
+  return true;
+}
+
+export function extraReady(extra: MenuExtra, pick: ExtraPickState) {
+  if (extra.kind === "fixed" || extra.kind === "list") return leafExtraReady(extra, pick);
   if (!extra.required && pick.menuProductIds.length === 0) return true;
   if (pick.menuProductIds.length === 0) return false;
   if (extra.selection === "single" && pick.menuProductIds.length !== 1) return false;
@@ -129,6 +170,10 @@ export function extraReady(extra: MenuExtra, pick: ExtraPickState) {
     const selected = new Set(pick.menuOptionIds);
     for (const feature of product.features) {
       if (!featureReady(feature, selected)) return false;
+    }
+    for (const nested of product.extras) {
+      const nestedPick = pick.nestedPicks[nestedPickKey(product.id, nested.id)] ?? emptyExtraPick();
+      if (!leafExtraReady(nested, nestedPick)) return false;
     }
   }
   return true;
@@ -146,6 +191,7 @@ export type ConfigStep =
   | { type: "features" }
   | { type: "extra"; extraId: string }
   | { type: "menu-features"; extraId: string; productId: string }
+  | { type: "menu-extra"; extraId: string; productId: string; nestedExtraId: string }
   | { type: "ingredients" };
 
 export function buildConfigSteps(product: MenuProduct, picks: Record<string, ExtraPickState>): ConfigStep[] {
@@ -158,11 +204,46 @@ export function buildConfigSteps(product: MenuProduct, picks: Record<string, Ext
     const pick = picks[extra.id] ?? emptyExtraPick();
     for (const menuProduct of extra.menuProducts) {
       if (!pick.menuProductIds.includes(menuProduct.id)) continue;
-      if (menuProduct.features.length === 0) continue;
-      steps.push({ type: "menu-features", extraId: extra.id, productId: menuProduct.id });
+      if (menuProduct.features.length > 0) {
+        steps.push({ type: "menu-features", extraId: extra.id, productId: menuProduct.id });
+      }
+      for (const nested of menuProduct.extras) {
+        steps.push({
+          type: "menu-extra",
+          extraId: extra.id,
+          productId: menuProduct.id,
+          nestedExtraId: nested.id,
+        });
+      }
     }
   }
 
   if (product.ingredients.trim()) steps.push({ type: "ingredients" });
   return steps;
+}
+
+/** Menü ürünü seçilince nested ek seçenek varsayılanlarını doldur */
+export function ensureNestedDefaults(extra: MenuExtra, pick: ExtraPickState): ExtraPickState {
+  if (extra.kind !== "menu") return pick;
+  let nestedPicks = pick.nestedPicks;
+  let changed = false;
+  for (const product of extra.menuProducts) {
+    if (!pick.menuProductIds.includes(product.id)) continue;
+    for (const nested of product.extras) {
+      const key = nestedPickKey(product.id, nested.id);
+      if (nestedPicks[key]) continue;
+      if (!changed) nestedPicks = { ...nestedPicks };
+      nestedPicks[key] = defaultPickForExtra(nested);
+      changed = true;
+    }
+  }
+  // Seçimi kalkmış ürünlerin nested pick'lerini temizle
+  for (const key of Object.keys(nestedPicks)) {
+    const productId = key.split("::")[0];
+    if (pick.menuProductIds.includes(productId)) continue;
+    if (!changed) nestedPicks = { ...nestedPicks };
+    delete nestedPicks[key];
+    changed = true;
+  }
+  return changed ? { ...pick, nestedPicks } : pick;
 }

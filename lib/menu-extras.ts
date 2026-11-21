@@ -142,22 +142,27 @@ export async function attachExtrasToMenu(
 
   if (categoryBindsResult.error && productBindsResult.error) return categories;
 
+  const productCategory = new Map<string, string>();
   const productsByCategory = new Map<string, MenuExtraMenuProduct[]>();
   for (const category of categories) {
     productsByCategory.set(
       category.id,
-      category.products.map((product) => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        features: product.features,
-      })),
+      category.products.map((product) => {
+        productCategory.set(product.id, category.id);
+        return {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          features: product.features,
+          extras: [],
+        };
+      }),
     );
   }
 
   const menuCategoryIds = new Set<string>();
   const categoryBinds = (categoryBindsResult.error ? [] : categoryBindsResult.data ?? []) as RawCategoryBind[];
-  const productBinds = (
+  let productBinds = (
     productBindsResult.error && /product_extra_options/i.test(productBindsResult.error.message)
       ? []
       : productBindsResult.error
@@ -173,9 +178,25 @@ export async function attachExtrasToMenu(
   const missing = [...menuCategoryIds].filter((id) => !productsByCategory.has(id));
   if (missing.length > 0) {
     const loaded = await loadMenuProductsForCategories(supabase, missing, locale, fallback);
-    for (const [id, products] of loaded) productsByCategory.set(id, products);
+    for (const [id, products] of loaded) {
+      productsByCategory.set(id, products);
+      for (const product of products) productCategory.set(product.id, id);
+    }
+    const extraProductIds = [...loaded.values()].flat().map((product) => product.id);
+    const needBinds = extraProductIds.filter((id) => !productIds.includes(id));
+    if (needBinds.length > 0) {
+      const more = await supabase
+        .from("product_extra_options")
+        .select(`product_id, sort_order, extra_options ( ${extraSelect} )`)
+        .in("product_id", needBinds)
+        .order("sort_order");
+      if (!more.error && more.data) {
+        productBinds = [...productBinds, ...(more.data as RawProductBind[])];
+      }
+    }
   }
 
+  // Menü ürün listeleri features ile; nested extras sonra doldurulur
   const byCategory = new Map<string, MenuExtra[]>();
   for (const row of categoryBinds) {
     const raw = one(row.extra_options);
@@ -198,11 +219,31 @@ export async function attachExtrasToMenu(
     byProduct.set(row.product_id, list);
   }
 
+  function nestedExtrasFor(productId: string) {
+    const categoryId = productCategory.get(productId);
+    return mergeExtras(byProduct.get(productId) ?? [], categoryId ? byCategory.get(categoryId) ?? [] : [])
+      .filter((item) => item.kind !== "menu")
+      .map((item) => ({ ...item, menuProducts: [] }));
+  }
+
+  function withNestedMenuExtras(extras: MenuExtra[]) {
+    return extras.map((extra) => {
+      if (extra.kind !== "menu") return { ...extra, menuProducts: [] };
+      return {
+        ...extra,
+        menuProducts: extra.menuProducts.map((menuProduct) => ({
+          ...menuProduct,
+          extras: nestedExtrasFor(menuProduct.id),
+        })),
+      };
+    });
+  }
+
   return categories.map((category) => ({
     ...category,
     products: category.products.map((product) => ({
       ...product,
-      extras: mergeExtras(byProduct.get(product.id) ?? [], byCategory.get(category.id) ?? []),
+      extras: withNestedMenuExtras(mergeExtras(byProduct.get(product.id) ?? [], byCategory.get(category.id) ?? [])),
     })),
   }));
 }
@@ -240,6 +281,7 @@ async function loadMenuProductsForCategories(
       name,
       price: asPrice(row.price),
       features: featuresByProduct.get(row.id) ?? [],
+      extras: [],
     });
     result.set(row.category_id, list);
   }

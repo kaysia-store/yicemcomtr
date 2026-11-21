@@ -43,6 +43,8 @@ export type MenuExtraMenuProduct = {
   name: string;
   price: number;
   features: MenuFeature[];
+  /** Menüden seçilen ürüne bağlı sabit/liste ek seçenekler (ör. acılı/acısız) */
+  extras: MenuExtra[];
 };
 
 export type MenuExtra = {
