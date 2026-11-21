@@ -1,9 +1,20 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { Notice } from "@/components/notice";
 import { SubmitButton } from "@/components/submit-button";
 import { idleActionState, type ActionState, type ExtraOptionEditor, type ExtraOptionKind } from "@/lib/types";
+
+function fold(value: string) {
+  return value
+    .toLocaleLowerCase("tr")
+    .replaceAll("ı", "i")
+    .replaceAll("ğ", "g")
+    .replaceAll("ü", "u")
+    .replaceAll("ş", "s")
+    .replaceAll("ö", "o")
+    .replaceAll("ç", "c");
+}
 
 type ChoiceRow = {
   key: string;
@@ -28,6 +39,7 @@ export function ExtraOptionForm({
   const [kind, setKind] = useState<ExtraOptionKind>(extra?.kind ?? "fixed");
   const [selection, setSelection] = useState<"single" | "multiple">(extra?.selection ?? "single");
   const [boundProducts, setBoundProducts] = useState<string[]>(() => extra?.productIds ?? []);
+  const [productQuery, setProductQuery] = useState("");
   const [choices, setChoices] = useState<ChoiceRow[]>(
     () =>
       extra?.choices.map((choice) => ({
@@ -38,6 +50,14 @@ export function ExtraOptionForm({
         isDefault: choice.isDefault,
       })) ?? [],
   );
+
+  const filteredProducts = useMemo(() => {
+    const needle = fold(productQuery.trim());
+    if (!needle) return products;
+    return products.filter(
+      (item) => fold(item.name).includes(needle) || fold(item.categoryName).includes(needle),
+    );
+  }, [products, productQuery]);
 
   const choicesJson = JSON.stringify(
     choices.map((row) => ({
@@ -221,22 +241,34 @@ export function ExtraOptionForm({
       ) : null}
 
       <section className="grid gap-3 rounded-3xl border border-line bg-card p-4">
-        <div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-medium">Ürünlere bağla</h2>
-          <p className="mt-1 text-sm leading-6 text-muted">
-            Tek ürüne veya birden fazla ürüne işaretleyin. Farklı kategorilerdeki ürünler aynı ek seçeneği
-            paylaşabilir. Kategori bağını da kategori sayfasından kullanabilirsiniz.
-          </p>
+          {products.length > 0 ? (
+            <input
+              aria-label="Ürün ara"
+              className="field max-w-xs flex-1"
+              onChange={(event) => setProductQuery(event.target.value)}
+              placeholder="Ürün veya kategori ara"
+              type="search"
+              value={productQuery}
+            />
+          ) : null}
         </div>
+        <p className="text-sm leading-6 text-muted">
+          Tek ürüne veya birden fazla ürüne işaretleyin. Farklı kategorilerdeki ürünler aynı ek seçeneği
+          paylaşabilir. Kategori bağını da kategori sayfasından kullanabilirsiniz.
+        </p>
         {products.length === 0 ? (
           <p className="text-sm text-muted">Henüz ürün yok.</p>
+        ) : filteredProducts.length === 0 ? (
+          <p className="text-sm text-muted">Sonuç yok.</p>
         ) : (
           <div className="grid max-h-80 gap-3 overflow-y-auto pr-1">
-            {[...new Set(products.map((item) => item.categoryName))].map((categoryName) => (
+            {[...new Set(filteredProducts.map((item) => item.categoryName))].map((categoryName) => (
               <div key={categoryName}>
                 <p className="mb-1 text-xs font-medium tracking-wide text-muted uppercase">{categoryName}</p>
                 <ul className="grid gap-1">
-                  {products
+                  {filteredProducts
                     .filter((item) => item.categoryName === categoryName)
                     .map((item) => (
                       <li key={item.id}>
