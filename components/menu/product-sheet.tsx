@@ -9,7 +9,9 @@ import {
   emptyExtraPick,
   ensureNestedDefaults,
   extraIsActive,
+  extraReady,
   extrasTotal,
+  menuProductsChosen,
   nestedPickKey,
   productExtrasReady,
   productFeaturesReady,
@@ -95,18 +97,42 @@ function FeatureOptions({
   );
 }
 
+function defaultMenuOptionIds(item: MenuExtra["menuProducts"][number]) {
+  const ids: string[] = [];
+  for (const feature of item.features) {
+    const defaults = feature.options.filter((option) => option.isDefault);
+    if (feature.selection === "single") {
+      const choice = defaults[0] ?? (feature.required ? feature.options[0] : undefined);
+      if (choice) ids.push(choice.id);
+    } else {
+      defaults.forEach((option) => ids.push(option.id));
+    }
+  }
+  return ids;
+}
+
 function ExtraStep({
   extra,
   pick,
   onChange,
   requiredLabel,
   includedLabel,
+  part = "default",
+  accepted = false,
+  declined = false,
+  onAccept,
+  onDecline,
 }: {
   extra: MenuExtra;
   pick: ExtraPickState;
   onChange: (next: ExtraPickState) => void;
   requiredLabel: string;
   includedLabel: string;
+  part?: "default" | "menu-choice" | "menu-products";
+  accepted?: boolean;
+  declined?: boolean;
+  onAccept?: () => void;
+  onDecline?: () => void;
 }) {
   const t = useTranslations("Menu");
 
@@ -205,8 +231,46 @@ function ExtraStep({
     );
   }
 
-  // menu
-  const showProducts = extra.required || pick.fixedOn || pick.menuProductIds.length > 0;
+  if (part === "menu-choice") {
+    return (
+      <fieldset className="mt-5">
+        <legend className="text-sm font-medium tracking-wide text-accent uppercase">
+          {extra.name}
+          {extra.required ? ` · ${requiredLabel}` : ""}
+        </legend>
+        {extra.price > 0 ? <p className="mt-1 text-sm tabular-nums text-muted">+{formatPrice(extra.price)}</p> : null}
+        {extra.required ? (
+          <p className="mt-2 text-sm text-muted">{t("menuExtraNext")}</p>
+        ) : (
+          <div className="mt-2 grid gap-2">
+            <label className="flex items-center justify-between gap-3 rounded-2xl border border-line px-3 py-3 text-sm">
+              <span className="flex items-center gap-2">
+                <input
+                  checked={accepted}
+                  name={`extra-offer-${extra.id}`}
+                  onChange={() => onAccept?.()}
+                  type="radio"
+                />
+                {t("addExtra")}
+              </span>
+              <span className="shrink-0 tabular-nums text-muted">
+                {extra.price > 0 ? `+${formatPrice(extra.price)}` : includedLabel}
+              </span>
+            </label>
+            <label className="flex items-center gap-2 rounded-2xl border border-line px-3 py-3 text-sm">
+              <input
+                checked={declined}
+                name={`extra-offer-${extra.id}`}
+                onChange={() => onDecline?.()}
+                type="radio"
+              />
+              {t("skipExtra")}
+            </label>
+          </div>
+        )}
+      </fieldset>
+    );
+  }
 
   return (
     <div className="mt-5">
@@ -214,84 +278,60 @@ function ExtraStep({
         {extra.name}
         {extra.required ? ` · ${requiredLabel}` : ""}
       </p>
-      {!extra.required ? (
-        <label className="mt-2 flex items-center justify-between gap-3 rounded-2xl border border-line px-3 py-3 text-sm">
-          <span className="flex items-center gap-2">
-            <input
-              checked={pick.fixedOn || pick.menuProductIds.length > 0}
-              onChange={() => {
-                const on = !(pick.fixedOn || pick.menuProductIds.length > 0);
-                commit(on ? { ...pick, fixedOn: true } : emptyExtraPick());
-              }}
-              type="checkbox"
-            />
-            {t("addExtra")}
-          </span>
-          <span className="shrink-0 tabular-nums text-muted">
-            {extra.price > 0 ? `+${formatPrice(extra.price)}` : includedLabel}
-          </span>
-        </label>
-      ) : extra.price > 0 ? (
-        <p className="mt-1 text-sm tabular-nums text-muted">+{formatPrice(extra.price)}</p>
-      ) : null}
-
-      {showProducts ? (
-        <div className="mt-3 grid gap-2">
-          {extra.menuProducts.map((item) => (
-            <label
-              className="flex items-center justify-between gap-3 rounded-2xl border border-line px-3 py-3 text-sm"
-              key={item.id}
-            >
-              <span className="flex items-center gap-2">
-                <input
-                  checked={pick.menuProductIds.includes(item.id)}
-                  name={`extra-menu-${extra.id}`}
-                  onChange={() => {
-                    if (extra.selection === "single") {
-                      const already = pick.menuProductIds.length === 1 && pick.menuProductIds[0] === item.id;
-                      if (already && !extra.required) {
-                        commit({ ...pick, menuProductIds: [], menuOptionIds: [], fixedOn: false, nestedPicks: {} });
-                        return;
-                      }
-                      const keepOptions = item.features.flatMap((feature) =>
-                        feature.options.filter((option) => pick.menuOptionIds.includes(option.id)).map((option) => option.id),
-                      );
-                      commit({
-                        ...pick,
-                        fixedOn: true,
-                        menuProductIds: [item.id],
-                        menuOptionIds: keepOptions,
-                      });
+      <div className="mt-3 grid gap-2">
+        {extra.menuProducts.map((item) => (
+          <label
+            className="flex items-center justify-between gap-3 rounded-2xl border border-line px-3 py-3 text-sm"
+            key={item.id}
+          >
+            <span className="flex items-center gap-2">
+              <input
+                checked={pick.menuProductIds.includes(item.id)}
+                name={`extra-menu-${extra.id}`}
+                onChange={() => {
+                  if (extra.selection === "single") {
+                    const already = pick.menuProductIds.length === 1 && pick.menuProductIds[0] === item.id;
+                    if (already) {
+                      commit({ ...pick, menuProductIds: [], menuOptionIds: [], fixedOn: true, nestedPicks: {} });
                       return;
                     }
-                    const has = pick.menuProductIds.includes(item.id);
-                    if (has) {
-                      if (extra.required && pick.menuProductIds.length === 1) return;
-                      const removeIds = new Set(
-                        item.features.flatMap((feature) => feature.options.map((option) => option.id)),
-                      );
-                      commit({
-                        ...pick,
-                        menuProductIds: pick.menuProductIds.filter((id) => id !== item.id),
-                        menuOptionIds: pick.menuOptionIds.filter((id) => !removeIds.has(id)),
-                        fixedOn: pick.menuProductIds.length > 1,
-                      });
-                    } else {
-                      commit({
-                        ...pick,
-                        fixedOn: true,
-                        menuProductIds: [...pick.menuProductIds, item.id],
-                      });
-                    }
-                  }}
-                  type={extra.selection === "single" ? "radio" : "checkbox"}
-                />
-                {item.name}
-              </span>
-            </label>
-          ))}
-        </div>
-      ) : null}
+                    const keepOptions = item.features.flatMap((feature) =>
+                      feature.options.filter((option) => pick.menuOptionIds.includes(option.id)).map((option) => option.id),
+                    );
+                    commit({
+                      ...pick,
+                      fixedOn: true,
+                      menuProductIds: [item.id],
+                      menuOptionIds: keepOptions.length > 0 ? keepOptions : defaultMenuOptionIds(item),
+                    });
+                    return;
+                  }
+                  const has = pick.menuProductIds.includes(item.id);
+                  if (has) {
+                    const removeIds = new Set(item.features.flatMap((feature) => feature.options.map((option) => option.id)));
+                    commit({
+                      ...pick,
+                      fixedOn: true,
+                      menuProductIds: pick.menuProductIds.filter((id) => id !== item.id),
+                      menuOptionIds: pick.menuOptionIds.filter((id) => !removeIds.has(id)),
+                    });
+                  } else {
+                    const added = defaultMenuOptionIds(item).filter((id) => !pick.menuOptionIds.includes(id));
+                    commit({
+                      ...pick,
+                      fixedOn: true,
+                      menuProductIds: [...pick.menuProductIds, item.id],
+                      menuOptionIds: [...pick.menuOptionIds, ...added],
+                    });
+                  }
+                }}
+                type={extra.selection === "single" ? "radio" : "checkbox"}
+              />
+              {item.name}
+            </span>
+          </label>
+        ))}
+      </div>
     </div>
   );
 }
@@ -318,6 +358,7 @@ export function ProductSheet({
   const t = useTranslations("Menu");
   const [selected, setSelected] = useState(() => defaultSelection(product));
   const [extraPicks, setExtraPicks] = useState(() => defaultExtraPicks(product.extras));
+  const [declined, setDeclined] = useState<Record<string, boolean>>({});
   const [removed, setRemoved] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [stepIndex, setStepIndex] = useState(0);
@@ -337,10 +378,37 @@ export function ProductSheet({
   const canProceedFeatures = productFeaturesReady(product, selected);
   const canProceedExtras = productExtrasReady(product, extraPicks);
 
+  function acceptMenu(extra: MenuExtra) {
+    setDeclined((current) => ({ ...current, [extra.id]: false }));
+    setExtraPicks((current) => ({
+      ...current,
+      [extra.id]: ensureNestedDefaults(extra, { ...(current[extra.id] ?? emptyExtraPick()), fixedOn: true }),
+    }));
+  }
+
+  function declineMenu(extra: MenuExtra) {
+    setDeclined((current) => ({ ...current, [extra.id]: true }));
+    setExtraPicks((current) => ({ ...current, [extra.id]: emptyExtraPick() }));
+  }
+
   function stepReady() {
     if (!step) return canProceedFeatures && canProceedExtras;
     if (step.type === "features") return canProceedFeatures;
-    if (step.type === "extras") return canProceedExtras;
+    if (step.type === "extra") {
+      const extra = product.extras.find((item) => item.id === step.extraId);
+      if (!extra) return true;
+      const pick = extraPicks[extra.id] ?? emptyExtraPick();
+      if (extra.kind === "menu") {
+        if (extra.required) return true;
+        return extraIsActive(extra, pick) || Boolean(declined[extra.id]);
+      }
+      return extraReady(extra, pick);
+    }
+    if (step.type === "menu-products") {
+      const extra = product.extras.find((item) => item.id === step.extraId);
+      if (!extra) return true;
+      return menuProductsChosen(extra, extraPicks[extra.id] ?? emptyExtraPick());
+    }
     if (step.type === "menu-features") {
       const extra = product.extras.find((item) => item.id === step.extraId);
       const menuProduct = extra?.menuProducts.find((item) => item.id === step.productId);
@@ -425,25 +493,28 @@ export function ProductSheet({
         />
       );
     }
-    if (step.type === "extras") {
+    if (step.type === "extra" || step.type === "menu-products") {
+      const extra = product.extras.find((item) => item.id === step.extraId);
+      if (!extra) return null;
+      const pick = extraPicks[extra.id] ?? emptyExtraPick();
       return (
-        <div>
-          {product.extras.map((extra) => (
-            <ExtraStep
-              extra={extra}
-              includedLabel={t("included")}
-              key={extra.id}
-              onChange={(next) =>
-                setExtraPicks((current) => ({
-                  ...current,
-                  [extra.id]: ensureNestedDefaults(extra, next),
-                }))
-              }
-              pick={extraPicks[extra.id] ?? emptyExtraPick()}
-              requiredLabel={t("requiredChoice")}
-            />
-          ))}
-        </div>
+        <ExtraStep
+          accepted={extra.kind === "menu" && extraIsActive(extra, pick)}
+          declined={Boolean(declined[extra.id]) && !(extra.kind === "menu" && extraIsActive(extra, pick))}
+          extra={extra}
+          includedLabel={t("included")}
+          onAccept={() => acceptMenu(extra)}
+          onChange={(next) =>
+            setExtraPicks((current) => ({
+              ...current,
+              [extra.id]: ensureNestedDefaults(extra, next),
+            }))
+          }
+          onDecline={() => declineMenu(extra)}
+          part={step.type === "menu-products" ? "menu-products" : extra.kind === "menu" ? "menu-choice" : "default"}
+          pick={pick}
+          requiredLabel={t("requiredChoice")}
+        />
       );
     }
     if (step.type === "menu-features") {
@@ -453,7 +524,8 @@ export function ProductSheet({
       const selectedOpts = new Set(extraPicks[extra.id]?.menuOptionIds ?? []);
       return (
         <div>
-          <p className="mt-5 text-sm font-medium text-ink">{menuProduct.name}</p>
+          <p className="mt-5 text-sm font-medium tracking-wide text-accent uppercase">{extra.name}</p>
+          <p className="mt-2 text-sm font-medium text-ink">{menuProduct.name}</p>
           <FeatureOptions
             features={menuProduct.features}
             includedLabel={t("included")}
@@ -476,7 +548,8 @@ export function ProductSheet({
       const nestedPick = parentPick.nestedPicks[key] ?? emptyExtraPick();
       return (
         <div>
-          <p className="mt-5 text-sm font-medium text-ink">{menuProduct.name}</p>
+          <p className="mt-5 text-sm font-medium tracking-wide text-accent uppercase">{extra.name}</p>
+          <p className="mt-2 text-sm font-medium text-ink">{menuProduct.name}</p>
           <ExtraStep
             extra={nested}
             includedLabel={t("included")}
@@ -560,7 +633,7 @@ export function ProductSheet({
             </p>
           ) : null}
           {renderStep()}
-          {product.allergens.length > 0 && (isLast || steps.length === 0) ? (
+          {product.allergens.length > 0 && ((isLast && !(step?.type === "menu-products" && !stepReady())) || steps.length === 0) ? (
             <div className="mt-5">
               <h3 className="text-sm font-medium tracking-wide text-accent uppercase">{t("allergens")}</h3>
               <ul className="mt-2 flex flex-wrap gap-2">
@@ -580,7 +653,7 @@ export function ProductSheet({
                 {t("backStep")}
               </button>
             ) : null}
-            {!isLast ? (
+            {!isLast || (step?.type === "menu-products" && !stepReady()) ? (
               <button
                 className="btn btn-primary min-w-0 flex-1"
                 disabled={!stepReady()}

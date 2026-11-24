@@ -35,6 +35,8 @@
     "nextStep": "Suivant",
     "backStep": "Retour",
     "addExtra": "Ajouter",
+    "skipExtra": "Non merci",
+    "menuExtraNext": "Vous choisissez le produit à l’étape suivante.",
     "cart": "Panier",
     "cartEmpty": "Votre panier est vide.",
     "increase": "Augmenter",

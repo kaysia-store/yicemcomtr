@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   agentRules: false,
   allowedDevOrigins: ["127.0.0.1"],
   experimental: {
+    agentUpgrade: "security",
     serverActions: {
       bodySizeLimit: "6mb",
     },

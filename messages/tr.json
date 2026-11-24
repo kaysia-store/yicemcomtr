@@ -35,6 +35,8 @@
     "nextStep": "İleri",
     "backStep": "Geri",
     "addExtra": "Ekle",
+    "skipExtra": "İstemiyorum",
+    "menuExtraNext": "Sonraki adımda ürünü seçersiniz.",
     "cart": "Sepet",
     "cartEmpty": "Sepetiniz boş.",
     "increase": "Artır",

@@ -35,6 +35,8 @@
     "nextStep": "Далее",
     "backStep": "Назад",
     "addExtra": "Добавить",
+    "skipExtra": "Не нужно",
+    "menuExtraNext": "На следующем шаге вы выбираете продукт.",
     "cart": "Корзина",
     "cartEmpty": "Корзина пуста.",
     "increase": "Увеличить",

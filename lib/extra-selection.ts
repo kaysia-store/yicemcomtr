@@ -195,9 +195,17 @@ export function productFeaturesReady(product: MenuProduct, selected: Set<string>
   return product.features.every((feature) => featureReady(feature, selected));
 }
 
+/** Menü ek seçeneğinde ürün seçildi mi (özellikler bu adımda aranmaz). */
+export function menuProductsChosen(extra: MenuExtra, pick: ExtraPickState) {
+  if (pick.menuProductIds.length === 0) return false;
+  if (extra.selection === "single") return pick.menuProductIds.length === 1;
+  return true;
+}
+
 export type ConfigStep =
   | { type: "features" }
-  | { type: "extras" }
+  | { type: "extra"; extraId: string }
+  | { type: "menu-products"; extraId: string }
   | { type: "menu-features"; extraId: string; productId: string }
   | { type: "menu-extra"; extraId: string; productId: string; nestedExtraId: string }
   | { type: "ingredients" };
@@ -205,12 +213,14 @@ export type ConfigStep =
 export function buildConfigSteps(product: MenuProduct, picks: Record<string, ExtraPickState>): ConfigStep[] {
   const steps: ConfigStep[] = [];
   if (product.features.length > 0) steps.push({ type: "features" });
-  if (product.extras.length > 0) steps.push({ type: "extras" });
 
   for (const extra of product.extras) {
+    steps.push({ type: "extra", extraId: extra.id });
     if (extra.kind !== "menu") continue;
     const pick = picks[extra.id] ?? emptyExtraPick();
+    // Ürün listesi, müşteri menüyü kabul ettikten sonra. Zorunlu menü kabul edilmiş sayılır.
     if (!extraIsActive(extra, pick)) continue;
+    steps.push({ type: "menu-products", extraId: extra.id });
     for (const menuProduct of extra.menuProducts) {
       if (!pick.menuProductIds.includes(menuProduct.id)) continue;
       if (menuProduct.features.length > 0) {
